@@ -25,6 +25,7 @@ pipeline {
     stage('Bootstrap Docker CLI') {
       steps {
         sh '''
+          echo "=== Biomedica QA pipeline (downloads Docker CLI if missing) ==="
           set -eu
           TOOLS="${WORKSPACE}/.jenkins-tools"
           mkdir -p "$TOOLS"
