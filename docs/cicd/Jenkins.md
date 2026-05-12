@@ -37,3 +37,20 @@ Full script: **`jenkins/run-jenkins-docker-desktop.ps1`**.
 ### Monorepo (whole Biomedica in one Git)
 
 **Script Path:** **`QA/Jenkinsfile`**.
+
+### Error: `fatal: not in a git directory` when fetching `origin`
+
+The job workspace is **not** a healthy clone (missing or broken `.git`).
+
+**Fix:**
+
+1. Stop any running build for this job.
+2. **Delete the job workspace** so the next build does a **fresh clone**:
+   - **Manage Jenkins → Script Console** (admins only) is one way; **simpler:** on the machine that holds Jenkins data, delete the folder  
+     `.../workspace/Biomedica`  
+     (inside `JENKINS_HOME`, often `/var/jenkins_home/workspace/Biomedica` in Docker).
+   - Or install the **Workspace Cleanup** plugin and add **“Delete workspace before build starts”** on the job.
+3. Under Git **Additional Behaviours**, use **“Wipe out repository & force clone”** (stronger than “Clean before checkout”) once, **Save**, then build.
+4. **Uncheck “Lightweight checkout”** on the Pipeline definition if it is still checked.
+
+**Git tool message:** “Selected Git installation does not exist” → **Manage Jenkins → Global Tool Configuration → Git** — either define a Git installation or open the job’s Git **Advanced** section and clear a bad “Git executable” / tool name so Jenkins uses the default `git` on `PATH`.
