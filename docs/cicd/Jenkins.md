@@ -10,18 +10,25 @@ The pipeline downloads a static **Docker client** into the job workspace and run
 
 ## Docker socket (required)
 
-The Jenkins container must use the **host’s Docker daemon**. Otherwise you see:
+The Jenkins container must use the **host’s Docker daemon** via **`/var/run/docker.sock`**.
 
-`Cannot connect to the Docker daemon at unix:///var/run/docker.sock`
+On **Docker Desktop**, the socket is often **`root:root` with mode `660`**. The default **`jenkins`** user then **cannot** open it even when the file is mounted. Start Jenkins **as root**:
 
-**Fix:** recreate Jenkins with the socket mounted.
+```powershell
+docker run -d --name jenkins-biomedica `
+  -u root `
+  -p 9090:8080 -p 50000:50000 `
+  -v jenkins_biomedica_home:/var/jenkins_home `
+  -v //var/run/docker.sock:/var/run/docker.sock `
+  jenkins/jenkins:lts-jdk17
+```
 
-| Host | Extra `docker run` argument |
-|------|------------------------------|
-| **Docker Desktop (Windows/macOS)** | `-v //var/run/docker.sock:/var/run/docker.sock` |
-| **Linux** | `-v /var/run/docker.sock:/var/run/docker.sock` |
+Full script: **`jenkins/run-jenkins-docker-desktop.ps1`**.
 
-Example for **Windows PowerShell**: see **`jenkins/run-jenkins-docker-desktop.ps1`** in this repo (copy-paste `docker run` block).
+| Host | Typical fix |
+|------|----------------|
+| **Docker Desktop** | Socket mount **and** **`-u root`** |
+| **Linux** | `-v /var/run/docker.sock:...` — if socket is `root:docker`, use **`--group-add $(getent group docker | cut -d: -f3)`** instead of `-u root` |
 
 ### Optional
 

@@ -60,14 +60,22 @@ pipeline {
             echo "Docker daemon OK."
             exit 0
           fi
-          echo "=== Docker CLI works but cannot talk to the daemon ==="
-          ls -la /var/run/docker.sock 2>/dev/null || echo "(no /var/run/docker.sock inside this container)"
+          if [ -S /var/run/docker.sock ]; then
+            echo "=== Socket exists but this user cannot use Docker ==="
+            ls -la /var/run/docker.sock
+            echo ""
+            echo "Docker Desktop often mounts the socket as root:root (mode 660)."
+            echo "Recreate Jenkins with user root, e.g. add -u root to docker run"
+            echo "(see jenkins/run-jenkins-docker-desktop.ps1 in this repo)."
+            exit 1
+          fi
+          echo "=== No Docker socket in this container ==="
+          ls -la /var/run/docker.sock 2>/dev/null || echo "(no /var/run/docker.sock)"
           echo ""
-          echo "Recreate the Jenkins container with the HOST socket mounted, for example:"
+          echo "Mount the host socket, e.g.:"
           echo "  Linux:   -v /var/run/docker.sock:/var/run/docker.sock"
-          echo "  Win/Mac Docker Desktop: -v //var/run/docker.sock:/var/run/docker.sock"
-          echo ""
-          echo "See QA/jenkins/run-jenkins-docker-desktop.ps1 in this repo for a full example."
+          echo "  Win/Mac: -v //var/run/docker.sock:/var/run/docker.sock"
+          echo "See jenkins/run-jenkins-docker-desktop.ps1"
           exit 1
         '''
       }
