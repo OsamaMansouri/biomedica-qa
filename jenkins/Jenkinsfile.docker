@@ -1,12 +1,9 @@
-// Biomedica QA — workspace = QA repo root (same as Git clone).
-// Default: runs on the Jenkins agent with agent any (no "Docker Pipeline" plugin).
-// Agent must have: Git, Node 20+, Java 17+, Maven on PATH, and sh (Linux agent or Git Bash on Windows).
-//
-// For Docker-isolated stages instead: install Jenkins plugin "Docker Pipeline", then set
-// Script Path to jenkins/Jenkinsfile.docker
+// Same pipeline as jenkins/Jenkinsfile but each stage runs inside a Docker image.
+// Requires: Jenkins plugin "Docker Pipeline" + agent that can run `docker`.
+// Defaults use host.docker.internal for Playwright/API when Jenkins runs on Docker Desktop.
 
 pipeline {
-  agent any
+  agent none
 
   options {
     timestamps()
@@ -15,25 +12,38 @@ pipeline {
 
   environment {
     CI = 'true'
-    PLAYWRIGHT_ORIGIN = "${env.PLAYWRIGHT_ORIGIN ?: 'http://localhost:3333'}"
-    PLAYWRIGHT_API_BASE_URL = "${env.PLAYWRIGHT_API_BASE_URL ?: 'http://localhost:8000'}"
+    PLAYWRIGHT_ORIGIN = "${env.PLAYWRIGHT_ORIGIN ?: 'http://host.docker.internal:3333'}"
+    PLAYWRIGHT_API_BASE_URL = "${env.PLAYWRIGHT_API_BASE_URL ?: 'http://host.docker.internal:8000'}"
     PLAYWRIGHT_TEST_PRODUCT_SLUG = "${env.PLAYWRIGHT_TEST_PRODUCT_SLUG ?: 'argan-et-figue-de-barbarie'}"
   }
 
   stages {
     stage('Checkout') {
+      agent any
       steps {
         checkout scm
       }
     }
 
     stage('Quality gate') {
+      agent {
+        docker {
+          image 'node:22-bookworm'
+          args '-u root'
+        }
+      }
       steps {
         sh 'node scripts/quality-gate.mjs'
       }
     }
 
     stage('Playwright typecheck') {
+      agent {
+        docker {
+          image 'node:22-bookworm'
+          args '-u root'
+        }
+      }
       steps {
         dir('playwright') {
           sh 'npm ci'
@@ -43,6 +53,12 @@ pipeline {
     }
 
     stage('API smoke (REST Assured)') {
+      agent {
+        docker {
+          image 'maven:3.9.9-eclipse-temurin-17'
+          args '-u root'
+        }
+      }
       steps {
         dir('api') {
           sh 'mvn -B -q verify'
@@ -57,10 +73,15 @@ pipeline {
     }
 
     stage('E2E (Playwright)') {
+      agent {
+        docker {
+          image 'mcr.microsoft.com/playwright:v1.50.1-jammy'
+          args '-u root'
+        }
+      }
       steps {
         dir('playwright') {
           sh 'npm ci'
-          sh 'npx playwright install chromium'
           sh 'npx playwright test --reporter=list,junit'
         }
       }
