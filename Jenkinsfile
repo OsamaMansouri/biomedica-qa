@@ -1,10 +1,12 @@
-// Biomedica QA — repo root file for Jenkins default Script Path: "Jenkinsfile"
-// (Same pipeline as before under jenkins/ — use this path in the job.)
+// Biomedica QA — repo root; Script Path: "Jenkinsfile"
 //
-// Uses `docker run` for Node/Maven/Playwright. Downloads static Docker client into workspace.
-// Mount Docker socket on the Jenkins container, e.g. -v /var/run/docker.sock:/var/run/docker.sock
+// Jenkins **inside Docker**: `docker run -v $WORKSPACE:/ws` binds a path on the **Docker host**,
+// which is empty — sibling containers never see your clone. Use `--volumes-from $(hostname)` so
+// child containers share Jenkins volumes (same files as checkout).
 //
-// Defaults: host.docker.internal for storefront/API (Docker Desktop host).
+// Jenkins on a **bare-metal** agent: no /.dockerenv — fall back to `-v $WORKSPACE:/ws`.
+//
+// Socket: mount host docker.sock; Docker Desktop often needs `-u root` (see jenkins/run-jenkins-docker-desktop.ps1).
 
 pipeline {
   agent any
@@ -22,8 +24,6 @@ pipeline {
   }
 
   stages {
-    // Required when the job uses "Lightweight checkout" — otherwise workspace may only
-    // contain the Jenkinsfile and docker runs will miss scripts/, api/, etc.
     stage('Checkout') {
       steps {
         checkout scm
@@ -93,11 +93,18 @@ pipeline {
       steps {
         sh """
           export PATH="${WORKSPACE}/.jenkins-tools:\$PATH"
-          docker run --rm \\
-            -v "${WORKSPACE}:/ws" \\
-            -w /ws \\
-            node:22-bookworm \\
-            node scripts/quality-gate.mjs
+          if [ -f /.dockerenv ]; then
+            docker run --rm --volumes-from "\$(hostname)" \\
+              -w "${WORKSPACE}" \\
+              node:22-bookworm \\
+              node scripts/quality-gate.mjs
+          else
+            docker run --rm \\
+              -v "${WORKSPACE}:/ws" \\
+              -w /ws \\
+              node:22-bookworm \\
+              node scripts/quality-gate.mjs
+          fi
         """
       }
     }
@@ -106,11 +113,18 @@ pipeline {
       steps {
         sh """
           export PATH="${WORKSPACE}/.jenkins-tools:\$PATH"
-          docker run --rm \\
-            -v "${WORKSPACE}:/ws" \\
-            -w /ws/playwright \\
-            node:22-bookworm \\
-            bash -lc 'npm ci && npm run typecheck'
+          if [ -f /.dockerenv ]; then
+            docker run --rm --volumes-from "\$(hostname)" \\
+              -w "${WORKSPACE}/playwright" \\
+              node:22-bookworm \\
+              bash -lc 'npm ci && npm run typecheck'
+          else
+            docker run --rm \\
+              -v "${WORKSPACE}:/ws" \\
+              -w /ws/playwright \\
+              node:22-bookworm \\
+              bash -lc 'npm ci && npm run typecheck'
+          fi
         """
       }
     }
@@ -119,12 +133,20 @@ pipeline {
       steps {
         sh """
           export PATH="${WORKSPACE}/.jenkins-tools:\$PATH"
-          docker run --rm \\
-            -v "${WORKSPACE}:/ws" \\
-            -w /ws/api \\
-            -e PLAYWRIGHT_API_BASE_URL="${PLAYWRIGHT_API_BASE_URL}" \\
-            maven:3.9.9-eclipse-temurin-17 \\
-            mvn -B -q verify
+          if [ -f /.dockerenv ]; then
+            docker run --rm --volumes-from "\$(hostname)" \\
+              -w "${WORKSPACE}/api" \\
+              -e PLAYWRIGHT_API_BASE_URL="${PLAYWRIGHT_API_BASE_URL}" \\
+              maven:3.9.9-eclipse-temurin-17 \\
+              mvn -B -q verify
+          else
+            docker run --rm \\
+              -v "${WORKSPACE}:/ws" \\
+              -w /ws/api \\
+              -e PLAYWRIGHT_API_BASE_URL="${PLAYWRIGHT_API_BASE_URL}" \\
+              maven:3.9.9-eclipse-temurin-17 \\
+              mvn -B -q verify
+          fi
         """
       }
       post {
@@ -139,15 +161,26 @@ pipeline {
       steps {
         sh """
           export PATH="${WORKSPACE}/.jenkins-tools:\$PATH"
-          docker run --rm \\
-            -v "${WORKSPACE}:/ws" \\
-            -w /ws/playwright \\
-            -e CI=true \\
-            -e PLAYWRIGHT_ORIGIN="${PLAYWRIGHT_ORIGIN}" \\
-            -e PLAYWRIGHT_API_BASE_URL="${PLAYWRIGHT_API_BASE_URL}" \\
-            -e PLAYWRIGHT_TEST_PRODUCT_SLUG="${PLAYWRIGHT_TEST_PRODUCT_SLUG}" \\
-            mcr.microsoft.com/playwright:v1.50.1-jammy \\
-            bash -lc 'npm ci && npx playwright test --reporter=list,junit'
+          if [ -f /.dockerenv ]; then
+            docker run --rm --volumes-from "\$(hostname)" \\
+              -w "${WORKSPACE}/playwright" \\
+              -e CI=true \\
+              -e PLAYWRIGHT_ORIGIN="${PLAYWRIGHT_ORIGIN}" \\
+              -e PLAYWRIGHT_API_BASE_URL="${PLAYWRIGHT_API_BASE_URL}" \\
+              -e PLAYWRIGHT_TEST_PRODUCT_SLUG="${PLAYWRIGHT_TEST_PRODUCT_SLUG}" \\
+              mcr.microsoft.com/playwright:v1.50.1-jammy \\
+              bash -lc 'npm ci && npx playwright test --reporter=list,junit'
+          else
+            docker run --rm \\
+              -v "${WORKSPACE}:/ws" \\
+              -w /ws/playwright \\
+              -e CI=true \\
+              -e PLAYWRIGHT_ORIGIN="${PLAYWRIGHT_ORIGIN}" \\
+              -e PLAYWRIGHT_API_BASE_URL="${PLAYWRIGHT_API_BASE_URL}" \\
+              -e PLAYWRIGHT_TEST_PRODUCT_SLUG="${PLAYWRIGHT_TEST_PRODUCT_SLUG}" \\
+              mcr.microsoft.com/playwright:v1.50.1-jammy \\
+              bash -lc 'npm ci && npx playwright test --reporter=list,junit'
+          fi
         """
       }
       post {
