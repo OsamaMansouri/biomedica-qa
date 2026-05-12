@@ -9,7 +9,7 @@
 
 The pipeline runs **Node / Maven / Playwright** via `docker run`.
 
-- If Jenkins runs **inside Docker**, bind-mounting `"$WORKSPACE:/ws"` points at the **Docker host** path, not your clone — child containers see an **empty** tree. The `Jenkinsfile` uses **`--volumes-from $(hostname)`** when `/.dockerenv` exists so sibling containers share Jenkins’s volumes.
+- If Jenkins runs **inside Docker**, bind-mounting `"$WORKSPACE:/ws"` points at the **Docker host** path, not your clone. The `Jenkinsfile` uses **`docker inspect "$(hostname)"`**: if that succeeds, it uses **`--volumes-from`** so sibling containers share Jenkins’s volumes (works even when `/.dockerenv` is missing).
 - On a **normal VM/agent** (no `/.dockerenv`), it keeps the simple `-v "$WORKSPACE:/ws"` bind mount.
 
 ## Docker socket (required)

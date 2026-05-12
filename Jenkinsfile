@@ -4,7 +4,8 @@
 // which is empty — sibling containers never see your clone. Use `--volumes-from $(hostname)` so
 // child containers share Jenkins volumes (same files as checkout).
 //
-// Jenkins on a **bare-metal** agent: no /.dockerenv — fall back to `-v $WORKSPACE:/ws`.
+// Detection: `docker inspect "$(hostname)"` — if this agent is a Docker container, use
+// `--volumes-from` (/.dockerenv is missing on some images). Else bind-mount `$WORKSPACE`.
 //
 // Socket: mount host docker.sock; Docker Desktop often needs `-u root` (see jenkins/run-jenkins-docker-desktop.ps1).
 
@@ -93,12 +94,19 @@ pipeline {
       steps {
         sh """
           export PATH="${WORKSPACE}/.jenkins-tools:\$PATH"
-          if [ -f /.dockerenv ]; then
-            docker run --rm --volumes-from "\$(hostname)" \\
+          _CID="\$(hostname)"
+          if ! docker inspect "\$_CID" >/dev/null 2>&1; then
+            _LONG=\$(grep -oE '[0-9a-f]{64}' /proc/self/cgroup 2>/dev/null | head -1)
+            if [ -n "\$_LONG" ]; then _CID=\$(echo "\$_LONG" | cut -c1-12); fi
+          fi
+          if docker inspect "\$_CID" >/dev/null 2>&1; then
+            echo "docker: using --volumes-from \$_CID (Jenkins runs in Docker)"
+            docker run --rm --volumes-from "\$_CID" \\
               -w "${WORKSPACE}" \\
               node:22-bookworm \\
               node scripts/quality-gate.mjs
           else
+            echo "docker: using bind mount \$WORKSPACE -> /ws (bare-metal agent)"
             docker run --rm \\
               -v "${WORKSPACE}:/ws" \\
               -w /ws \\
@@ -113,8 +121,13 @@ pipeline {
       steps {
         sh """
           export PATH="${WORKSPACE}/.jenkins-tools:\$PATH"
-          if [ -f /.dockerenv ]; then
-            docker run --rm --volumes-from "\$(hostname)" \\
+          _CID="\$(hostname)"
+          if ! docker inspect "\$_CID" >/dev/null 2>&1; then
+            _LONG=\$(grep -oE '[0-9a-f]{64}' /proc/self/cgroup 2>/dev/null | head -1)
+            if [ -n "\$_LONG" ]; then _CID=\$(echo "\$_LONG" | cut -c1-12); fi
+          fi
+          if docker inspect "\$_CID" >/dev/null 2>&1; then
+            docker run --rm --volumes-from "\$_CID" \\
               -w "${WORKSPACE}/playwright" \\
               node:22-bookworm \\
               bash -lc 'npm ci && npm run typecheck'
@@ -133,8 +146,13 @@ pipeline {
       steps {
         sh """
           export PATH="${WORKSPACE}/.jenkins-tools:\$PATH"
-          if [ -f /.dockerenv ]; then
-            docker run --rm --volumes-from "\$(hostname)" \\
+          _CID="\$(hostname)"
+          if ! docker inspect "\$_CID" >/dev/null 2>&1; then
+            _LONG=\$(grep -oE '[0-9a-f]{64}' /proc/self/cgroup 2>/dev/null | head -1)
+            if [ -n "\$_LONG" ]; then _CID=\$(echo "\$_LONG" | cut -c1-12); fi
+          fi
+          if docker inspect "\$_CID" >/dev/null 2>&1; then
+            docker run --rm --volumes-from "\$_CID" \\
               -w "${WORKSPACE}/api" \\
               -e PLAYWRIGHT_API_BASE_URL="${PLAYWRIGHT_API_BASE_URL}" \\
               maven:3.9.9-eclipse-temurin-17 \\
@@ -161,8 +179,13 @@ pipeline {
       steps {
         sh """
           export PATH="${WORKSPACE}/.jenkins-tools:\$PATH"
-          if [ -f /.dockerenv ]; then
-            docker run --rm --volumes-from "\$(hostname)" \\
+          _CID="\$(hostname)"
+          if ! docker inspect "\$_CID" >/dev/null 2>&1; then
+            _LONG=\$(grep -oE '[0-9a-f]{64}' /proc/self/cgroup 2>/dev/null | head -1)
+            if [ -n "\$_LONG" ]; then _CID=\$(echo "\$_LONG" | cut -c1-12); fi
+          fi
+          if docker inspect "\$_CID" >/dev/null 2>&1; then
+            docker run --rm --volumes-from "\$_CID" \\
               -w "${WORKSPACE}/playwright" \\
               -e CI=true \\
               -e PLAYWRIGHT_ORIGIN="${PLAYWRIGHT_ORIGIN}" \\
