@@ -27,8 +27,7 @@ QA/
 │   └── tests/                ← *.spec.ts
 ├── scripts/                  ← quality-gate.mjs, run-ci.mjs
 ├── blueprint/                ← user-stories.json, traceability CSV (see qa.config.json), …
-├── jenkins/                  ← optional Jenkinsfile.docker (Docker Pipeline plugin)
-├── Jenkinsfile               ← Jenkins Pipeline (default Script Path)
+├── Jenkinsfile               ← Jenkins (simple; agent needs Node + Java + Maven)
 ├── docs/                     ← QA hub (BDD, templates, Jenkins how-to)
 ├── qa.config.json            ← paths + gate settings
 ├── package.json              ← npm run gate | api | e2e | …
