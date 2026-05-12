@@ -4,11 +4,10 @@
 
 ### What the Jenkins machine needs
 
-- **Git** (already there if checkout works)
-- **Docker CLI** + permission to talk to the Docker daemon  
-  - If Jenkins runs **inside Docker**: mount the socket when you start Jenkins, e.g.  
-    `-v /var/run/docker.sock:/var/run/docker.sock`  
-    and install the **`docker`** client in the image if it is missing (official `jenkins/jenkins` image often does not include it — use a small custom image or `apt-get install docker.io` in a derived Dockerfile).
+- **Git**, **curl**, **tar** (normal on `jenkins/jenkins` images).
+- **Docker daemon** reachable from the Jenkins container: mount the host socket when you start Jenkins, e.g.  
+  `-v /var/run/docker.sock:/var/run/docker.sock`  
+  The pipeline **downloads the static Docker client** into the job workspace (no `docker` package required in the image).
 
 The pipeline runs **Node / Maven / Playwright inside `docker run`**, so the controller does **not** need Node installed.
 

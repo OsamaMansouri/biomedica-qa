@@ -1,9 +1,10 @@
 // Biomedica QA — workspace = QA repo root.
-// Runs tools via `docker run` (needs Docker CLI on the agent + access to the daemon).
-// Jenkins-in-Docker: mount host socket, e.g. -v /var/run/docker.sock:/var/run/docker.sock
-// No "Docker Pipeline" plugin required.
+// Uses `docker run` for Node/Maven/Playwright. Jenkins image often has no `docker` binary:
+// this pipeline downloads the official static Docker *client* into the workspace (no root).
+// You still need the Docker *socket* mounted into the Jenkins container, e.g.
+//   -v /var/run/docker.sock:/var/run/docker.sock
 //
-// Defaults assume apps run on the Docker host; from inside containers use host.docker.internal.
+// Defaults: host.docker.internal for storefront/API (Docker Desktop host).
 
 pipeline {
   agent any
@@ -21,15 +22,45 @@ pipeline {
   }
 
   stages {
-    stage('Precheck') {
+    stage('Bootstrap Docker CLI') {
       steps {
         sh '''
-          command -v docker >/dev/null 2>&1 || {
-            echo "ERROR: docker not found on PATH."
-            echo "Install Docker CLI on this Jenkins agent, or mount the socket if Jenkins runs in Docker."
+          set -eu
+          TOOLS="${WORKSPACE}/.jenkins-tools"
+          mkdir -p "$TOOLS"
+          if [ -x "$TOOLS/docker" ]; then
+            echo "Using cached Docker CLI: $TOOLS/docker"
+            exit 0
+          fi
+          ARCH=$(uname -m)
+          case "$ARCH" in
+            x86_64) DARCH=x86_64 ;;
+            aarch64|arm64) DARCH=aarch64 ;;
+            *) echo "Unsupported CPU: $ARCH (need x86_64 or aarch64)"; exit 1 ;;
+          esac
+          VER=27.4.1
+          echo "Downloading Docker CLI ${VER} (${DARCH}) ..."
+          curl -fsSL "https://download.docker.com/linux/static/stable/${DARCH}/docker-${VER}.tgz" \
+            | tar xz -C "$TOOLS"
+          mv "$TOOLS/docker/docker" "$TOOLS/docker.bin"
+          rm -rf "$TOOLS/docker"
+          mv "$TOOLS/docker.bin" "$TOOLS/docker"
+          chmod +x "$TOOLS/docker"
+          echo "Installed: $TOOLS/docker"
+        '''
+      }
+    }
+
+    stage('Precheck Docker daemon') {
+      steps {
+        sh '''
+          export PATH="${WORKSPACE}/.jenkins-tools:\$PATH"
+          docker version || {
+            echo "Docker CLI is installed but cannot reach the daemon."
+            echo "Start Jenkins with the host socket mounted, e.g.:"
+            echo "  -v /var/run/docker.sock:/var/run/docker.sock"
             exit 1
           }
-          docker version
         '''
       }
     }
@@ -37,6 +68,7 @@ pipeline {
     stage('Quality gate') {
       steps {
         sh """
+          export PATH="${WORKSPACE}/.jenkins-tools:\$PATH"
           docker run --rm \\
             -v "${WORKSPACE}:/ws" \\
             -w /ws \\
@@ -49,6 +81,7 @@ pipeline {
     stage('Playwright typecheck') {
       steps {
         sh """
+          export PATH="${WORKSPACE}/.jenkins-tools:\$PATH"
           docker run --rm \\
             -v "${WORKSPACE}:/ws" \\
             -w /ws/playwright \\
@@ -61,6 +94,7 @@ pipeline {
     stage('API smoke (REST Assured)') {
       steps {
         sh """
+          export PATH="${WORKSPACE}/.jenkins-tools:\$PATH"
           docker run --rm \\
             -v "${WORKSPACE}:/ws" \\
             -w /ws/api \\
@@ -80,6 +114,7 @@ pipeline {
     stage('E2E (Playwright)') {
       steps {
         sh """
+          export PATH="${WORKSPACE}/.jenkins-tools:\$PATH"
           docker run --rm \\
             -v "${WORKSPACE}:/ws" \\
             -w /ws/playwright \\

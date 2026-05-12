@@ -19,6 +19,9 @@ Thumbs.db
 .idea/
 *.iml
 
+# Jenkins workspace cache (downloaded Docker CLI)
+.jenkins-tools/
+
 # Logs
 *.log
 npm-debug.log*
