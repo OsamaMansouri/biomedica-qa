@@ -6,7 +6,7 @@
     "playwrightDir": "playwright",
     "traceabilityCsv": "blueprint/traceability-matrix.csv",
     "userStoriesJson": "blueprint/user-stories.json",
-    "jenkinsfile": "jenkins/Jenkinsfile"
+    "jenkinsfile": "Jenkinsfile"
   },
   "defaults": {
     "playwrightOrigin": "http://localhost:3333",
@@ -16,7 +16,7 @@
   "ciParity": {
     "order": ["quality_gate", "api_rest_assured", "playwright"],
     "githubWorkflow": ".github/workflows/qa.yml",
-    "jenkinsPipeline": "jenkins/Jenkinsfile"
+    "jenkinsPipeline": "Jenkinsfile"
   },
   "qualityGate": {
     "p0RequiresAutomationOrManualNote": true,

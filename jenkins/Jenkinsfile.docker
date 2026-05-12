@@ -1,4 +1,5 @@
-// Same pipeline as jenkins/Jenkinsfile but each stage runs inside a Docker image.
+// Same stages as root Jenkinsfile but each stage uses agent { docker { ... } }.
+// Requires Jenkins plugin "Docker Pipeline" + Docker on the agent.
 // Requires: Jenkins plugin "Docker Pipeline" + agent that can run `docker`.
 // Defaults use host.docker.internal for Playwright/API when Jenkins runs on Docker Desktop.
 

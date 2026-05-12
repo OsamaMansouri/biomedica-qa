@@ -1,24 +1,17 @@
 # Jenkins (simple)
 
-**Git = the `QA` folder only.** Script Path: **`jenkins/Jenkinsfile`**.
+**Git = the `QA` folder only.**
 
-### What the Jenkins machine needs
+**In the Jenkins job**
 
-- **Git**, **curl**, **tar** (normal on `jenkins/jenkins` images).
-- **Docker daemon** reachable from the Jenkins container: mount the host socket when you start Jenkins, e.g.  
-  `-v /var/run/docker.sock:/var/run/docker.sock`  
-  The pipeline **downloads the static Docker client** into the job workspace (no `docker` package required in the image).
+- **Script Path:** **`Jenkinsfile`** (file at the **root** of this repo — that is what Jenkins uses by default).
 
-The pipeline runs **Node / Maven / Playwright inside `docker run`**, so the controller does **not** need Node installed.
+The pipeline downloads a static **Docker client** into the job workspace and runs **Node / Maven / Playwright** via `docker run`. You still need the **Docker socket** mounted on the Jenkins container, e.g. `-v /var/run/docker.sock:/var/run/docker.sock`.
 
-### URLs for tests
+### Optional
 
-Default: **`host.docker.internal:3333`** and **`:8000`** so containers can reach Next + Laravel on the **host**. Override on the job with **`PLAYWRIGHT_ORIGIN`** and **`PLAYWRIGHT_API_BASE_URL`** if needed.
+- **`jenkins/Jenkinsfile.docker`** — same stages with the **Docker Pipeline** plugin (`agent { docker { ... } }`). Set Script Path to that file only after the plugin is installed.
 
-### Optional: `jenkins/Jenkinsfile.docker`
+### Monorepo (whole Biomedica in one Git)
 
-Same stages using the **Docker Pipeline** plugin (`agent { docker { ... } }`). Install that plugin and point Script Path there if you prefer that style.
-
-### Full Biomedica repo (not only QA)
-
-Script Path: **`QA/jenkins/Jenkinsfile`**.
+**Script Path:** **`QA/Jenkinsfile`**.

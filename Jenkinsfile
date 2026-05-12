@@ -1,8 +1,8 @@
-// Biomedica QA — workspace = QA repo root.
-// Uses `docker run` for Node/Maven/Playwright. Jenkins image often has no `docker` binary:
-// this pipeline downloads the official static Docker *client* into the workspace (no root).
-// You still need the Docker *socket* mounted into the Jenkins container, e.g.
-//   -v /var/run/docker.sock:/var/run/docker.sock
+// Biomedica QA — repo root file for Jenkins default Script Path: "Jenkinsfile"
+// (Same pipeline as before under jenkins/ — use this path in the job.)
+//
+// Uses `docker run` for Node/Maven/Playwright. Downloads static Docker client into workspace.
+// Mount Docker socket on the Jenkins container, e.g. -v /var/run/docker.sock:/var/run/docker.sock
 //
 // Defaults: host.docker.internal for storefront/API (Docker Desktop host).
 

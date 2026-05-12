@@ -1,10 +1,10 @@
 # Global QA hub (Biomedica)
 
-Single entry for **strategy**, **BDD**, **reporting**, **templates**, and **API checks**. Jenkins lives next to tests: **`QA/jenkins/Jenkinsfile`**.
+Single entry for **strategy**, **BDD**, **reporting**, **templates**, and **API checks**. Jenkins pipeline: **`Jenkinsfile`** at this repo root.
 
 | Topic | Location |
 |--------|-----------|
-| Jenkins | [`cicd/Jenkins.md`](cicd/Jenkins.md), [`../jenkins/Jenkinsfile`](../jenkins/Jenkinsfile) |
+| Jenkins | [`cicd/Jenkins.md`](cicd/Jenkins.md), [`../Jenkinsfile`](../Jenkinsfile) |
 | Reporting | [`reporting.md`](reporting.md) |
 | BDD / Gherkin | [`bdd/README.md`](bdd/README.md), features under [`bdd/features/`](bdd/features/) |
 | REST Assured (API) | [`../api/`](../api/) |

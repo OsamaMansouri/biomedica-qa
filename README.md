@@ -27,7 +27,8 @@ QA/
 │   └── tests/                ← *.spec.ts
 ├── scripts/                  ← quality-gate.mjs, run-ci.mjs
 ├── blueprint/                ← user-stories.json, traceability CSV (see qa.config.json), …
-├── jenkins/                  ← Jenkinsfile (when Git is this QA folder)
+├── jenkins/                  ← optional Jenkinsfile.docker (Docker Pipeline plugin)
+├── Jenkinsfile               ← Jenkins Pipeline (default Script Path)
 ├── docs/                     ← QA hub (BDD, templates, Jenkins how-to)
 ├── qa.config.json            ← paths + gate settings
 ├── package.json              ← npm run gate | api | e2e | …
@@ -54,4 +55,4 @@ Tests use **`src/test/java`** with a short package root **`qa.api`** so paths ar
 
 Docs hub: [`docs/README.md`](docs/README.md). GitHub Actions: [`.github/workflows/qa.yml`](../.github/workflows/qa.yml).
 
-Jenkins: [`jenkins/Jenkinsfile`](jenkins/Jenkinsfile) · [how-to](docs/cicd/Jenkins.md).
+Jenkins: root [`Jenkinsfile`](Jenkinsfile) · [how-to](docs/cicd/Jenkins.md).

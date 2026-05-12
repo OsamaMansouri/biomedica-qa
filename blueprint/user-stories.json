@@ -283,7 +283,7 @@
       "soThat": "we do not ship obvious regressions",
       "priority": "P0",
       "acceptanceCriteria": [
-        "Given the Jenkins pipeline definition, When reviewed against the repo, Then stages match what is documented in jenkins/Jenkinsfile under QA",
+        "Given the Jenkins pipeline definition, When reviewed against the repo, Then stages match what is documented in Jenkinsfile at QA repo root",
         "Given a completed CI run, When artifacts are published, Then QA/playwright JUnit and QA/api Surefire outputs are retained",
         "Given repository security policy, When credentials are audited, Then secrets exist only in Jenkins credentials not in Git"
       ]
