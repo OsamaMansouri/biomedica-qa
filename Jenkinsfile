@@ -56,12 +56,19 @@ pipeline {
       steps {
         sh '''
           export PATH="${WORKSPACE}/.jenkins-tools:\$PATH"
-          docker version || {
-            echo "Docker CLI is installed but cannot reach the daemon."
-            echo "Start Jenkins with the host socket mounted, e.g.:"
-            echo "  -v /var/run/docker.sock:/var/run/docker.sock"
-            exit 1
-          }
+          if docker version >/dev/null 2>&1; then
+            echo "Docker daemon OK."
+            exit 0
+          fi
+          echo "=== Docker CLI works but cannot talk to the daemon ==="
+          ls -la /var/run/docker.sock 2>/dev/null || echo "(no /var/run/docker.sock inside this container)"
+          echo ""
+          echo "Recreate the Jenkins container with the HOST socket mounted, for example:"
+          echo "  Linux:   -v /var/run/docker.sock:/var/run/docker.sock"
+          echo "  Win/Mac Docker Desktop: -v //var/run/docker.sock:/var/run/docker.sock"
+          echo ""
+          echo "See QA/jenkins/run-jenkins-docker-desktop.ps1 in this repo for a full example."
+          exit 1
         '''
       }
     }
