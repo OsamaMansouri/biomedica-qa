@@ -1,21 +1,25 @@
 # Jenkins (simple)
 
-**Git = the `QA` folder only.** Jenkins clones that repo.
+**Git = the `QA` folder only.** Script Path: **`jenkins/Jenkinsfile`**.
 
-**In Jenkins**
+### What the Jenkins machine needs
 
-1. **Pipeline** → **Pipeline script from SCM** → Git.
-2. **Repository URL** = your **QA** repo (e.g. `biomedica-qa`).
-3. **Script Path** = **`jenkins/Jenkinsfile`** (default: runs on the agent with **Node + Java 17 + Maven**, no Docker plugin).
-4. **Save** → **Build Now**.
+- **Git** (already there if checkout works)
+- **Docker CLI** + permission to talk to the Docker daemon  
+  - If Jenkins runs **inside Docker**: mount the socket when you start Jenkins, e.g.  
+    `-v /var/run/docker.sock:/var/run/docker.sock`  
+    and install the **`docker`** client in the image if it is missing (official `jenkins/jenkins` image often does not include it — use a small custom image or `apt-get install docker.io` in a derived Dockerfile).
 
-**If Git is the whole Biomedica project** (not only QA), use **Script Path** = **`QA/jenkins/Jenkinsfile`**.
+The pipeline runs **Node / Maven / Playwright inside `docker run`**, so the controller does **not** need Node installed.
 
-### Default vs Docker
+### URLs for tests
 
-| Script Path | Needs |
-|-------------|--------|
-| **`jenkins/Jenkinsfile`** | Jenkins agent with **Node 20+**, **Java 17+**, **Maven**, **Git**, and **`sh`** (Linux agent or Git Bash on Windows). Playwright installs Chromium in the E2E stage. |
-| **`jenkins/Jenkinsfile.docker`** | Jenkins plugin **Docker Pipeline** + agent that can run **Docker**. Uses `host.docker.internal` for app URLs (Docker Desktop). |
+Default: **`host.docker.internal:3333`** and **`:8000`** so containers can reach Next + Laravel on the **host**. Override on the job with **`PLAYWRIGHT_ORIGIN`** and **`PLAYWRIGHT_API_BASE_URL`** if needed.
 
-Start **storefront + API** before E2E, or set **`PLAYWRIGHT_ORIGIN`** and **`PLAYWRIGHT_API_BASE_URL`** on the job.
+### Optional: `jenkins/Jenkinsfile.docker`
+
+Same stages using the **Docker Pipeline** plugin (`agent { docker { ... } }`). Install that plugin and point Script Path there if you prefer that style.
+
+### Full Biomedica repo (not only QA)
+
+Script Path: **`QA/jenkins/Jenkinsfile`**.

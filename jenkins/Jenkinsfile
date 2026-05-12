@@ -1,9 +1,9 @@
-// Biomedica QA — workspace = QA repo root (same as Git clone).
-// Default: runs on the Jenkins agent with agent any (no "Docker Pipeline" plugin).
-// Agent must have: Git, Node 20+, Java 17+, Maven on PATH, and sh (Linux agent or Git Bash on Windows).
+// Biomedica QA — workspace = QA repo root.
+// Runs tools via `docker run` (needs Docker CLI on the agent + access to the daemon).
+// Jenkins-in-Docker: mount host socket, e.g. -v /var/run/docker.sock:/var/run/docker.sock
+// No "Docker Pipeline" plugin required.
 //
-// For Docker-isolated stages instead: install Jenkins plugin "Docker Pipeline", then set
-// Script Path to jenkins/Jenkinsfile.docker
+// Defaults assume apps run on the Docker host; from inside containers use host.docker.internal.
 
 pipeline {
   agent any
@@ -15,38 +15,59 @@ pipeline {
 
   environment {
     CI = 'true'
-    PLAYWRIGHT_ORIGIN = "${env.PLAYWRIGHT_ORIGIN ?: 'http://localhost:3333'}"
-    PLAYWRIGHT_API_BASE_URL = "${env.PLAYWRIGHT_API_BASE_URL ?: 'http://localhost:8000'}"
+    PLAYWRIGHT_ORIGIN = "${env.PLAYWRIGHT_ORIGIN ?: 'http://host.docker.internal:3333'}"
+    PLAYWRIGHT_API_BASE_URL = "${env.PLAYWRIGHT_API_BASE_URL ?: 'http://host.docker.internal:8000'}"
     PLAYWRIGHT_TEST_PRODUCT_SLUG = "${env.PLAYWRIGHT_TEST_PRODUCT_SLUG ?: 'argan-et-figue-de-barbarie'}"
   }
 
   stages {
-    stage('Checkout') {
+    stage('Precheck') {
       steps {
-        checkout scm
+        sh '''
+          command -v docker >/dev/null 2>&1 || {
+            echo "ERROR: docker not found on PATH."
+            echo "Install Docker CLI on this Jenkins agent, or mount the socket if Jenkins runs in Docker."
+            exit 1
+          }
+          docker version
+        '''
       }
     }
 
     stage('Quality gate') {
       steps {
-        sh 'node scripts/quality-gate.mjs'
+        sh """
+          docker run --rm \\
+            -v "${WORKSPACE}:/ws" \\
+            -w /ws \\
+            node:22-bookworm \\
+            node scripts/quality-gate.mjs
+        """
       }
     }
 
     stage('Playwright typecheck') {
       steps {
-        dir('playwright') {
-          sh 'npm ci'
-          sh 'npm run typecheck'
-        }
+        sh """
+          docker run --rm \\
+            -v "${WORKSPACE}:/ws" \\
+            -w /ws/playwright \\
+            node:22-bookworm \\
+            bash -lc 'npm ci && npm run typecheck'
+        """
       }
     }
 
     stage('API smoke (REST Assured)') {
       steps {
-        dir('api') {
-          sh 'mvn -B -q verify'
-        }
+        sh """
+          docker run --rm \\
+            -v "${WORKSPACE}:/ws" \\
+            -w /ws/api \\
+            -e PLAYWRIGHT_API_BASE_URL="${PLAYWRIGHT_API_BASE_URL}" \\
+            maven:3.9.9-eclipse-temurin-17 \\
+            mvn -B -q verify
+        """
       }
       post {
         always {
@@ -58,11 +79,17 @@ pipeline {
 
     stage('E2E (Playwright)') {
       steps {
-        dir('playwright') {
-          sh 'npm ci'
-          sh 'npx playwright install chromium'
-          sh 'npx playwright test --reporter=list,junit'
-        }
+        sh """
+          docker run --rm \\
+            -v "${WORKSPACE}:/ws" \\
+            -w /ws/playwright \\
+            -e CI=true \\
+            -e PLAYWRIGHT_ORIGIN="${PLAYWRIGHT_ORIGIN}" \\
+            -e PLAYWRIGHT_API_BASE_URL="${PLAYWRIGHT_API_BASE_URL}" \\
+            -e PLAYWRIGHT_TEST_PRODUCT_SLUG="${PLAYWRIGHT_TEST_PRODUCT_SLUG}" \\
+            mcr.microsoft.com/playwright:v1.50.1-jammy \\
+            bash -lc 'npm ci && npx playwright test --reporter=list,junit'
+        """
       }
       post {
         always {
