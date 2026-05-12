@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "product": "Biomedica",
+  "paths": {
+    "apiPom": "api/pom.xml",
+    "playwrightDir": "playwright",
+    "traceabilityCsv": "blueprint/traceability-matrix.csv",
+    "userStoriesJson": "blueprint/user-stories.json",
+    "jenkinsfile": "jenkins/Jenkinsfile"
+  },
+  "defaults": {
+    "playwrightOrigin": "http://localhost:3333",
+    "apiBaseUrl": "http://localhost:8000",
+    "testProductSlug": "argan-et-figue-de-barbarie"
+  },
+  "ciParity": {
+    "order": ["quality_gate", "api_rest_assured", "playwright"],
+    "githubWorkflow": ".github/workflows/qa.yml",
+    "jenkinsPipeline": "jenkins/Jenkinsfile"
+  },
+  "qualityGate": {
+    "p0RequiresAutomationOrManualNote": true,
+    "traceabilityColumns": {
+      "priority": 3,
+      "playwrightRef": 5,
+      "apiRef": 6,
+      "manualNotes": 7
+    }
+  },
+  "playwright": {
+    "smokeSpec": "tests/smoke",
+    "smokeTag": "@smoke",
+    "projectsDefault": ["fr", "en"]
+  }
+}

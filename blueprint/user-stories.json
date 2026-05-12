@@ -1,0 +1,318 @@
+{
+  "meta": {
+    "product": "Biomedica",
+    "description": "E‑commerce storefront (Next.js), Laravel JSON API, Next.js admin. Bilingual FR/EN.",
+    "artifactType": "user-stories-backlog",
+    "formatVersion": 2,
+    "acceptanceCriteriaStyle": "Given-When-Then"
+  },
+  "epics": [
+    { "id": "EP-DISCOVERY", "name": "Discovery & catalog", "goal": "Shoppers find and evaluate products." },
+    { "id": "EP-CART", "name": "Cart & checkout", "goal": "Complete purchase with accurate totals and shipping." },
+    { "id": "EP-PAY", "name": "Payments", "goal": "COD and CMI flows complete safely." },
+    { "id": "EP-POST", "name": "Post‑purchase", "goal": "Order confirmation and trust after sale." },
+    { "id": "EP-I18N", "name": "Internationalisation & brand", "goal": "Consistent FR/EN experience and brand." },
+    { "id": "EP-ADMIN", "name": "Admin & operations", "goal": "Staff manage catalog, orders, settings." },
+    { "id": "EP-API", "name": "Public & admin API contracts", "goal": "Stable JSON contracts for front and integrations." },
+    { "id": "EP-QUALITY", "name": "Quality engineering", "goal": "Automation, environments, and release evidence." }
+  ],
+  "userStories": [
+    {
+      "id": "US-DIS-001",
+      "epicId": "EP-DISCOVERY",
+      "title": "View localized home and navigation",
+      "asA": "shopper",
+      "iWant": "to land on the storefront in my locale with header, shop links, and footer",
+      "soThat": "I can orient and reach the catalog quickly",
+      "priority": "P0",
+      "acceptanceCriteria": [
+        "Given locale fr or en, When I open the home URL, Then the main landmark is visible and the URL reflects the locale segment",
+        "Given a storefront route that is not the checkout shell, When the page renders, Then header and footer chrome are visible",
+        "Given the announcement marquee and sticky contact affordance, When I use primary navigation, Then they do not block completing primary navigation"
+      ]
+    },
+    {
+      "id": "US-DIS-002",
+      "epicId": "EP-DISCOVERY",
+      "title": "Browse shop and category product listings",
+      "asA": "shopper",
+      "iWant": "to browse categories and see published products",
+      "soThat": "I can compare offers before PDP",
+      "priority": "P0",
+      "acceptanceCriteria": [
+        "Given the shop loads, When categories are loaded from the API, Then the storefront surfaces those categories",
+        "Given a category that has products, When I view its listing, Then only published products appear and pagination meta is present when applicable",
+        "Given an empty listing or empty category state, When it renders, Then the client does not throw errors"
+      ]
+    },
+    {
+      "id": "US-DIS-003",
+      "epicId": "EP-DISCOVERY",
+      "title": "Open product detail from slug",
+      "asA": "shopper",
+      "iWant": "to open a PDP by slug with price, stock signal, images, and add‑to‑cart",
+      "soThat": "I can decide to buy",
+      "priority": "P0",
+      "acceptanceCriteria": [
+        "Given an unknown product slug, When GET /api/products/{slug} is requested, Then the API returns 404",
+        "Given a published product slug, When GET /api/products/{slug} is requested, Then the API returns 200 with a product payload",
+        "Given PDP with primary add-to-cart enabled, When automation targets ATC, Then the control exposes stable test id qa-pdp-atc-primary",
+        "Given API fields in_stock and stock_quantity, When PDP shows inventory messaging, Then copy matches those rules"
+      ]
+    },
+    {
+      "id": "US-DIS-004",
+      "epicId": "EP-DISCOVERY",
+      "title": "Search and sort catalog",
+      "asA": "shopper",
+      "iWant": "to search by name or slug and sort by featured or price",
+      "soThat": "I can narrow large catalogs",
+      "priority": "P1",
+      "acceptanceCriteria": [
+        "Given query parameters q, sort, and per_page within documented bounds, When GET /api/products is called, Then the API honors them",
+        "Given a catalog API failure such as 5xx, When the storefront catalog UI loads, Then the user sees an error path and not a silent empty success"
+      ]
+    },
+    {
+      "id": "US-CART-001",
+      "epicId": "EP-CART",
+      "title": "Add line to cart from PDP",
+      "asA": "shopper",
+      "iWant": "to add a SKU to the cart from the PDP primary button",
+      "soThat": "I can prepare checkout",
+      "priority": "P0",
+      "acceptanceCriteria": [
+        "Given I added a product from PDP, When the cart drawer or flow is open, Then a checkout CTA is available with test id qa-cart-checkout for automation",
+        "Given lines and quantities in the cart, When totals update on the client, Then quantity and line subtotal follow cart state rules"
+      ]
+    },
+    {
+      "id": "US-CART-002",
+      "epicId": "EP-CART",
+      "title": "Guest checkout with address and shipping quote",
+      "asA": "guest",
+      "iWant": "to enter contact and address and receive shipping options",
+      "soThat": "I know delivery cost before paying",
+      "priority": "P0",
+      "acceptanceCriteria": [
+        "Given a non-empty cart and a valid address payload, When POST /api/shipping/quote is called, Then returned methods are compatible with the cart and address",
+        "Given a shipping quote failure, When checkout displays the error, Then quote errors are visually distinct from address or field validation errors",
+        "Given an empty cart, When I try to proceed to checkout, Then checkout is blocked and a clear CTA returns me to the shop"
+      ]
+    },
+    {
+      "id": "US-CART-003",
+      "epicId": "EP-CART",
+      "title": "Apply and validate promo code",
+      "asA": "shopper",
+      "iWant": "to enter a promo code at checkout",
+      "soThat": "I receive the advertised discount when valid",
+      "priority": "P1",
+      "acceptanceCriteria": [
+        "Given an invalid promo code at checkout, When I attempt to place the order, Then a localized error is shown and no order is created",
+        "Given a valid promo code, When checkout completes through the checkout API submit path, Then totals reflect the server-side promo adjustment"
+      ]
+    },
+    {
+      "id": "US-PAY-001",
+      "epicId": "EP-PAY",
+      "title": "Place order with cash on delivery",
+      "asA": "guest",
+      "iWant": "to choose COD and place the order",
+      "soThat": "I can pay on delivery",
+      "priority": "P0",
+      "acceptanceCriteria": [
+        "Given COD is selected with a valid checkout payload, When POST /api/checkout succeeds, Then the response includes reference totals currency and lines",
+        "Given the checkout review step, When automation targets submit, Then the primary control exposes test id qa-checkout-submit",
+        "Given a successful checkout response, When the client finishes, Then confirmation is stored in session and the user is routed to thank-you with ref in the query string"
+      ]
+    },
+    {
+      "id": "US-PAY-002",
+      "epicId": "EP-PAY",
+      "title": "Pay with CMI and return to storefront",
+      "asA": "shopper",
+      "iWant": "to pay by card via CMI and land back on the storefront with clear status",
+      "soThat": "I know if payment succeeded",
+      "priority": "P0",
+      "acceptanceCriteria": [
+        "Given CMI server notifications, When Laravel receives callbacks, Then the CMI callback route accepts them per implementation",
+        "Given the browser returns from CMI with success or failure query parameters, When the return URL is processed, Then status is clear and secrets are not exposed in the URL",
+        "Given CMI-related query parameters on checkout return, When the checkout client loads, Then submit state does not loop indefinitely"
+      ]
+    },
+    {
+      "id": "US-POST-001",
+      "epicId": "EP-POST",
+      "title": "Thank you page shows order reference",
+      "asA": "shopper",
+      "iWant": "to see confirmation copy and reference after purchase",
+      "soThat": "I can trust the order was created",
+      "priority": "P0",
+      "acceptanceCriteria": [
+        "Given stored confirmation payload after purchase, When the thank-you view renders, Then FR/EN strings align with message bundles",
+        "Given an order reference, When GET /api/order-confirmation/{reference} is called, Then the payload is consistent with the placed order"
+      ]
+    },
+    {
+      "id": "US-I18N-001",
+      "epicId": "EP-I18N",
+      "title": "Switch experience between French and English",
+      "asA": "shopper",
+      "iWant": "the storefront strings and URLs to follow fr and en segments",
+      "soThat": "I shop in my language",
+      "priority": "P0",
+      "acceptanceCriteria": [
+        "Given Playwright projects fr and en, When E2E runs, Then baseURLs target …/fr/ and …/en/ respectively",
+        "Given critical checkout copy, When tests use locale datasets, Then placeholders remain exact-match testable per locale",
+        "Given SEO rules implemented for the storefront, When pages emit metadata, Then titles descriptions canonical and hreflang follow project SEO rules"
+      ]
+    },
+    {
+      "id": "US-I18N-002",
+      "epicId": "EP-I18N",
+      "title": "Brand theme from API",
+      "asA": "shopper",
+      "iWant": "colors and logo from brand endpoint",
+      "soThat": "the site reflects configured branding",
+      "priority": "P1",
+      "acceptanceCriteria": [
+        "Given GET /api/brand returns a payload, When the storefront hydrates, Then StorefrontBrandProvider consumes it",
+        "Given SSR for first paint, When the page loads, Then the theme style block applies without a flash of the wrong brand colors"
+      ]
+    },
+    {
+      "id": "US-API-001",
+      "epicId": "EP-API",
+      "title": "Products list contract",
+      "asA": "integration consumer",
+      "iWant": "stable JSON for paginated products",
+      "soThat": "front and tests do not break silently",
+      "priority": "P0",
+      "acceptanceCriteria": [
+        "Given GET /api/products with pagination, When the response returns 200, Then the body includes a data array and meta pagination fields",
+        "Given per_page outside the allowed range, When the request is processed, Then the API clamps per_page to 1–100",
+        "Given the QA/api REST Assured smoke for product list, When tests run, Then list returns 200 and JSON matches the expected shape"
+      ]
+    },
+    {
+      "id": "US-API-002",
+      "epicId": "EP-API",
+      "title": "Checkout contract validation",
+      "asA": "system",
+      "iWant": "checkout API to reject malformed payloads with 4xx",
+      "soThat": "bad orders never persist",
+      "priority": "P0",
+      "acceptanceCriteria": [
+        "Given POST /api/checkout with missing lines invalid product_id or quantity zero, When validation runs, Then the API returns a structured validation error",
+        "Given concurrent stock changes during checkout, When OrderStockService applies rules, Then outcome matches documented stock behaviour"
+      ]
+    },
+    {
+      "id": "US-API-003",
+      "epicId": "EP-API",
+      "title": "Contact message intake",
+      "asA": "visitor",
+      "iWant": "to submit contact form to API",
+      "soThat": "the business receives the message",
+      "priority": "P2",
+      "acceptanceCriteria": [
+        "Given a valid POST /api/contact payload, When the request succeeds, Then the message is persisted and a success response is returned",
+        "Given rate limiting or spam controls exist, When they are documented, Then testers know expected behaviour for abuse scenarios"
+      ]
+    },
+    {
+      "id": "US-ADM-001",
+      "epicId": "EP-ADMIN",
+      "title": "Admin authenticates",
+      "asA": "staff user",
+      "iWant": "to log in to admin API with Sanctum",
+      "soThat": "I reach protected routes",
+      "priority": "P0",
+      "acceptanceCriteria": [
+        "Given valid admin credentials, When POST /api/admin/login is called, Then a bearer token is issued",
+        "Given logout and me endpoints, When called with appropriate tokens and middleware, Then behaviour matches the configured middleware groups"
+      ]
+    },
+    {
+      "id": "US-ADM-002",
+      "epicId": "EP-ADMIN",
+      "title": "Manage products and stock",
+      "asA": "catalog manager",
+      "iWant": "CRUD on products, images, featured flag, and stock quantity",
+      "soThat": "storefront reflects inventory",
+      "priority": "P0",
+      "acceptanceCriteria": [
+        "Given admin product routes, When the caller lacks auth:sanctum or admin.panel, Then access is denied; When authorized, Then CRUD behaves per route design",
+        "Given a stock update from admin, When the storefront reads the product, Then in_stock reflects the change within cache or freshness rules",
+        "Given an image upload request, When the file is processed, Then MIME type and size are validated"
+      ]
+    },
+    {
+      "id": "US-ADM-003",
+      "epicId": "EP-ADMIN",
+      "title": "Operate orders",
+      "asA": "operations",
+      "iWant": "list, show, update orders and export where allowed",
+      "soThat": "fulfillment can proceed",
+      "priority": "P1",
+      "acceptanceCriteria": [
+        "Given order listing with filters and pagination, When results return, Then they match agreed business rules",
+        "Given invoice or export routes, When the caller has admin.panel versus admin.full, Then access matches role middleware"
+      ]
+    },
+    {
+      "id": "US-ADM-004",
+      "epicId": "EP-ADMIN",
+      "title": "Configure shipping methods and settings",
+      "asA": "administrator",
+      "iWant": "to maintain shipping methods and site settings",
+      "soThat": "checkout quotes stay accurate",
+      "priority": "P1",
+      "acceptanceCriteria": [
+        "Given shipping method CRUD where admin.full is required, When an unauthorized role calls the endpoint, Then the request fails; When authorized, Then CRUD succeeds per rules",
+        "Given settings upsert with keys documented in admin UI, When validation runs, Then invalid keys or values are rejected"
+      ]
+    },
+    {
+      "id": "US-QA-001",
+      "epicId": "EP-QUALITY",
+      "title": "CI pipeline proves API and critical E2E",
+      "asA": "release owner",
+      "iWant": "Jenkins to run REST Assured then Playwright on candidate build",
+      "soThat": "we do not ship obvious regressions",
+      "priority": "P0",
+      "acceptanceCriteria": [
+        "Given the Jenkins pipeline definition, When reviewed against the repo, Then stages match what is documented in jenkins/Jenkinsfile under QA",
+        "Given a completed CI run, When artifacts are published, Then QA/playwright JUnit and QA/api Surefire outputs are retained",
+        "Given repository security policy, When credentials are audited, Then secrets exist only in Jenkins credentials not in Git"
+      ]
+    },
+    {
+      "id": "US-QA-002",
+      "epicId": "EP-QUALITY",
+      "title": "Traceability from story to automated test",
+      "asA": "QA lead",
+      "iWant": "each P0 story linked to tests or explicit manual only",
+      "soThat": "audit and coverage gaps are visible",
+      "priority": "P1",
+      "acceptanceCriteria": [
+        "Given the traceability CSV path set in qa.config.json (paths.traceabilityCsv), When each Story_ID row is reviewed, Then Playwright refs API refs or Manual_Only_Notes satisfy the quality gate for P0",
+        "Given Gherkin features under QA/docs/bdd/features, When compared to checkout smoke behaviour, Then documentation aligns where those features are referenced"
+      ]
+    },
+    {
+      "id": "US-QA-003",
+      "epicId": "EP-QUALITY",
+      "title": "Staging environment parity",
+      "asA": "tester",
+      "iWant": "staging URLs for PLAYWRIGHT_ORIGIN and PLAYWRIGHT_API_BASE_URL",
+      "soThat": "E2E matches production topology",
+      "priority": "P1",
+      "acceptanceCriteria": [
+        "Given environment variables for Playwright and API base URL, When used locally versus Jenkins, Then naming and semantics stay consistent",
+        "Given the default E2E product slug on staging, When tests run, Then that product exists and is in stock"
+      ]
+    }
+  ]
+}
