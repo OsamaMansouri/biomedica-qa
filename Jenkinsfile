@@ -22,6 +22,14 @@ pipeline {
   }
 
   stages {
+    // Required when the job uses "Lightweight checkout" — otherwise workspace may only
+    // contain the Jenkinsfile and docker runs will miss scripts/, api/, etc.
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
     stage('Bootstrap Docker CLI') {
       steps {
         sh '''

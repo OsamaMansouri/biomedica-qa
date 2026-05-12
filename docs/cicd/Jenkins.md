@@ -5,6 +5,7 @@
 **In the Jenkins job**
 
 - **Script Path:** **`Jenkinsfile`** (file at the **root** of this repo — that is what Jenkins uses by default).
+- Turn **Lightweight checkout** **off**. If it stays on, the job must still run a full **`checkout scm`** (the root `Jenkinsfile` includes a **Checkout** stage so `scripts/`, `api/`, etc. exist before Docker runs).
 
 The pipeline downloads a static **Docker client** into the job workspace and runs **Node / Maven / Playwright** via `docker run`.
 
