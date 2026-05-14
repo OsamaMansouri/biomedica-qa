@@ -1,5 +1,8 @@
 // Biomedica QA — Jenkins pipeline (no Docker-in-pipeline).
-// Agent: Git, Node 20+, JDK 17+, Maven, sh. With "Pipeline from SCM", Jenkins checks out the repo before stages run (no duplicate checkout in this file).
+// Agent: Git, Node 20+, JDK 17+, Maven, sh.
+// Uses skipDefaultCheckout + deleteDir + checkout scm in Init (clean tree each run). In the job UI, remove
+// Git → Additional Behaviours → "Wipe out repository & force clone" to avoid duplicate wipes and the deprecation warning.
+// Optional: Manage Jenkins → Global Tool Configuration → Git → add an installation (e.g. Name "git", Path "git") to clear "Selected Git installation does not exist / recommended git tool is NONE".
 //
 // --- You run Laravel + Next on your PC; Jenkins is in Docker (typical) ---
 // Inside the container, "localhost" is NOT your PC. Either:
@@ -19,6 +22,7 @@ pipeline {
   agent any
 
   options {
+    skipDefaultCheckout(true)
     timestamps()
     timeout(time: 45, unit: 'MINUTES')
   }
@@ -46,6 +50,8 @@ pipeline {
   stages {
     stage('Init') {
       steps {
+        deleteDir()
+        checkout scm
         script {
           echo "[Init] WORKSPACE=${env.WORKSPACE}"
           def reach = (env.REACH_PC_LOCAL_DEV ?: '').trim()
