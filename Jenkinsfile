@@ -7,6 +7,7 @@
 // API smoke (Maven / REST Assured) needs a REACHABLE Laravel JSON API — not localhost inside an empty
 // container. Set job env to staging/prod API, e.g. API_BASE_URL=https://api.biomedica.ma
 // (or PLAYWRIGHT_API_BASE_URL; both are passed through). Docker Desktop + API on host: host.docker.internal:8000
+// Optional: ALLOW_LOCALHOST_API=true if Laravel really listens on localhost:8000 on the same agent.
 
 pipeline {
   agent any
@@ -51,7 +52,30 @@ pipeline {
     stage('API smoke') {
       steps {
         dir('api') {
-          sh 'mvn -B -q verify'
+          sh '''
+            set -e
+            echo "[API smoke] Effective API_BASE_URL=$API_BASE_URL"
+            echo "[API smoke] PLAYWRIGHT_API_BASE_URL=$PLAYWRIGHT_API_BASE_URL"
+            case "$API_BASE_URL" in
+              http://localhost:8000|http://127.0.0.1:8000)
+                if [ "${ALLOW_LOCALHOST_API:-}" != "true" ]; then
+                  echo ""
+                  echo "========================================"
+                  echo "API smoke: nothing serves $API_BASE_URL inside this agent (Connection refused)."
+                  echo ""
+                  echo "Set JOB environment (Configure → Environment variables, or Parameters):"
+                  echo "  API_BASE_URL=https://your-laravel-api-host"
+                  echo "  (or PLAYWRIGHT_API_BASE_URL — both are passed to Maven.)"
+                  echo ""
+                  echo "Docker Desktop + php artisan serve on the PC: API_BASE_URL=http://host.docker.internal:8000"
+                  echo "Laravel on same machine as agent: ALLOW_LOCALHOST_API=true"
+                  echo "========================================"
+                  exit 1
+                fi
+                ;;
+            esac
+            mvn -B -q verify
+          '''
         }
       }
       post {
