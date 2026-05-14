@@ -1,17 +1,18 @@
-// Biomedica QA — minimal Jenkins pipeline (no Docker-in-pipeline).
-// Agent must have: Git, Node 20+, JDK 17+, Maven, and `sh` (Linux agent or Git Bash on Windows).
-// API smoke in embedded mode also needs PHP 8.3+, Composer, curl, and extensions: mbstring, xml, ctype, fileinfo, pdo_sqlite, bcmath.
-// Job: Pipeline from SCM → this repo → Script Path: Jenkinsfile
-// Env (optional): PLAYWRIGHT_ORIGIN, PLAYWRIGHT_API_BASE_URL, API_BASE_URL, PLAYWRIGHT_TEST_PRODUCT_SLUG.
-// PLAYWRIGHT_WORKERS defaults to 3 (same as playwright.config); set job env to 1 if staging overloads.
+// Biomedica QA — Jenkins pipeline (no Docker-in-pipeline).
+// Agent: Git, Node 20+, JDK 17+, Maven, sh.
 //
-// API smoke (Maven / REST Assured):
-// - external (default): set API_BASE_URL / PLAYWRIGHT_API_BASE_URL to any reachable Laravel (staging, host.docker.internal, prod, etc.).
-// - embedded: API_SMOKE_MODE=embedded — starts Laravel from ./backend (monorepo) or clones BACKEND_REPO_URL into ./backend-ci (SQLite, migrate, seed, artisan serve), then runs Maven against http://127.0.0.1:8000 (no external URL).
-// - auto (default): leave API_SMOKE_MODE unset — if ./backend/composer.json exists and API_BASE_URL is localhost/127.0.0.1 (or unset → default localhost), the pipeline uses embedded mode; otherwise external.
-// - skip: SKIP_API_SMOKE=true
-// Docker Desktop + API on host: API_BASE_URL=http://host.docker.internal:8000
-// Optional: ALLOW_LOCALHOST_API=true if Laravel already listens on localhost:8000 on the same agent (external mode only).
+// --- You run Laravel + Next on your PC; Jenkins is in Docker (typical) ---
+// Inside the container, "localhost" is NOT your PC. Set ONE job env var:
+//   REACH_PC_LOCAL_DEV=true
+// That forces API + Playwright to http://host.docker.internal:8000 and :3333 (same ports as local).
+// On Windows host, bind services to all interfaces so Docker can reach them, e.g.:
+//   php artisan serve --host=0.0.0.0 --port=8000
+//   next dev --hostname 0.0.0.0 -p 3333   (or your project’s dev command with 0.0.0.0)
+// If Jenkins runs directly on the same machine (no Docker agent), you can use real localhost and
+// ALLOW_LOCALHOST_API=true for API smoke, or set API_BASE_URL=http://127.0.0.1:8000 yourself.
+//
+// --- CI without your PC (optional) ---
+// SKIP_API_SMOKE=true | API_SMOKE_MODE=embedded (+ PHP/Composer on agent) | or set API_BASE_URL to staging/prod.
 
 pipeline {
   agent any
@@ -37,6 +38,15 @@ pipeline {
     stage('Checkout') {
       steps {
         checkout scm
+        script {
+          if ((env.REACH_PC_LOCAL_DEV ?: '').trim().equalsIgnoreCase('true')) {
+            env.API_BASE_URL = 'http://host.docker.internal:8000'
+            env.PLAYWRIGHT_API_BASE_URL = 'http://host.docker.internal:8000'
+            env.PLAYWRIGHT_ORIGIN = 'http://host.docker.internal:3333'
+            env.API_SMOKE_MODE = 'external'
+            echo '[local] REACH_PC_LOCAL_DEV=true → API and Playwright use host.docker.internal (ports 8000 / 3333 on your PC).'
+          }
+        }
       }
     }
 
@@ -159,10 +169,10 @@ pipeline {
                   echo "API smoke: nothing serves $API_BASE_URL inside this agent (Connection refused)."
                   echo ""
                   echo "Pick one:"
-                  echo "  API_SMOKE_MODE=embedded  (PHP+Composer on agent; Laravel from backend/ or clone backend-ci)"
-                  echo "  API_BASE_URL=https://your-reachable-api"
-                  echo "  Docker host API: API_BASE_URL=http://host.docker.internal:8000"
-                  echo "  Laravel on this agent: ALLOW_LOCALHOST_API=true"
+                  echo "  REACH_PC_LOCAL_DEV=true  (Jenkins in Docker → Laravel/Next on your Windows host, ports 8000/3333)"
+                  echo "  API_BASE_URL=http://host.docker.internal:8000  (same idea, manual)"
+                  echo "  API_SMOKE_MODE=embedded  (Laravel started inside Jenkins — needs PHP/Composer on agent)"
+                  echo "  Laravel on this same agent: ALLOW_LOCALHOST_API=true"
                   echo "  Skip: SKIP_API_SMOKE=true"
                   echo "========================================"
                   exit 1
