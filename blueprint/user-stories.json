@@ -279,13 +279,13 @@
       "epicId": "EP-QUALITY",
       "title": "CI pipeline proves API and critical E2E",
       "asA": "release owner",
-      "iWant": "Jenkins to run REST Assured then Playwright on candidate build",
+      "iWant": "CI to run REST Assured then Playwright on candidate builds",
       "soThat": "we do not ship obvious regressions",
       "priority": "P0",
       "acceptanceCriteria": [
-        "Given the Jenkins pipeline definition, When reviewed against the repo, Then stages match what is documented in Jenkinsfile at QA repo root",
-        "Given a completed CI run, When artifacts are published, Then QA/playwright JUnit and QA/api Surefire outputs are retained",
-        "Given repository security policy, When credentials are audited, Then secrets exist only in Jenkins credentials not in Git"
+        "Given the GitHub Actions workflow at .github/workflows/qa.yml, When reviewed against the repo, Then jobs cover the quality gate, API contracts, and optional Playwright per workflow rules",
+        "Given a completed CI run, When artifacts are published, Then QA/playwright JUnit and QA/api Surefire outputs are retained where the workflow uploads them",
+        "Given repository security policy, When credentials are audited, Then secrets exist only in GitHub Actions secrets (or equivalent) not in Git"
       ]
     },
     {
@@ -310,7 +310,7 @@
       "soThat": "E2E matches production topology",
       "priority": "P1",
       "acceptanceCriteria": [
-        "Given environment variables for Playwright and API base URL, When used locally versus Jenkins, Then naming and semantics stay consistent",
+        "Given environment variables for Playwright and API base URL, When used locally versus CI, Then naming and semantics stay consistent",
         "Given the default E2E product slug on staging, When tests run, Then that product exists and is in stock"
       ]
     }

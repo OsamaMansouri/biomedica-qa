@@ -18,6 +18,6 @@ US-ADM-001,EP-ADMIN,Admin login,P0,,,AdminLoginPostTest.java,Admin UI smoke beyo
 US-ADM-002,EP-ADMIN,Products and stock,P0,,,,Admin product routes; no Playwright admin pack yet
 US-ADM-003,EP-ADMIN,Orders operations,P1,,,,GET/PUT /api/admin/orders; export large CSV
 US-ADM-004,EP-ADMIN,Shipping and settings,P1,,,,shipping-methods; settings; role admin.full
-US-QA-001,EP-QUALITY,CI pipeline,P0,,Jenkinsfile,QA/api Maven; QA/playwright npm,
+US-QA-001,EP-QUALITY,CI pipeline,P0,,.github/workflows/qa.yml,QA/api Maven; QA/playwright npm,
 US-QA-002,EP-QUALITY,Traceability,this file,,,,Process artifact — exempt from automation column
 US-QA-003,EP-QUALITY,Staging parity,P1,,Env PLAYWRIGHT_* in playwright.config,,DNS TLS cookies real hosts
