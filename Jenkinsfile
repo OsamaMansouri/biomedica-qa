@@ -2,8 +2,9 @@
 // Agent: Git, Node 20+, JDK 17+, Maven, sh.
 //
 // --- You run Laravel + Next on your PC; Jenkins is in Docker (typical) ---
-// Inside the container, "localhost" is NOT your PC. Set ONE job env var:
-//   REACH_PC_LOCAL_DEV=true
+// Inside the container, "localhost" is NOT your PC. Either:
+//   • Build with Parameters → enable REACH_PC_LOCAL_DEV, or
+//   • Job → Configure → General → "This project is parameterized" → Boolean REACH_PC_LOCAL_DEV = true
 // That forces API + Playwright to http://host.docker.internal:8000 and :3333 (same ports as local).
 // On Windows host, bind services to all interfaces so Docker can reach them, e.g.:
 //   php artisan serve --host=0.0.0.0 --port=8000
@@ -20,6 +21,14 @@ pipeline {
   options {
     timestamps()
     timeout(time: 45, unit: 'MINUTES')
+  }
+
+  parameters {
+    booleanParam(
+      name: 'REACH_PC_LOCAL_DEV',
+      defaultValue: false,
+      description: 'Jenkins in Docker on your PC: hit Laravel :8000 and Next :3333 on Windows via host.docker.internal (run dev servers with --host 0.0.0.0).'
+    )
   }
 
   environment {
@@ -39,7 +48,8 @@ pipeline {
       steps {
         checkout scm
         script {
-          if ((env.REACH_PC_LOCAL_DEV ?: '').trim().equalsIgnoreCase('true')) {
+          def reach = (env.REACH_PC_LOCAL_DEV ?: params.REACH_PC_LOCAL_DEV?.toString() ?: '').trim()
+          if (reach.equalsIgnoreCase('true')) {
             env.API_BASE_URL = 'http://host.docker.internal:8000'
             env.PLAYWRIGHT_API_BASE_URL = 'http://host.docker.internal:8000'
             env.PLAYWRIGHT_ORIGIN = 'http://host.docker.internal:3333'
