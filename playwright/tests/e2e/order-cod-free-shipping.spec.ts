@@ -26,7 +26,7 @@ test("As a Guest: Home → PDP → cart → ship → pay on delivery → order c
     process.env.PLAYWRIGHT_TEST_PRODUCT_SLUG ||
     STORE_FRONT_E2E_DEFAULT_PRODUCT_SLUG
   ).trim();
-  await page.goto(`product/${productSlug}`, { waitUntil: "domcontentloaded" });
+  await page.goto(`product/${productSlug}`, { waitUntil: "commit" });
   await waitForStorefrontNotLoading(page);
 
   const addToCart = page.getByTestId("qa-pdp-atc-primary");
@@ -36,9 +36,10 @@ test("As a Guest: Home → PDP → cart → ship → pay on delivery → order c
 
   const cartCheckout = page.getByTestId("qa-cart-checkout");
   await expect(cartCheckout).toBeVisible({ timeout: SLOW_UI_TIMEOUT_MS });
-  await cartCheckout.click();
-
-  await expect(page).toHaveURL(/\/checkout/);
+  await Promise.all([
+    page.waitForURL(/\/checkout/, { waitUntil: "commit" }),
+    cartCheckout.click(),
+  ]);
   const p = copy.placeholders;
   const firstName = page.getByPlaceholder(p.firstName, { exact: true });
   await expect(firstName).toBeVisible();

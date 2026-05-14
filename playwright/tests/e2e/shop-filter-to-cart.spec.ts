@@ -45,19 +45,23 @@ test.describe("E2E: shop → Ambiance filter → PDP → cart", () => {
       (await ambianceByHref.count()) > 0 ? ambianceByHref : ambianceByLabel;
 
     await expect(ambianceLink).toBeVisible({ timeout: 15_000 });
-    await ambianceLink.click();
-
-    await expect(page).toHaveURL(
-      new RegExp(`[?&]category=${E2E_SHOP_AMBIANCE_CATEGORY_SLUG}(?:&|$)`),
-    );
+    await Promise.all([
+      page.waitForURL(
+        new RegExp(`[?&]category=${E2E_SHOP_AMBIANCE_CATEGORY_SLUG}(?:&|$)`),
+        { waitUntil: "commit" },
+      ),
+      ambianceLink.click(),
+    ]);
     await waitForStorefrontNotLoading(page);
 
     await expect(page.locator("main article").first()).toBeVisible({
       timeout: 30_000,
     });
-    await page.locator("main article").first().getByRole("link").first().click();
-
-    await expect(page).toHaveURL(/\/product\//);
+    const firstProduct = page.locator("main article").first().getByRole("link").first();
+    await Promise.all([
+      page.waitForURL(/\/product\//, { waitUntil: "commit" }),
+      firstProduct.click(),
+    ]);
     await waitForStorefrontNotLoading(page);
 
     const main = page.getByRole("main");

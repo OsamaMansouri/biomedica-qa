@@ -1,5 +1,5 @@
 /**
- * Local CI parity: REST Assured (expects API already running) then Playwright CI reporter.
+ * Local CI parity: REST Assured (expects API already running) then Playwright smoke + e2e (test:ci).
  * For full stack: start `npm run api` (Laravel) and storefront in other terminals first.
  */
 import { spawnSync } from "node:child_process";

@@ -35,7 +35,7 @@ test.describe("E2E: header language switch", () => {
 
     const urlRe = to === "en" ? /\/en(?:\/|$)/ : /\/fr(?:\/|$)/;
     await Promise.all([
-      page.waitForURL(urlRe, { timeout: 30_000 }),
+      page.waitForURL(urlRe, { timeout: 30_000, waitUntil: "commit" }),
       targetItem.click(),
     ]);
     await waitForStorefrontNotLoading(page);

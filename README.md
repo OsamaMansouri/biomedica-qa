@@ -28,7 +28,7 @@ QA/
 ├── scripts/                  ← quality-gate.mjs, run-ci.mjs
 ├── blueprint/                ← user-stories.json, traceability CSV (see qa.config.json), …
 ├── Jenkinsfile               ← Jenkins (simple; agent needs Node + Java + Maven)
-├── docs/                     ← QA hub (BDD, templates, Jenkins how-to)
+├── docs/                     ← Jenkins how-to, spreadsheets (test catalog)
 ├── qa.config.json            ← paths + gate settings
 ├── package.json              ← npm run gate | api | e2e | …
 └── README.md                 ← this file
@@ -38,7 +38,7 @@ Tests use **`src/test/java`** with a short package root **`qa.api`** so paths ar
 
 | Path | Contents |
 |------|----------|
-| **`docs/`** | Hub index, BDD/Gherkin, reporting, templates, Jenkins how-to under **`docs/cicd/`** |
+| **`docs/`** | Jenkins how-to (`docs/cicd/`), test catalog CSV (`docs/spreadsheets/`) |
 | **`playwright/`** | E2E tests (storefront, i18n projects `fr` / `en`) |
 | **`api/`** | REST Assured (Java) — HTTP checks against Laravel |
 | **`scripts/`** | `quality-gate.mjs` (P0 traceability), `run-ci.mjs` (local CI parity) |
@@ -52,6 +52,6 @@ Tests use **`src/test/java`** with a short package root **`qa.api`** so paths ar
 
 **Extension Playwright OK but `npm run qa:e2e` flaky (especially one locale):** the CLI run executes **both FR and EN** with more parallelism than a typical VS Code run; see `QA/playwright/README.md` → *Extension VS Code vs npm* and optional `PLAYWRIGHT_WORKERS` in `QA/playwright/.env.example`.
 
-Docs hub: [`docs/README.md`](docs/README.md). GitHub Actions: [`.github/workflows/qa.yml`](../.github/workflows/qa.yml).
+GitHub Actions: [`.github/workflows/qa.yml`](../.github/workflows/qa.yml).
 
-Jenkins: root [`Jenkinsfile`](Jenkinsfile) · [how-to](docs/cicd/Jenkins.md).
+Jenkins: [`Jenkinsfile`](Jenkinsfile) · [how-to](docs/cicd/Jenkins.md). Test catalog: [`docs/spreadsheets/README.md`](docs/spreadsheets/README.md).

@@ -22,12 +22,12 @@ test.describe("E2E: header search → PDP → cart", () => {
     await searchSheet
       .getByPlaceholder(ui.searchPlaceholder)
       .fill(E2E_HEADER_SEARCH_QUERY);
-    await expect(searchSheet.getByRole("listitem").first()).toBeVisible({
-      timeout: 15_000,
-    });
-    await searchSheet.getByRole("listitem").first().getByRole("button").click();
-
-    await expect(page).toHaveURL(/\/product\//);
+    await expect(searchSheet.getByRole("listitem").first()).toBeVisible();
+    const firstHit = searchSheet.getByRole("listitem").first().getByRole("link");
+    await Promise.all([
+      page.waitForURL(/\/product\//, { waitUntil: "commit" }),
+      firstHit.click(),
+    ]);
     await waitForStorefrontNotLoading(page);
 
     await page.getByTestId("qa-pdp-atc-primary").click();

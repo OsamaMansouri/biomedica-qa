@@ -11,6 +11,7 @@
     "e2e:ci": "npm run test:ci --prefix playwright",
     "typecheck:e2e": "npm run typecheck --prefix playwright",
     "gate": "node scripts/quality-gate.mjs",
-    "ci:local": "node scripts/run-ci.mjs"
+    "ci:local": "node scripts/run-ci.mjs",
+    "git:attach-biomedica-qa": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/attach-biomedica-qa-git.ps1"
   }
 }

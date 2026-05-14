@@ -31,12 +31,11 @@ function storefrontOrigin(): string {
 const origin = storefrontOrigin();
 
 /**
- * Local default: few workers so `fr` + `en` projects do not hammer one Next dev server
- * (avoids flaky navigation / loader timeouts). Override: `PLAYWRIGHT_WORKERS=1` in `.env`
- * or `npx playwright test --workers=4`.
+ * Default 3 workers (local and CI). Same concurrency as a typical local `npm run test:ci`.
+ * If staging flakes under load, set `PLAYWRIGHT_WORKERS=1` on the job or in `.env`.
+ * CLI `--workers=N` wins when passed.
  */
 function workerCount(): number {
-  if (process.env.CI) return 1;
   const fromEnv = Number(process.env.PLAYWRIGHT_WORKERS);
   if (Number.isFinite(fromEnv) && fromEnv >= 1) return Math.min(32, Math.floor(fromEnv));
   return 3;

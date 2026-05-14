@@ -298,7 +298,7 @@
       "priority": "P1",
       "acceptanceCriteria": [
         "Given the traceability CSV path set in qa.config.json (paths.traceabilityCsv), When each Story_ID row is reviewed, Then Playwright refs API refs or Manual_Only_Notes satisfy the quality gate for P0",
-        "Given Gherkin features under QA/docs/bdd/features, When compared to checkout smoke behaviour, Then documentation aligns where those features are referenced"
+        "Given Playwright smoke specs under QA/playwright/tests/smoke, When compared to checkout behaviour in user stories, Then automation matches documented acceptance criteria"
       ]
     },
     {
