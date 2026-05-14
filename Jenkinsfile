@@ -1,5 +1,5 @@
 // Biomedica QA — Jenkins pipeline (no Docker-in-pipeline).
-// Agent: Git, Node 20+, JDK 17+, Maven, sh.
+// Agent: Git, Node 20+, JDK 17+, Maven, sh. With "Pipeline from SCM", Jenkins checks out the repo before stages run (no duplicate checkout in this file).
 //
 // --- You run Laravel + Next on your PC; Jenkins is in Docker (typical) ---
 // Inside the container, "localhost" is NOT your PC. Either:
@@ -44,17 +44,27 @@ pipeline {
   }
 
   stages {
-    stage('Checkout') {
+    stage('Init') {
       steps {
-        checkout scm
         script {
-          def reach = (env.REACH_PC_LOCAL_DEV ?: params.REACH_PC_LOCAL_DEV?.toString() ?: '').trim()
+          echo "[Init] WORKSPACE=${env.WORKSPACE}"
+          def reach = (env.REACH_PC_LOCAL_DEV ?: '').trim()
+          if (!reach) {
+            try {
+              def p = params.get('REACH_PC_LOCAL_DEV')
+              reach = (p != null ? p.toString() : '').trim()
+            } catch (Throwable ignored) {
+              reach = ''
+            }
+          }
           if (reach.equalsIgnoreCase('true')) {
             env.API_BASE_URL = 'http://host.docker.internal:8000'
             env.PLAYWRIGHT_API_BASE_URL = 'http://host.docker.internal:8000'
             env.PLAYWRIGHT_ORIGIN = 'http://host.docker.internal:3333'
             env.API_SMOKE_MODE = 'external'
-            echo '[local] REACH_PC_LOCAL_DEV=true → API and Playwright use host.docker.internal (ports 8000 / 3333 on your PC).'
+            echo '[Init] REACH_PC_LOCAL_DEV=true → host.docker.internal :8000 / :3333'
+          } else {
+            echo '[Init] REACH_PC_LOCAL_DEV off (use Build with Parameters to enable).'
           }
         }
       }
@@ -62,7 +72,11 @@ pipeline {
 
     stage('Quality gate') {
       steps {
-        sh 'node scripts/quality-gate.mjs'
+        sh '''
+          set -e
+          echo "[Quality gate] pwd=$(pwd) node=$(command -v node || echo MISSING)"
+          node scripts/quality-gate.mjs
+        '''
       }
     }
 
