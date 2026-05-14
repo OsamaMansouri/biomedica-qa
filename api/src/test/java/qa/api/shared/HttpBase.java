@@ -9,10 +9,14 @@ public final class HttpBase {
 
   private HttpBase() {}
 
-  // Env first; last value is local-only fallback when unset.
+  /**
+   * CI can pass {@code -Dqa.api.baseUrl=...} so Surefire always hits the intended host even if forked
+   * JVMs mishandle inherited environment variables.
+   */
   public static void configureBaseUri() {
     String base =
         firstNonBlank(
+            System.getProperty("qa.api.baseUrl"),
             System.getenv("API_BASE_URL"),
             System.getenv("PLAYWRIGHT_API_BASE_URL"),
             DEFAULT_LOCAL_LARAVEL_BASE);
