@@ -38,7 +38,8 @@ const origin = storefrontOrigin();
 function workerCount(): number {
   const fromEnv = Number(process.env.PLAYWRIGHT_WORKERS);
   if (Number.isFinite(fromEnv) && fromEnv >= 1) return Math.min(32, Math.floor(fromEnv));
-  return 3;
+  // One worker avoids hammering a single `next dev` + Laravel (random EN failures, stuck loader).
+  return 1;
 }
 
 export default defineConfig({
@@ -65,9 +66,9 @@ export default defineConfig({
       ? { width: 1280, height: 720 }
       : { width: 1280, height: 720 },
     deviceScaleFactor: process.env.CI ? 1 : 1,
-    trace: "retain-on-failure",
+    trace: "on-first-retry",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    video: "off",
     launchOptions: {
       args: ["--disable-dev-shm-usage"],
     },

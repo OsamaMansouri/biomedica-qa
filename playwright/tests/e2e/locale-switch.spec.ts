@@ -3,6 +3,7 @@ import { test, expect } from "@playwright/test";
 import { localeFromProject, type Locale } from "../i18n/locale";
 import {
   HEADER_LOCALE,
+  languageNavAriaForLocale,
   mainNavAriaLabel,
   navProductsLabelForLocale,
 } from "../i18n/strings";
@@ -33,16 +34,15 @@ test.describe("E2E: header language switch", () => {
     const targetItem = menu.getByRole("menuitem", { name: menuLabel });
     await expect(targetItem).toBeVisible();
 
-    const urlRe = to === "en" ? /\/en(?:\/|$)/ : /\/fr(?:\/|$)/;
-    await Promise.all([
-      page.waitForURL(urlRe, { timeout: 30_000, waitUntil: "commit" }),
-      targetItem.click(),
-    ]);
+    await targetItem.click();
     await waitForStorefrontNotLoading(page);
+    await expect(page).toHaveURL(
+      to === "en" ? /\/en(?:\/|$)/ : /\/fr(?:\/|$)/,
+    );
 
     await expect(
       page
-        .getByRole("navigation", { name: HEADER_LOCALE.languageNavAria })
+        .getByRole("navigation", { name: languageNavAriaForLocale(to) })
         .getByRole("button"),
     ).toBeVisible();
 

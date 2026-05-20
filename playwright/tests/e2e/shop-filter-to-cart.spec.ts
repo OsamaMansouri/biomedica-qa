@@ -2,21 +2,23 @@ import { test, expect } from "@playwright/test";
 
 import { localeFromProject } from "../i18n/locale";
 import {
-  E2E_SHOP_AMBIANCE_CATEGORY_SLUG,
-  E2E_SHOP_AMBIANCE_LABEL,
+  E2E_SHOP_BAIN_CATEGORY_SLUG,
+  e2eShopBainCategoryLabel,
   shopUiStrings,
   smoke,
 } from "../i18n/strings";
 import { waitForStorefrontNotLoading } from "../utils/openApp";
 
-test.describe("E2E: shop → Ambiance filter → PDP → cart", () => {
+test.describe("E2E: shop → Bain filter → PDP → cart", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test("Ambiance in filter sheet → shop URL → first product → Ambiance above title → add to cart", async ({
+  test("Bain in filter sheet → shop URL → first product → category above title → add to cart", async ({
     page,
   }, testInfo) => {
+    const locale = localeFromProject(testInfo);
+    const categoryLabel = e2eShopBainCategoryLabel(locale);
     const ui = smoke(testInfo);
-    const shop = shopUiStrings(localeFromProject(testInfo));
+    const shop = shopUiStrings(locale);
 
     await page.goto("shop", { waitUntil: "domcontentloaded" });
     await waitForStorefrontNotLoading(page);
@@ -34,30 +36,33 @@ test.describe("E2E: shop → Ambiance filter → PDP → cart", () => {
       name: shop.browseBy,
     });
 
-    const ambianceByHref = browseNav
-      .locator(`a[href*="category=${E2E_SHOP_AMBIANCE_CATEGORY_SLUG}"]`)
+    const bainByHref = browseNav
+      .locator(`a[href*="category=${E2E_SHOP_BAIN_CATEGORY_SLUG}"]`)
       .first();
-    const ambianceByLabel = browseNav.getByRole("link", {
-      name: E2E_SHOP_AMBIANCE_LABEL,
+    const bainByLabel = browseNav.getByRole("link", {
+      name: categoryLabel,
       exact: true,
     });
-    const ambianceLink =
-      (await ambianceByHref.count()) > 0 ? ambianceByHref : ambianceByLabel;
+    const bainLink = (await bainByHref.count()) > 0 ? bainByHref : bainByLabel;
 
-    await expect(ambianceLink).toBeVisible({ timeout: 15_000 });
+    await expect(bainLink).toBeVisible({ timeout: 15_000 });
     await Promise.all([
       page.waitForURL(
-        new RegExp(`[?&]category=${E2E_SHOP_AMBIANCE_CATEGORY_SLUG}(?:&|$)`),
+        new RegExp(`[?&]category=${E2E_SHOP_BAIN_CATEGORY_SLUG}(?:&|$)`),
         { waitUntil: "commit" },
       ),
-      ambianceLink.click(),
+      bainLink.click(),
     ]);
     await waitForStorefrontNotLoading(page);
 
     await expect(page.locator("main article").first()).toBeVisible({
       timeout: 30_000,
     });
-    const firstProduct = page.locator("main article").first().getByRole("link").first();
+    const firstProduct = page
+      .locator("main article")
+      .first()
+      .getByRole("link")
+      .first();
     await Promise.all([
       page.waitForURL(/\/product\//, { waitUntil: "commit" }),
       firstProduct.click(),
@@ -65,13 +70,16 @@ test.describe("E2E: shop → Ambiance filter → PDP → cart", () => {
     await waitForStorefrontNotLoading(page);
 
     const main = page.getByRole("main");
-    const categoryEyebrow = main
-      .locator("p")
-      .filter({ hasText: new RegExp(`^${E2E_SHOP_AMBIANCE_LABEL}$`) });
-    await expect(categoryEyebrow).toBeVisible();
-    await expect(
-      categoryEyebrow.locator("xpath=following-sibling::h1[1]"),
-    ).toBeVisible();
+    const productTitle = main.getByRole("heading", { level: 1 });
+    await expect(productTitle).toBeVisible();
+    const categoryEyebrow = productTitle.locator(
+      "xpath=preceding-sibling::a[1]",
+    );
+    await expect(categoryEyebrow).toHaveText(categoryLabel);
+    await expect(categoryEyebrow).toHaveAttribute(
+      "href",
+      new RegExp(`category=${E2E_SHOP_BAIN_CATEGORY_SLUG}`),
+    );
 
     await page.getByTestId("qa-pdp-atc-primary").click();
     const cartSheet = page.getByRole("dialog");

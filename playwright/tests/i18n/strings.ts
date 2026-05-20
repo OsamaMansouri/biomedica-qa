@@ -15,11 +15,16 @@ export const STORE_FRONT_E2E_DEFAULT_PRODUCT_SLUG = "argan-et-figue-de-barbarie"
 export const E2E_HEADER_SEARCH_QUERY = "Baume crémeux à base";
 
 /**
- * Shop filter E2E: `…/shop?category=ambiance` (e.g. biomedica.ma/fr/shop?category=ambiance).
- * PDP eyebrow uses `categoryDisplayName` - same label in filter sheet and above the title.
+ * Shop filter E2E: `…/shop?category=bain` (e.g. /fr/shop?category=bain, /en/shop?category=bain).
+ * PDP category above title is a link to `/shop?category=bain` with localized label (Bain / Bath).
  */
-export const E2E_SHOP_AMBIANCE_CATEGORY_SLUG = "ambiance";
-export const E2E_SHOP_AMBIANCE_LABEL = "Ambiance";
+export const E2E_SHOP_BAIN_CATEGORY_SLUG = "bain";
+
+const E2E_SHOP_BAIN_LABEL = { fr: "Bain", en: "Bath" } as const;
+
+export function e2eShopBainCategoryLabel(locale: Locale): string {
+  return locale === "en" ? E2E_SHOP_BAIN_LABEL.en : E2E_SHOP_BAIN_LABEL.fr;
+}
 
 /**
  * FR/EN strings Playwright asserts on - duplicated from `front/messages` so tests
@@ -88,12 +93,16 @@ export function smoke(testInfo: TestInfo): Smoke {
   return localeFromProject(testInfo) === "en" ? smokeEn : smokeFr;
 }
 
-/** Header `LocaleSwitcher` - `aria-label` + menuitem labels (not translated). */
+/** Header `LocaleSwitcher` menuitem labels (API/admin names, not UI locale). */
 export const HEADER_LOCALE = {
-  languageNavAria: "Language",
   menuEnglish: "English",
   menuFrench: "Français",
 } as const;
+
+/** `Nav.languageAria` on `LocaleSwitcher` for the active storefront locale. */
+export function languageNavAriaForLocale(locale: Locale): string {
+  return locale === "en" ? "Language" : "Langue";
+}
 
 /** Desktop nav “Products” link text after switching to `targetLocale` (`Nav` in messages). */
 export function navProductsLabelForLocale(targetLocale: Locale): string {

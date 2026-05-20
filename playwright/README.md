@@ -41,7 +41,7 @@ Depuis la racine du repo : **`npm run qa:e2e`** et **`npm run qa:smoke`** exécu
 
 Souvent l’extension ne lance qu’**un projet** (FR ou EN selon le réglage) ou **un fichier** — tout passe. **`npm run qa:e2e`** enchaîne **tous les specs × les deux locales** en parallèle (plusieurs navigateurs) contre **le même** `next dev` + API : surcharge → timeouts aléatoires sur une langue ou l’autre, pas un « bug i18n » mystérieux.
 
-Défaut **3 workers** (local et CI) — voir `playwright.config.ts`. Si `npm run qa:e2e` est capricieux sur une petite machine ou une staging saturée : **`PLAYWRIGHT_WORKERS=1`** dans `.env` ou sur le job CI, ou **`npm run qa:e2e:fr`** pour une seule locale.
+Défaut **1 worker** (local et CI) — voir `playwright.config.ts` (évite de saturer un seul `next dev`). Pour aller plus vite sur une grosse machine : **`PLAYWRIGHT_WORKERS=2`** dans `.env`. Une seule locale : **`npm run qa:e2e:fr`**.
 
 ```bash
 cd QA/playwright

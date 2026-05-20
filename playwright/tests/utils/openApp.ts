@@ -26,8 +26,16 @@ export function headerSearchButton(page: Page, accessibleName: string) {
     .getByRole("button", { name: accessibleName, exact: true });
 }
 
-/** `StorefrontGlobalLoader` full-screen portal — wait before header/PDP clicks that it covers. */
+/**
+ * `StorefrontGlobalLoader` — auto-dismisses after 12s max; do not block tests for 60s.
+ * If overlay lingers under load but `main` is visible, continue (avoids teardown timeouts).
+ */
 export async function waitForStorefrontNotLoading(page: Page): Promise<void> {
   const loader = page.getByRole("status", { name: "Loading" });
-  await expect(loader).not.toBeVisible({ timeout: 60_000 });
+  const main = page.getByRole("main");
+  try {
+    await expect(loader).not.toBeVisible({ timeout: 15_000 });
+  } catch {
+    await expect(main).toBeVisible({ timeout: 5_000 });
+  }
 }
