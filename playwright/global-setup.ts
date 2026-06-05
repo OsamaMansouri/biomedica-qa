@@ -27,8 +27,7 @@ export default async function globalSetup(): Promise<void> {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     const hint = process.env.CI
-      ? "GitHub cloud runners often cannot reach biomedica.ma (firewall/CDN). " +
-        "Use a self-hosted Actions runner on your VPS — see QA/docs/github-actions.md."
+      ? "Check Netlify deploy and PLAYWRIGHT_ORIGIN repository variable."
       : "Start the storefront or set PLAYWRIGHT_ORIGIN in playwright/.env.";
     throw new Error(`[global-setup] Storefront fetch failed: ${home} — ${msg}. ${hint}`);
   }

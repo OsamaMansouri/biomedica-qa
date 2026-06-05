@@ -70,7 +70,7 @@ From monorepo checkout: same paths under `QA/playwright/`.
 |---------|-----|
 | `ConnectTimeoutError` on storefront | Check Netlify deploy + `PLAYWRIGHT_ORIGIN` variable |
 | Smoke job **Queued** forever | Old workflow used `self-hosted` — push cloud runner workflow or register a VPS runner |
-| PDP 404 | Use `-60ml` slug on prod |
+| PDP OOS smoke fails / `qa-pdp-inventory` missing | Seed OOS fixture: [`docs/sql/insert-qa-oos-fixture.sql`](sql/insert-qa-oos-fixture.sql) on API DB, or set `PLAYWRIGHT_TEST_OOS_PRODUCT_SLUG` to a real OOS product |
 | API check | `https://api.biomedica.ma/api/products?per_page=1` → 200 |
 | Workflow not running | Push must be to the **QA** GitHub repo, not front/backend |
 
