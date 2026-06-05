@@ -1,17 +1,17 @@
 {
   "name": "@biomedica/qa",
   "private": true,
-  "description": "QA orchestration - API (REST Assured), E2E (Playwright), gates, CI parity",
+  "description": "QA orchestration — Playwright automation and manual test docs",
   "scripts": {
-    "api": "mvn -f api/pom.xml -B verify",
     "e2e": "npm run test --prefix playwright",
     "e2e:fr": "npm run test:fr --prefix playwright",
     "smoke": "npm run test:smoke --prefix playwright",
     "smoke:fr": "npm run test:smoke:fr --prefix playwright",
     "e2e:ci": "npm run test:ci --prefix playwright",
+    "bdd:smoke": "npm run test:bdd:smoke --prefix playwright",
+    "bdd:smoke:fr": "npm run test:bdd:smoke:fr --prefix playwright",
+    "bdd:e2e:fr": "npm run test:bdd:e2e:fr --prefix playwright",
     "typecheck:e2e": "npm run typecheck --prefix playwright",
-    "gate": "node scripts/quality-gate.mjs",
-    "ci:local": "node scripts/run-ci.mjs",
-    "git:attach-biomedica-qa": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/attach-biomedica-qa-git.ps1"
+    "ci:local": "node run-ci.mjs"
   }
 }

@@ -1,0 +1,119 @@
+# QA repo only — Playwright typecheck + smoke on biomedica.ma.
+# This workflow lives in the QA git repository (not front/backend/admin).
+name: QA
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+concurrency:
+  group: qa-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PLAYWRIGHT_ORIGIN: ${{ vars.PLAYWRIGHT_ORIGIN || 'https://biomedica.ma' }}
+  PLAYWRIGHT_API_BASE_URL: ${{ vars.PLAYWRIGHT_API_BASE_URL || 'https://api.biomedica.ma' }}
+  PLAYWRIGHT_TEST_PRODUCT_SLUG: ${{ vars.PLAYWRIGHT_TEST_PRODUCT_SLUG || 'argan-et-figue-de-barbarie-60ml' }}
+  PLAYWRIGHT_WORKERS: "1"
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: playwright/package-lock.json
+      - name: Typecheck Playwright specs
+        run: npm ci --prefix playwright && npm run typecheck --prefix playwright
+
+  smoke:
+    needs: [typecheck]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: playwright/package-lock.json
+      - name: Smoke (FR) on biomedica.ma
+        working-directory: playwright
+        env:
+          CI: "true"
+        run: |
+          npm ci
+          npx playwright install chromium
+          npm run test:smoke:fr
+      - name: Publish JUnit (GitHub Checks / job summary)
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: Playwright smoke
+          files: playwright/junit.xml
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright/playwright-report/
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results
+          path: playwright/test-results/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: junit.xml
+          path: playwright/junit.xml
+
+  e2e:
+    needs: [smoke]
+    if: ${{ vars.ENABLE_PLAYWRIGHT_E2E == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: playwright/package-lock.json
+      - name: Full suite (FR) — creates real COD orders on prod
+        working-directory: playwright
+        env:
+          CI: "true"
+        run: |
+          npm ci
+          npx playwright install chromium
+          npm run test:ci:fr
+      - name: Publish JUnit (GitHub Checks / job summary)
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: Playwright e2e
+          files: playwright/junit.xml
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright/playwright-report/
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results
+          path: playwright/test-results/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: junit.xml
+          path: playwright/junit.xml

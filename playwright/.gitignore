@@ -1,8 +1,11 @@
 node_modules/
 test-results/
 playwright-report/
+playwright-report-bdd/
+.features-gen/
 playwright/.cache/
 .env
 .auth/
 junit.xml
+junit-bdd.xml
 artifacts/

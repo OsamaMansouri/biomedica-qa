@@ -24,7 +24,10 @@ export default async function globalSetup(): Promise<void> {
   const homeRes = await fetch(home, { signal: AbortSignal.timeout(30_000) });
   if (!homeRes.ok) {
     throw new Error(
-      `[global-setup] Storefront injoignable (${homeRes.status}) : ${home}. Lance \`next dev\` sur le front (port 3333).`,
+      `[global-setup] Storefront unreachable (${homeRes.status}): ${home}. ` +
+        (process.env.CI
+          ? "Set repository variable PLAYWRIGHT_ORIGIN to your staging URL (https://…, no /fr suffix). See QA/docs/github-actions.md."
+          : "Start the storefront (`npm run dev` in front/) or set PLAYWRIGHT_ORIGIN in QA/playwright/.env."),
     );
   }
 
@@ -36,7 +39,10 @@ export default async function globalSetup(): Promise<void> {
   const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
   if (!res.ok) {
     throw new Error(
-      `[global-setup] API injoignable (${res.status}) : ${url}. Lance le backend ou désactive PLAYWRIGHT_API_BASE_URL.`,
+      `[global-setup] API unreachable (${res.status}): ${url}. ` +
+        (process.env.CI
+          ? "Set PLAYWRIGHT_API_BASE_URL repository variable. See QA/docs/github-actions.md."
+          : "Start Laravel or unset PLAYWRIGHT_API_BASE_URL in .env."),
     );
   }
 }

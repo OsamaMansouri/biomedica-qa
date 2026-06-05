@@ -1,11 +1,44 @@
 # Spreadsheets
 
-**`test-catalog.csv`** — single cahier: Playwright + REST Assured + manual cases. Fill **Exec_OK**, **Exec_Date**, **Executor** on manual rows when you sign off. There is **no `Artifact` column** (and none should be added): how to run a check lives in **Run_Command** or the manual **Notes** area.
+CSV files for **coverage mapping** and **execution tracking**. Open in Excel, Google Sheets, or VS Code.
 
-**`TC_ID`** is a single sequence **`TC-001` …** in the same order as the rows (not separate PW/API/MAN counters).
+## Files
 
-Rows are ordered by **`Story_ID`** (discovery → cart → payment → post-purchase → i18n → API → admin → QA meta), then within each story by layer **API → Manual → Smoke → E2E** (manual exploratory / sign-off before automated UI layers). If a story has no API row, that block starts with **Manual** (when present), then Smoke, then E2E.
+| File | Purpose |
+|------|---------|
+| [`test-coverage.csv`](test-coverage.csv) | Per user story: what is **automated** vs **manual** |
+| [`smoke-catalog.csv`](smoke-catalog.csv) | All smoke tests — log last staging run |
+| [`e2e-catalog.csv`](e2e-catalog.csv) | All e2e tests — log last staging run |
 
-After bulk edits, re-apply that order and renumber **`TC_ID`** from this folder:
+## test-coverage.csv
 
-`node sort-test-catalog.mjs`
+| Column | Description |
+|--------|-------------|
+| Story_ID | Matches `US/stories/US-*.md` |
+| Epic | Epic code |
+| Title | PO-facing title |
+| Priority | P0 / P1 / P2 |
+| Gherkin_Tags | Optional tags from features |
+| Automated_Playwright | Semicolon-separated paths under `playwright/code-first/` |
+| Manual_Test_Notes | What QA runs by hand when automation is missing or insufficient |
+
+**Rule of thumb:** every **P0** row should have at least one column filled. Nothing in CI validates this — it is for your release checklist.
+
+See also [`../manual-testing.md`](../manual-testing.md) for shared manual scripts.
+
+## smoke-catalog.csv / e2e-catalog.csv
+
+| Column | Description |
+|--------|-------------|
+| TC_ID | `TC-SMOKE-001` or `TC-E2E-001` |
+| Tags | From test title (`@smoke`, `@cart`, …) |
+| Title | Test name |
+| US_ID | Optional link to user story |
+| Gherkin_Feature | Optional `.feature` path |
+| Spec_File | Relative to `playwright/` |
+| Run_FR | `npm run test:smoke:fr` or `test:e2e:fr` |
+| Exec_OK | `Y` / `N` after staging run |
+| Exec_Date | ISO date |
+| Notes | Flakes, data deps |
+
+Add a row when you create a new spec.

@@ -1,54 +1,46 @@
 # QA (Biomedica)
 
-Everything under **`QA/`** is **tests and QA process** — not the storefront or Laravel app.  
-Your real apps stay where they always were: **`front/`**, **`backend/`**, **`admin/`**.
+**Standalone git repository** — tests and QA docs only. Not bundled with `front/`, `backend/`, or `admin/` CI.
 
-## Simple mental model
+Tests target the live storefront via Playwright; each app repo keeps its own git and pipelines.
 
-| If you want to test… | Use this folder | Technology | In one sentence |
-|------------------------|-----------------|------------|-----------------|
-| The **website in a browser** (click, forms, FR/EN) | **`playwright/`** | TypeScript + Playwright | A robot **opens Chrome** like a user. |
-| The **HTTP JSON API** without a browser | **`api/`** | Java + Maven + REST Assured | A robot **calls URLs** (`GET /api/products`, etc.) and checks status + JSON. |
-| **Rules / stories / traceability** | **`blueprint/`** + **`docs/`** | CSV, JSON, markdown | What we **promise** to cover + how the **quality gate** checks P0 work. |
-| **Scripts CI runs too** | **`scripts/`** | Node (`.mjs`) | Traceability check, local “run everything” helper. |
+## Model
 
-**REST Assured** = Java library used inside **`QA/api/`**. It sends HTTP requests to your **running** Laravel API (`npm run api`). Think **Postman in code**, runnable by **`mvn test`**. It does **not** replace PHPUnit in `backend/tests/`; PHPUnit tests **from inside** PHP, REST Assured tests **from outside** over HTTP.
+| What | Where | CI |
+|------|--------|-----|
+| **Automated E2E** | `playwright/code-first/` | CI smoke on **biomedica.ma** every PR |
+| **Manual checks** | `docs/manual-testing.md` + `test-coverage.csv` | QA sign-off on staging |
+| **Acceptance criteria** | `playwright/bdd/features/` + Jira | Not executed in CI |
+| **User stories** | `US/stories/` | Pair cards (PO title + QA proof) |
 
-## Folder layout (at a glance)
+**PO:** story title in Jira. **QA:** AC, Playwright automation, manual steps where needed.
+
+## Layout
 
 ```text
 QA/
-├── api/                      ← Java/Maven project ONLY for API HTTP tests (Postman: repo root **`api/Biomedica-API.postman_collection.json`**, regen **`node api/build-postman-collection.mjs`**)
-│   ├── pom.xml               ← Maven config (Surefire runs tests)
-│   └── src/test/java/        ← REST Assured: qa.api.<domain> (short; module is already QA/api)
-├── playwright/               ← Node project ONLY for browser E2E
-│   ├── package.json
-│   ├── playwright.config.ts
-│   └── tests/                ← *.spec.ts
-├── scripts/                  ← quality-gate.mjs, run-ci.mjs
-├── blueprint/                ← user-stories.json, traceability CSV (see qa.config.json), …
-├── docs/                     ← spreadsheets (test catalog), …
-├── qa.config.json            ← paths + gate settings
-├── package.json              ← npm run gate | api | e2e | …
-└── README.md                 ← this file
+├── US/                  ← Pair backlog
+├── docs/
+│   ├── qa-process.md
+│   ├── manual-testing.md
+│   └── spreadsheets/    ← test-coverage, smoke/e2e catalogs
+├── playwright/
+│   ├── code-first/      ← automation (smoke + e2e)
+│   └── bdd/features/    ← Gherkin AC catalog
+├── run-ci.mjs           ← local: typecheck + smoke FR
+├── qa.config.json
+└── package.json
 ```
 
-Tests use **`src/test/java`** with a short package root **`qa.api`** so paths are not `com/biomedica/qa/...` on top of **`QA/api/`**.
+## Commands (repo root)
 
-| Path | Contents |
-|------|----------|
-| **`docs/`** | Test catalog CSV (`docs/spreadsheets/`) |
-| **`playwright/`** | E2E tests (storefront, i18n projects `fr` / `en`) |
-| **`api/`** | REST Assured (Java) — HTTP checks against Laravel |
-| **`scripts/`** | `quality-gate.mjs` (P0 traceability), `run-ci.mjs` (local CI parity) |
-| **`blueprint/`** | `user-stories.json`, traceability matrix CSV (`qa.config.json` → `paths.traceabilityCsv`) |
-| **`docs/spreadsheets/`** | `test-catalog.csv` (cahier / execution sign-off) |
-| **`qa.config.json`** | Single QA config (paths, gate rules, CI pointers) |
+| Command | Purpose |
+|---------|---------|
+| `npm run qa:smoke:fr` | **Main PR gate** — fast automated smoke |
+| `npm run qa:e2e:fr` | Deeper automated flows |
+| `npm run qa:typecheck` | Typecheck Playwright specs |
+| `npm run qa:ci:local` | typecheck + smoke (storefront must be up) |
 
-**Run from repo root:** `npm run qa:gate` · `npm run qa:api` · `npm run qa:e2e` / `npm run qa:smoke` (fr+en par défaut) · `npm run qa:e2e:fr` / `npm run qa:smoke:fr` (fr seul) · `npm run qa:ci:local` (needs API + storefront up for full run).
+**Prerequisites:** storefront on **3333** (`npm run dev` in `front/`). API needed for catalog/checkout tests.
 
-**Playwright `ERR_CONNECTION_REFUSED` on `localhost:3333`:** start the storefront first (`npm run dev` from repo root, or `cd front` then `npm run dev`), then rerun smoke/E2E.
-
-**Extension Playwright OK but `npm run qa:e2e` flaky (especially one locale):** the CLI run executes **both FR and EN** with more parallelism than a typical VS Code run; see `QA/playwright/README.md` → *Extension VS Code vs npm* and optional `PLAYWRIGHT_WORKERS` in `QA/playwright/.env.example`.
-
-GitHub Actions: [`.github/workflows/qa.yml`](../.github/workflows/qa.yml). Test catalog: [`docs/spreadsheets/README.md`](docs/spreadsheets/README.md).
+**Docs:** [`docs/qa-process.md`](docs/qa-process.md) · [`docs/github-actions.md`](docs/github-actions.md) · CI: [`.github/workflows/qa.yml`](.github/workflows/qa.yml) (this repo only).

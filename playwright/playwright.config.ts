@@ -43,7 +43,7 @@ function workerCount(): number {
 }
 
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./code-first",
   globalSetup: path.resolve(__dirname, "global-setup.ts"),
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -66,9 +66,9 @@ export default defineConfig({
       ? { width: 1280, height: 720 }
       : { width: 1280, height: 720 },
     deviceScaleFactor: process.env.CI ? 1 : 1,
-    trace: "on-first-retry",
+    trace: "retain-on-failure",
     screenshot: "only-on-failure",
-    video: "off",
+    video: "retain-on-failure",
     launchOptions: {
       args: ["--disable-dev-shm-usage"],
     },

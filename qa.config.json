@@ -1,32 +1,32 @@
 {
-  "version": 1,
+  "version": 2,
   "product": "Biomedica",
   "paths": {
-    "apiPom": "api/pom.xml",
     "playwrightDir": "playwright",
-    "traceabilityCsv": "blueprint/traceability-matrix.csv",
-    "userStoriesJson": "blueprint/user-stories.json"
+    "testCoverageCsv": "docs/spreadsheets/test-coverage.csv",
+    "userStoriesDir": "US/stories"
   },
-  "defaults": {
-    "playwrightOrigin": "http://localhost:3333",
-    "apiBaseUrl": "http://localhost:8000",
-    "testProductSlug": "argan-et-figue-de-barbarie"
-  },
-  "ciParity": {
-    "order": ["quality_gate", "api_rest_assured", "playwright"],
-    "githubWorkflow": ".github/workflows/qa.yml"
-  },
-  "qualityGate": {
-    "p0RequiresAutomationOrManualNote": true,
-    "traceabilityColumns": {
-      "priority": 3,
-      "playwrightRef": 5,
-      "apiRef": 6,
-      "manualNotes": 7
+  "environments": {
+    "local": {
+      "playwrightOrigin": "http://localhost:3333",
+      "apiBaseUrl": "http://localhost:8000",
+      "testProductSlug": "argan-et-figue-de-barbarie"
+    },
+    "production": {
+      "playwrightOrigin": "https://biomedica.ma",
+      "apiBaseUrl": "https://api.biomedica.ma",
+      "testProductSlug": "argan-et-figue-de-barbarie-60ml",
+      "adminOrigin": "https://admin.biomedica.ma"
     }
   },
+  "ciParity": {
+    "order": ["typecheck", "smoke", "e2e"],
+    "githubWorkflow": ".github/workflows/qa.yml",
+    "scope": "QA repository only — not front/backend/admin",
+    "defaultEnvironment": "production"
+  },
   "playwright": {
-    "smokeSpec": "tests/smoke",
+    "smokeSpec": "code-first/smoke",
     "smokeTag": "@smoke",
     "projectsDefault": ["fr", "en"]
   }

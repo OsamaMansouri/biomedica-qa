@@ -1,0 +1,23 @@
+Story_ID,Epic,Title,Priority,Gherkin_Tags,Automated_Playwright,Manual_Test_Notes
+US-DIS-001,EP-DISCOVERY,View localized home and navigation,P0,,code-first/smoke/storefront-home.spec.ts; code-first/smoke/storefront-navigation.spec.ts,Visual check at mobile/tablet/desktop breakpoints
+US-DIS-002,EP-DISCOVERY,Browse shop and category product listings,P0,,code-first/smoke/storefront-shop.spec.ts; code-first/e2e/shop-filter-to-cart.spec.ts; code-first/e2e/shop-pagination-state.spec.ts; code-first/e2e/magazine-product-funnel.spec.ts; code-first/e2e/home-featured-products.spec.ts,Large catalog performance on staging; empty category edge cases
+US-DIS-003,EP-DISCOVERY,Open product detail from slug,P0,,code-first/smoke/storefront-pdp.spec.ts; code-first/e2e/order-cod-free-shipping.spec.ts; code-first/e2e/pdp-related-products.spec.ts; code-first/e2e/pdp-out-of-stock.spec.ts; code-first/e2e/pdp-sticky-atc-mobile.spec.ts; code-first/e2e/product-not-found.spec.ts,
+US-DIS-004,EP-DISCOVERY,Search and sort catalog,P1,,code-first/smoke/storefront-search.spec.ts; code-first/e2e/search-and-shop-to-cart.spec.ts; code-first/e2e/search-no-results.spec.ts; code-first/e2e/shop-sort.spec.ts,Confirm sort order matches business rules on real catalog
+US-CART-001,EP-CART,Add line to cart from PDP,P0,,code-first/smoke/storefront-add-to-cart-drawer.spec.ts; code-first/e2e/cart-qty-and-remove.spec.ts; code-first/e2e/cart-persist-refresh.spec.ts; code-first/e2e/order-cod-free-shipping.spec.ts,
+US-CART-002,EP-CART,Guest checkout shipping quote,P0,,code-first/e2e/order-cod-free-shipping.spec.ts; code-first/e2e/checkout-shipping-methods.spec.ts; code-first/e2e/checkout-validation.spec.ts,Carrier-specific totals vs business rules on staging
+US-CART-003,EP-CART,Promo code,P1,,,Full promo matrix: valid/invalid/expired codes at checkout (manual until automated)
+US-PAY-001,EP-PAY,Cash on delivery order,P0,@checkout @guest @cod,code-first/e2e/order-cod-free-shipping.spec.ts,
+US-PAY-002,EP-PAY,CMI card flow,P0,,,CMI sandbox: pay success; pay failure; cancel return; no infinite submit loop
+US-POST-001,EP-POST,Thank you page reference,P0,,code-first/e2e/order-cod-free-shipping.spec.ts (thank-you ref),Confirmation email content and timing (manual)
+US-I18N-001,EP-I18N,FR/EN storefront,P0,,code-first/e2e/locale-switch.spec.ts; code-first/e2e/currency-switch.spec.ts; code-first/e2e/seo-meta.spec.ts; Playwright projects fr+en,Marketing copy review FR/EN; native speaker spot-check
+US-I18N-002,EP-I18N,Brand from API,P1,,,Logo formats and colors on devices; no flash of wrong brand on slow network
+US-API-001,EP-API,Products list contract,P2,,,Deferred — covered indirectly by shop/listing automation
+US-API-002,EP-API,Checkout validation,P2,,,Deferred — checkout validation covered by e2e/checkout-validation.spec.ts
+US-API-003,EP-API,Contact intake,P2,,code-first/smoke/storefront-contact.spec.ts; code-first/e2e/contact-form-submit.spec.ts,Spam/rate-limit behaviour if enabled
+US-ADM-001,EP-ADMIN,Admin login,P1,,,Admin UI login smoke on staging (manual)
+US-ADM-002,EP-ADMIN,Products and stock,P1,,,Admin product CRUD; image upload; stock change reflects on PDP
+US-ADM-003,EP-ADMIN,Orders operations,P2,,,Order list filters; status updates; CSV export on large dataset
+US-ADM-004,EP-ADMIN,Shipping and settings,P2,,,Shipping method CRUD; settings validation; role permissions
+US-QA-001,EP-QUALITY,CI pipeline,P0,,.github/workflows/qa.yml,Playwright typecheck in CI; full E2E when ENABLE_PLAYWRIGHT_CI=true
+US-QA-002,EP-QUALITY,Test coverage map,P1,,docs/spreadsheets/test-coverage.csv,Each P0 story has automated and/or manual column filled
+US-QA-003,EP-QUALITY,Staging parity,P1,,Playwright env vars in playwright.config,Real hosts DNS/TLS/cookies; default PDP in stock on staging
