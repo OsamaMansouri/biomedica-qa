@@ -1,5 +1,5 @@
-# QA repo only — Playwright typecheck + smoke on biomedica.ma.
-# This workflow lives in the QA git repository (not front/backend/admin).
+# QA repo — typecheck on GitHub cloud; smoke/e2e on self-hosted runner (VPS).
+# GitHub-hosted runners cannot reach biomedica.ma (firewall/CDN timeout).
 name: QA
 
 on:
@@ -39,14 +39,12 @@ jobs:
 
   smoke:
     needs: [typecheck]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: npm
-          cache-dependency-path: playwright/package-lock.json
       - name: Smoke (FR) on biomedica.ma
         working-directory: playwright
         env:
@@ -57,7 +55,7 @@ jobs:
           npm run test:smoke:fr
       - name: Publish JUnit (GitHub Checks / job summary)
         uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+        if: always() && hashFiles('playwright/junit.xml') != ''
         with:
           check_name: Playwright smoke
           files: playwright/junit.xml
@@ -72,7 +70,7 @@ jobs:
           name: test-results
           path: playwright/test-results/
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && hashFiles('playwright/junit.xml') != ''
         with:
           name: junit.xml
           path: playwright/junit.xml
@@ -80,14 +78,12 @@ jobs:
   e2e:
     needs: [smoke]
     if: ${{ vars.ENABLE_PLAYWRIGHT_E2E == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: npm
-          cache-dependency-path: playwright/package-lock.json
       - name: Full suite (FR) — creates real COD orders on prod
         working-directory: playwright
         env:
@@ -98,7 +94,7 @@ jobs:
           npm run test:ci:fr
       - name: Publish JUnit (GitHub Checks / job summary)
         uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+        if: always() && hashFiles('playwright/junit.xml') != ''
         with:
           check_name: Playwright e2e
           files: playwright/junit.xml
@@ -113,7 +109,7 @@ jobs:
           name: test-results
           path: playwright/test-results/
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && hashFiles('playwright/junit.xml') != ''
         with:
           name: junit.xml
           path: playwright/junit.xml

@@ -17,13 +17,33 @@ Configured in [`.github/workflows/qa.yml`](../.github/workflows/qa.yml) and [`qa
 
 ## What runs (QA repo only)
 
-| Job | What |
-|-----|------|
-| `typecheck` | `npm run typecheck` in `playwright/` |
-| `smoke` | Smoke FR on biomedica.ma |
-| `e2e` | Only if `ENABLE_PLAYWRIGHT_E2E=true` — **real COD orders** |
+| Job | Runner | What |
+|-----|--------|------|
+| `typecheck` | GitHub cloud (`ubuntu-latest`) | Typecheck specs |
+| `smoke` | **Self-hosted (VPS)** | Smoke FR on biomedica.ma |
+| `e2e` | **Self-hosted (VPS)** | Only if `ENABLE_PLAYWRIGHT_E2E=true` |
 
-No backend PHPUnit, no Laravel, no front build — QA folder only.
+### Why self-hosted?
+
+GitHub cloud runners **cannot connect** to `biomedica.ma` (firewall/CDN → `ConnectTimeoutError`).  
+Your VPS can reach the site — register it as a **self-hosted runner** for the QA repo.
+
+## One-time: self-hosted runner on VPS
+
+1. **GitHub** → `biomedica-qa` → **Settings** → **Actions** → **Runners** → **New self-hosted runner** → Linux.
+2. On the VPS (SSH), run the commands GitHub shows (download, `./config.sh`, `./run.sh`).
+3. Install once on the VPS:
+
+```bash
+# Node 20+ required; then Playwright system deps (Ubuntu/Debian)
+sudo npx playwright install-deps chromium
+```
+
+4. Re-run the workflow — **smoke** should pick up the runner (label `self-hosted`).
+
+Keep the runner as a service (systemd) so it stays online — GitHub docs link on the runner setup page.
+
+Until the runner is registered, the **smoke** job stays **Queued**.
 
 ## Optional overrides
 
@@ -62,6 +82,8 @@ From monorepo checkout: same paths under `QA/playwright/`.
 
 | Failure | Fix |
 |---------|-----|
+| `ConnectTimeoutError` on biomedica.ma | Use **self-hosted runner on VPS** (see above) |
+| Smoke job **Queued** forever | Register self-hosted runner on repo |
 | PDP 404 | Use `-60ml` slug on prod |
 | API check | `https://api.biomedica.ma/api/products?per_page=1` → 200 |
 | Workflow not running | Push must be to the **QA** GitHub repo, not front/backend |

@@ -21,7 +21,17 @@ export default async function globalSetup(): Promise<void> {
   }
 
   const home = `${storefrontOrigin()}/fr/`;
-  const homeRes = await fetch(home, { signal: AbortSignal.timeout(30_000) });
+  let homeRes: Response;
+  try {
+    homeRes = await fetch(home, { signal: AbortSignal.timeout(30_000) });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const hint = process.env.CI
+      ? "GitHub cloud runners often cannot reach biomedica.ma (firewall/CDN). " +
+        "Use a self-hosted Actions runner on your VPS — see QA/docs/github-actions.md."
+      : "Start the storefront or set PLAYWRIGHT_ORIGIN in playwright/.env.";
+    throw new Error(`[global-setup] Storefront fetch failed: ${home} — ${msg}. ${hint}`);
+  }
   if (!homeRes.ok) {
     throw new Error(
       `[global-setup] Storefront unreachable (${homeRes.status}): ${home}. ` +
