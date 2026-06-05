@@ -1,5 +1,4 @@
-# QA repo — typecheck on GitHub cloud; smoke/e2e on self-hosted runner (VPS).
-# GitHub-hosted runners cannot reach biomedica.ma (firewall/CDN timeout).
+# QA repo — all jobs on GitHub cloud. Storefront: Netlify preview; API: api.biomedica.ma.
 name: QA
 
 on:
@@ -19,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PLAYWRIGHT_ORIGIN: ${{ vars.PLAYWRIGHT_ORIGIN || 'https://biomedica.ma' }}
+  PLAYWRIGHT_ORIGIN: ${{ vars.PLAYWRIGHT_ORIGIN || 'https://biomedica-test.netlify.app' }}
   PLAYWRIGHT_API_BASE_URL: ${{ vars.PLAYWRIGHT_API_BASE_URL || 'https://api.biomedica.ma' }}
   PLAYWRIGHT_TEST_PRODUCT_SLUG: ${{ vars.PLAYWRIGHT_TEST_PRODUCT_SLUG || 'argan-et-figue-de-barbarie-60ml' }}
   PLAYWRIGHT_WORKERS: "1"
@@ -39,13 +38,15 @@ jobs:
 
   smoke:
     needs: [typecheck]
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - name: Smoke (FR) on biomedica.ma
+          cache: npm
+          cache-dependency-path: playwright/package-lock.json
+      - name: Smoke (FR) on Netlify storefront
         working-directory: playwright
         env:
           CI: "true"
@@ -78,12 +79,14 @@ jobs:
   e2e:
     needs: [smoke]
     if: ${{ vars.ENABLE_PLAYWRIGHT_E2E == 'true' }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: npm
+          cache-dependency-path: playwright/package-lock.json
       - name: Full suite (FR) — creates real COD orders on prod
         working-directory: playwright
         env:

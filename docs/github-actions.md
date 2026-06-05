@@ -1,15 +1,15 @@
-# GitHub Actions — Playwright on biomedica.ma
+# GitHub Actions — Playwright on Netlify + prod API
 
 **This workflow belongs to the QA git repo only** (`QA/.github/workflows/qa.yml`).  
 `front/`, `backend/`, and `admin/` are separate repos — they do not run this pipeline.
 
-CI targets **production** URLs. Local dev stays on localhost.
+CI targets **Netlify storefront** + **production API**. Local dev stays on localhost.
 
 ## URLs
 
 | Role | URL |
 |------|-----|
-| Storefront | `https://biomedica.ma` |
+| Storefront (CI) | `https://biomedica-test.netlify.app` |
 | API | `https://api.biomedica.ma` |
 | Test PDP slug | `argan-et-figue-de-barbarie-60ml` |
 
@@ -20,30 +20,16 @@ Configured in [`.github/workflows/qa.yml`](../.github/workflows/qa.yml) and [`qa
 | Job | Runner | What |
 |-----|--------|------|
 | `typecheck` | GitHub cloud (`ubuntu-latest`) | Typecheck specs |
-| `smoke` | **Self-hosted (VPS)** | Smoke FR on biomedica.ma |
-| `e2e` | **Self-hosted (VPS)** | Only if `ENABLE_PLAYWRIGHT_E2E=true` |
+| `smoke` | GitHub cloud (`ubuntu-latest`) | Smoke FR on Netlify |
+| `e2e` | GitHub cloud (`ubuntu-latest`) | Only if `ENABLE_PLAYWRIGHT_E2E=true` |
 
-### Why self-hosted?
+### Run the workflow
 
-GitHub cloud runners **cannot connect** to `biomedica.ma` (firewall/CDN → `ConnectTimeoutError`).  
-Your VPS can reach the site — register it as a **self-hosted runner** for the QA repo.
+1. **GitHub** → `biomedica-qa` → **Actions** → **QA** → **Run workflow** (branch `main`).
+2. Or **push** any commit to `main` / open a PR — workflow runs automatically.
+3. If a run is stuck on **“Waiting for a runner”** with label `self-hosted`, **Cancel** it and push the updated workflow (cloud runners).
 
-## One-time: self-hosted runner on VPS
-
-1. **GitHub** → `biomedica-qa` → **Settings** → **Actions** → **Runners** → **New self-hosted runner** → Linux.
-2. On the VPS (SSH), run the commands GitHub shows (download, `./config.sh`, `./run.sh`).
-3. Install once on the VPS:
-
-```bash
-# Node 20+ required; then Playwright system deps (Ubuntu/Debian)
-sudo npx playwright install-deps chromium
-```
-
-4. Re-run the workflow — **smoke** should pick up the runner (label `self-hosted`).
-
-Keep the runner as a service (systemd) so it stays online — GitHub docs link on the runner setup page.
-
-Until the runner is registered, the **smoke** job stays **Queued**.
+Ensure **API CORS** allows `https://biomedica-test.netlify.app` on the Laravel backend.
 
 ## Optional overrides
 
@@ -51,7 +37,7 @@ QA repo → **Settings** → **Actions** → **Variables**:
 
 | Variable | Default |
 |----------|---------|
-| `PLAYWRIGHT_ORIGIN` | `https://biomedica.ma` |
+| `PLAYWRIGHT_ORIGIN` | `https://biomedica-test.netlify.app` |
 | `PLAYWRIGHT_API_BASE_URL` | `https://api.biomedica.ma` |
 | `PLAYWRIGHT_TEST_PRODUCT_SLUG` | `argan-et-figue-de-barbarie-60ml` |
 | `ENABLE_PLAYWRIGHT_E2E` | off |
@@ -60,7 +46,7 @@ QA repo → **Settings** → **Actions** → **Variables**:
 
 | | Local | CI |
 |---|--------|-----|
-| Storefront | `http://localhost:3333` | `https://biomedica.ma` |
+| Storefront | `http://localhost:3333` | `https://biomedica-test.netlify.app` |
 | API | `http://localhost:8000` | `https://api.biomedica.ma` |
 | Slug | `argan-et-figue-de-barbarie` | `argan-et-figue-de-barbarie-60ml` |
 
@@ -68,7 +54,7 @@ QA repo → **Settings** → **Actions** → **Variables**:
 
 ```bash
 # playwright/.env (inside QA repo)
-PLAYWRIGHT_ORIGIN=https://biomedica.ma
+PLAYWRIGHT_ORIGIN=https://biomedica-test.netlify.app
 PLAYWRIGHT_API_BASE_URL=https://api.biomedica.ma
 PLAYWRIGHT_TEST_PRODUCT_SLUG=argan-et-figue-de-barbarie-60ml
 
@@ -82,8 +68,8 @@ From monorepo checkout: same paths under `QA/playwright/`.
 
 | Failure | Fix |
 |---------|-----|
-| `ConnectTimeoutError` on biomedica.ma | Use **self-hosted runner on VPS** (see above) |
-| Smoke job **Queued** forever | Register self-hosted runner on repo |
+| `ConnectTimeoutError` on storefront | Check Netlify deploy + `PLAYWRIGHT_ORIGIN` variable |
+| Smoke job **Queued** forever | Old workflow used `self-hosted` — push cloud runner workflow or register a VPS runner |
 | PDP 404 | Use `-60ml` slug on prod |
 | API check | `https://api.biomedica.ma/api/products?per_page=1` → 200 |
 | Workflow not running | Push must be to the **QA** GitHub repo, not front/backend |
