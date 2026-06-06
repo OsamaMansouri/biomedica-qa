@@ -1,0 +1,1 @@
+{"id":"19472ab7a509bba562946353564e2048","fullName":"e2e/checkout-validation.spec.ts:31:7","name":"Guest: invalid email shows inline error on blur @checkout @validation @e2e","status":"passed","testResultsByEnv":{"default":"6b5ed4c9de52e702518d45a6f87e271d"}}

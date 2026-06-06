@@ -1,0 +1,1 @@
+{"id":"e12b2a862e42371af8aa8305726beb7f","fullName":"e2e/checkout-validation.spec.ts:12:7","name":"Guest: checkout blocks submit when required address fields are empty @checkout @validation @e2e","status":"passed","testResultsByEnv":{"default":"6c543c51fd4af93e952e295ac239a10b"}}
