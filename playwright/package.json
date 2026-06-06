@@ -13,6 +13,7 @@
     "test:fr": "playwright test code-first/e2e --project=fr",
     "test:e2e:fr": "playwright test code-first/e2e --project=fr",
     "test:smoke:fr": "playwright test code-first/smoke --project=fr",
+    "test:smoke:en": "playwright test code-first/smoke --project=en",
     "test:ci:fr": "playwright test code-first/smoke code-first/e2e --project=fr",
     "allure:generate": "allure generate reports/allure-results --output reports/allure-report",
     "allure:open": "allure open reports/allure-report",

@@ -20,17 +20,24 @@ Configured in [`.github/workflows/qa.yml`](../.github/workflows/qa.yml) and [`qa
 | Job | Runner | What |
 |-----|--------|------|
 | `typecheck` | GitHub cloud (`ubuntu-latest`) | Typecheck specs |
-| `smoke` | GitHub cloud (`ubuntu-latest`) | Smoke FR on Netlify |
-| `e2e` | GitHub cloud (`ubuntu-latest`) | E2E FR only — if `ENABLE_PLAYWRIGHT_E2E=true` **or** nightly (03:00 UTC) |
+| `smoke` | GitHub cloud (`ubuntu-latest`) | Smoke FR on Netlify (every push/PR) |
+| `smoke-en` | GitHub cloud (`ubuntu-latest`) | Smoke EN weekly (Monday 04:00 UTC) |
+| `e2e` | GitHub cloud (`ubuntu-latest`) | E2E FR only — nightly 03:00 UTC or `ENABLE_PLAYWRIGHT_E2E=true` |
 | `publish-report` | GitHub cloud | Merge Allure HTML → GitHub Pages + workflow Summary links |
 
 ### Run the workflow
 
 1. **GitHub** → `biomedica-qa` → **Actions** → **QA** → **Run workflow** (branch `main`).
 2. Or **push** any commit to `main` / open a PR — workflow runs automatically.
-3. **Nightly** — full E2E runs at **03:00 UTC** without setting `ENABLE_PLAYWRIGHT_E2E`.
+3. **Nightly** — E2E FR at **03:00 UTC**; EN smoke at **04:00 UTC Monday**.
 
 Ensure **API CORS** allows `https://biomedica-test.netlify.app` on the Laravel backend.
+
+### Allure trends (history)
+
+Each suite keeps **run-over-run history** in GitHub Actions cache (`allure-with-history` action). After ~5 runs, open a report → **Graphs** / **Timeline** for pass-rate trends.
+
+Separate history per suite: smoke FR, smoke EN, e2e FR.
 
 ## Optional overrides
 
@@ -115,17 +122,19 @@ After the first green workflow run, open the **`publish-report`** job → **Summ
 | Page | URL |
 |------|-----|
 | Dashboard (index) | `https://<owner>.github.io/<repo>/` |
-| Smoke (every push) | `https://<owner>.github.io/<repo>/smoke/` |
-| E2E (nightly) | `https://<owner>.github.io/<repo>/e2e/` |
+| Smoke FR (every push) | `https://<owner>.github.io/<repo>/smoke/` |
+| Smoke EN (weekly) | `https://<owner>.github.io/<repo>/smoke-en/` |
+| E2E FR (nightly) | `https://<owner>.github.io/<repo>/e2e/` |
 
-On push-only runs, **E2E** keeps the **last nightly** report until the next E2E job.
+On push-only runs, **E2E** and **Smoke EN** keep the **last published** report until the next scheduled job (site cache).
 
 ### Artifacts (fallback)
 
 | Artifact | Job | When | Contents |
 |----------|-----|------|----------|
-| **`allure-report-smoke`** | smoke | Always (if tests ran) | Allure HTML zip — unzip → open `index.html` |
-| **`allure-report-e2e`** | e2e | When E2E job runs | Allure HTML zip |
+| **`allure-report-smoke`** | smoke | Always (if tests ran) | Allure HTML zip |
+| **`allure-report-smoke-en`** | smoke-en | Weekly | Allure HTML zip |
+| **`allure-report-e2e`** | e2e | Nightly / flag | Allure HTML zip |
 | **`test-results-smoke`** / **`test-results-e2e`** | smoke / e2e | Failure only | Screenshots, videos, traces |
 
 Allure includes failed-test screenshots, video, trace links, suite tree, environment (origin, OS, CI).

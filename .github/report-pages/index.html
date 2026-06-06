@@ -87,6 +87,11 @@
       color: var(--muted);
       font-size: 0.92rem;
     }
+    .note {
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
   </style>
 </head>
 <body>
@@ -94,18 +99,23 @@
     <header>
       <p class="eyebrow">Biomedica QA</p>
       <h1>Test reports</h1>
-      <p class="lead">Allure results from GitHub Actions (storefront FR).</p>
+      <p class="lead">Allure results from GitHub Actions. Open a suite to see trends over time.</p>
     </header>
     <nav class="cards" aria-label="Report suites">
       <a class="card" href="smoke/">
-        <strong>Smoke</strong>
+        <strong>Smoke FR</strong>
         <span>Fast checks on every push</span>
       </a>
+      <a class="card" href="smoke-en/">
+        <strong>Smoke EN</strong>
+        <span>Weekly parity (Monday)</span>
+      </a>
       <a class="card" href="e2e/">
-        <strong>E2E</strong>
+        <strong>E2E FR</strong>
         <span>Full checkout flows (nightly)</span>
       </a>
     </nav>
+    <p class="note">In Allure, use the <strong>Graphs</strong> and <strong>Timeline</strong> tabs for history after several runs.</p>
   </main>
 </body>
 </html>

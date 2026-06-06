@@ -1,0 +1,51 @@
+name: Allure report with history
+description: Restore cached Allure history, generate HTML, save history for trends.
+inputs:
+  cache_prefix:
+    description: Cache key prefix (e.g. allure-history-smoke)
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Restore Allure history cache
+      uses: actions/cache/restore@v4
+      id: history-cache
+      with:
+        path: playwright/reports/allure-history-cache
+        key: ${{ inputs.cache_prefix }}-${{ github.ref_name }}-${{ github.run_id }}
+        restore-keys: |
+          ${{ inputs.cache_prefix }}-${{ github.ref_name }}-
+
+    - name: Merge history into results
+      shell: bash
+      working-directory: playwright
+      run: |
+        if [ -d reports/allure-history-cache ] && [ "$(ls -A reports/allure-history-cache 2>/dev/null)" ]; then
+          mkdir -p reports/allure-results/history
+          cp -R reports/allure-history-cache/. reports/allure-results/history/
+          echo "Restored Allure history ($(find reports/allure-history-cache -type f | wc -l) files)"
+        else
+          echo "No prior Allure history (first run or new branch)"
+        fi
+
+    - name: Generate Allure report
+      shell: bash
+      working-directory: playwright
+      run: npx allure generate reports/allure-results --output reports/allure-report
+
+    - name: Prepare history for next run
+      shell: bash
+      working-directory: playwright
+      run: |
+        rm -rf reports/allure-history-cache
+        if [ -d reports/allure-report/history ]; then
+          mkdir -p reports/allure-history-cache
+          cp -R reports/allure-report/history/. reports/allure-history-cache/
+        fi
+
+    - name: Save Allure history cache
+      uses: actions/cache/save@v4
+      if: always()
+      with:
+        path: playwright/reports/allure-history-cache
+        key: ${{ inputs.cache_prefix }}-${{ github.ref_name }}-${{ github.run_id }}
