@@ -1,1 +1,1 @@
-{"id":"5d0c9c5e95c4287bf58e9083056adb51","fullName":"e2e/checkout-shipping-methods.spec.ts:10:7","name":"Guest: checkout lists shipping methods after address quote @checkout @e2e","status":"passed","testResultsByEnv":{"default":"8e4cce8e83e14f827fad52880850b96a"}}
+{"id":"5d0c9c5e95c4287bf58e9083056adb51","fullName":"e2e/checkout-shipping-methods.spec.ts:10:7","name":"Guest: checkout lists shipping methods after address quote @checkout @e2e","status":"failed","testResultsByEnv":{"default":"c4dcc9a83f1e665c4d108ca2630934ea"}}
