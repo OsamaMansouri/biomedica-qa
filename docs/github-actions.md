@@ -59,7 +59,7 @@ One-time on **`biomedica-qa`** (needs repo admin):
 3. Enable **Require status checks to pass**.
 4. After at least one green **QA** workflow run, add required checks:
    - **`typecheck`**
-   - **`smoke`**
+   - **`smoke-fr`**
 5. Enable **Require branches to be up to date before merging** (recommended).
 6. Save.
 
