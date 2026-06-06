@@ -4,8 +4,9 @@ import path from "path";
 dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 /**
- * Même idée que sfcc/global-setup.ts : préparation avant les workers.
- * Ici : vérif optionnelle que l’API répond (évite des suites vides si Laravel est down).
+ * Préparation avant les workers : vérifie que le storefront répond.
+ * En local, vérifie aussi l’API si PLAYWRIGHT_API_BASE_URL est défini.
+ * En CI, seul le storefront est pré-vérifié — les smoke tests appellent l’API via Netlify.
  */
 function storefrontOrigin(): string {
   const raw =
@@ -40,41 +41,20 @@ export default async function globalSetup(): Promise<void> {
     );
   }
 
+  if (process.env.CI) {
+    return;
+  }
+
   const api = process.env.PLAYWRIGHT_API_BASE_URL?.trim();
   if (!api) {
     return;
   }
   const url = `${api.replace(/\/$/, "")}/api/products?per_page=1`;
-  const timeoutMs = process.env.CI ? 30_000 : 10_000;
-  const retries = process.env.CI ? 2 : 0;
-  let lastErr: unknown;
-  let res: Response | undefined;
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
-      break;
-    } catch (err) {
-      lastErr = err;
-      if (attempt < retries) {
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-      }
-    }
-  }
-  if (!res) {
-    const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
-    throw new Error(
-      `[global-setup] API unreachable: ${url} — ${msg}. ` +
-        (process.env.CI
-          ? "Transient from GitHub runners — re-run. If it persists, check VPS firewall allows outbound/API access from GitHub Actions."
-          : "Start Laravel or unset PLAYWRIGHT_API_BASE_URL in .env."),
-    );
-  }
+  const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
   if (!res.ok) {
     throw new Error(
       `[global-setup] API unreachable (${res.status}): ${url}. ` +
-        (process.env.CI
-          ? "Set PLAYWRIGHT_API_BASE_URL repository variable. See QA/docs/github-actions.md."
-          : "Start Laravel or unset PLAYWRIGHT_API_BASE_URL in .env."),
+        "Start Laravel or unset PLAYWRIGHT_API_BASE_URL in .env.",
     );
   }
 }
