@@ -21,13 +21,13 @@ Configured in [`.github/workflows/qa.yml`](../.github/workflows/qa.yml) and [`qa
 |-----|--------|------|
 | `typecheck` | GitHub cloud (`ubuntu-latest`) | Typecheck specs |
 | `smoke` | GitHub cloud (`ubuntu-latest`) | Smoke FR on Netlify |
-| `e2e` | GitHub cloud (`ubuntu-latest`) | Only if `ENABLE_PLAYWRIGHT_E2E=true` |
+| `e2e` | GitHub cloud (`ubuntu-latest`) | If `ENABLE_PLAYWRIGHT_E2E=true` **or** nightly schedule (03:00 UTC) |
 
 ### Run the workflow
 
 1. **GitHub** → `biomedica-qa` → **Actions** → **QA** → **Run workflow** (branch `main`).
 2. Or **push** any commit to `main` / open a PR — workflow runs automatically.
-3. If a run is stuck on **“Waiting for a runner”** with label `self-hosted`, **Cancel** it and push the updated workflow (cloud runners).
+3. **Nightly** — full E2E runs at **03:00 UTC** without setting `ENABLE_PLAYWRIGHT_E2E`.
 
 Ensure **API CORS** allows `https://biomedica-test.netlify.app` on the Laravel backend.
 
@@ -40,7 +40,26 @@ QA repo → **Settings** → **Actions** → **Variables**:
 | `PLAYWRIGHT_ORIGIN` | `https://biomedica-test.netlify.app` |
 | `PLAYWRIGHT_API_BASE_URL` | `https://api.biomedica.ma` |
 | `PLAYWRIGHT_TEST_PRODUCT_SLUG` | `argan-et-figue-de-barbarie-60ml` |
-| `ENABLE_PLAYWRIGHT_E2E` | off |
+| `ENABLE_PLAYWRIGHT_E2E` | off (use nightly schedule, or set `true` for E2E on every push) |
+
+## Branch protection (require smoke before merge)
+
+One-time on **`biomedica-qa`** (needs repo admin):
+
+1. **Settings** → **Rules** → **Rulesets** → **New ruleset** (or **Branches** → **Add rule** on `main`).
+2. Target branch: **`main`**.
+3. Enable **Require status checks to pass**.
+4. After at least one green **QA** workflow run, add required checks:
+   - **`typecheck`**
+   - **`smoke`**
+5. Enable **Require branches to be up to date before merging** (recommended).
+6. Save.
+
+PRs cannot merge until **smoke** (and **typecheck**) pass. E2E stays optional on PRs unless you set `ENABLE_PLAYWRIGHT_E2E=true`.
+
+## CI performance
+
+Chromium is cached under `~/.cache/ms-playwright` (see `.github/actions/playwright-chromium`). First run downloads browsers; later runs skip the ~280 MB download when `package-lock.json` is unchanged.
 
 ## Local vs CI
 

@@ -65,7 +65,7 @@ npm run qa:e2e:fr
 |-----|------|------|
 | `typecheck` | Every PR (QA repo) | Typecheck `playwright/` |
 | `smoke` | Every PR (QA repo) | Smoke FR on **https://biomedica.ma** |
-| `e2e` | `ENABLE_PLAYWRIGHT_E2E=true` | Full suite — real COD orders |
+| `e2e` | `ENABLE_PLAYWRIGHT_E2E=true` or **nightly 03:00 UTC** | Full suite — real COD orders |
 
 Workflow file: `QA/.github/workflows/qa.yml` — **QA git repo only**, no backend/front jobs.
 

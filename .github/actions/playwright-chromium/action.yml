@@ -1,0 +1,22 @@
+name: Playwright Chromium
+description: npm ci in playwright/ with cached Chromium (skips browser download on cache hit).
+runs:
+  using: composite
+  steps:
+    - name: Cache Playwright browsers
+      uses: actions/cache@v4
+      id: playwright-cache
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ hashFiles('playwright/package-lock.json') }}
+
+    - name: Install npm dependencies
+      shell: bash
+      working-directory: playwright
+      run: npm ci
+
+    - name: Install Chromium
+      shell: bash
+      working-directory: playwright
+      run: npx playwright install chromium
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
