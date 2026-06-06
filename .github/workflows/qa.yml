@@ -8,9 +8,9 @@ on:
     branches: [main, master, develop]
   workflow_dispatch:
   schedule:
-    # Nightly E2E (03:00 UTC). Creates real COD orders on prod API.
-    - cron: "0 3 * * *"
-    # EN smoke parity (Monday 04:00 UTC).
+    # E2E nightly (03:00 UTC), except Monday — see weekly full run below.
+    - cron: "0 3 * * 0,2-6"
+    # Monday full regression (04:00 UTC): smoke-fr + smoke-en + e2e-fr.
     - cron: "0 4 * * 1"
 
 permissions:
@@ -39,9 +39,8 @@ jobs:
       - name: Typecheck Playwright specs
         run: npm ci --prefix playwright && npm run typecheck --prefix playwright
 
-  smoke:
+  smoke-fr:
     needs: [typecheck]
-    if: github.event_name != 'schedule' || github.event.schedule != '0 4 * * 1'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -59,16 +58,16 @@ jobs:
       - uses: ./.github/actions/allure-with-history
         if: always() && hashFiles('playwright/reports/allure-results') != ''
         with:
-          cache_prefix: allure-history-smoke
+          cache_prefix: allure-history-smoke-fr
       - uses: actions/upload-artifact@v4
         if: always() && hashFiles('playwright/reports/allure-report/index.html') != ''
         with:
-          name: allure-report-smoke
+          name: allure-report-smoke-fr
           path: playwright/reports/allure-report/
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: test-results-smoke
+          name: test-results-smoke-fr
           path: playwright/test-results/
 
   smoke-en:
@@ -103,9 +102,14 @@ jobs:
           name: test-results-smoke-en
           path: playwright/test-results/
 
-  e2e:
-    needs: [smoke]
-    if: ${{ (vars.ENABLE_PLAYWRIGHT_E2E == 'true' || github.event.schedule == '0 3 * * *') && (github.event_name != 'schedule' || github.event.schedule == '0 3 * * *') }}
+  e2e-fr:
+    needs: [smoke-fr]
+    if: |
+      vars.ENABLE_PLAYWRIGHT_E2E == 'true' ||
+      (github.event_name == 'schedule' && (
+        github.event.schedule == '0 3 * * 0,2-6' ||
+        github.event.schedule == '0 4 * * 1'
+      ))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -115,7 +119,7 @@ jobs:
           cache: npm
           cache-dependency-path: playwright/package-lock.json
       - uses: ./.github/actions/playwright-chromium
-      - name: E2E (FR) only — creates real COD orders on prod
+      - name: E2E (FR) — creates real COD orders on prod
         working-directory: playwright
         env:
           CI: "true"
@@ -123,26 +127,26 @@ jobs:
       - uses: ./.github/actions/allure-with-history
         if: always() && hashFiles('playwright/reports/allure-results') != ''
         with:
-          cache_prefix: allure-history-e2e
+          cache_prefix: allure-history-e2e-fr
       - uses: actions/upload-artifact@v4
         if: always() && hashFiles('playwright/reports/allure-report/index.html') != ''
         with:
-          name: allure-report-e2e
+          name: allure-report-e2e-fr
           path: playwright/reports/allure-report/
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: test-results-e2e
+          name: test-results-e2e-fr
           path: playwright/test-results/
 
   publish-report:
-    needs: [smoke, smoke-en, e2e]
+    needs: [smoke-fr, smoke-en, e2e-fr]
     if: |
       always() &&
-      (needs.smoke.result == 'success' || needs.smoke.result == 'failure' || needs.smoke.result == 'skipped') &&
+      (needs.smoke-fr.result == 'success' || needs.smoke-fr.result == 'failure' || needs.smoke-fr.result == 'skipped') &&
       (needs.smoke-en.result == 'success' || needs.smoke-en.result == 'failure' || needs.smoke-en.result == 'skipped') &&
-      (needs.e2e.result == 'success' || needs.e2e.result == 'failure' || needs.e2e.result == 'skipped') &&
-      (needs.smoke.result != 'cancelled' && needs.smoke-en.result != 'cancelled' && needs.e2e.result != 'cancelled')
+      (needs.e2e-fr.result == 'success' || needs.e2e-fr.result == 'failure' || needs.e2e-fr.result == 'skipped') &&
+      (needs.smoke-fr.result != 'cancelled' && needs.smoke-en.result != 'cancelled' && needs.e2e-fr.result != 'cancelled')
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -167,44 +171,41 @@ jobs:
           restore-keys: |
             qa-pages-site-${{ github.ref_name }}-
 
-      - name: Download smoke Allure report
+      - name: Download smoke-fr Allure report
         uses: actions/download-artifact@v4
         continue-on-error: true
-        id: smoke-artifact
         with:
-          name: allure-report-smoke
-          path: incoming/smoke
+          name: allure-report-smoke-fr
+          path: incoming/smoke-fr
 
-      - name: Download EN smoke Allure report
+      - name: Download smoke-en Allure report
         uses: actions/download-artifact@v4
         continue-on-error: true
-        id: smoke-en-artifact
         with:
           name: allure-report-smoke-en
           path: incoming/smoke-en
 
-      - name: Download e2e Allure report
+      - name: Download e2e-fr Allure report
         uses: actions/download-artifact@v4
         continue-on-error: true
-        id: e2e-artifact
         with:
-          name: allure-report-e2e
-          path: incoming/e2e
+          name: allure-report-e2e-fr
+          path: incoming/e2e-fr
 
       - name: Build report site
         run: |
           mkdir -p site
-          if [ -f incoming/smoke/index.html ]; then
-            rm -rf site/smoke
-            mv incoming/smoke site/smoke
+          if [ -f incoming/smoke-fr/index.html ]; then
+            rm -rf site/smoke-fr
+            mv incoming/smoke-fr site/smoke-fr
           fi
           if [ -f incoming/smoke-en/index.html ]; then
             rm -rf site/smoke-en
             mv incoming/smoke-en site/smoke-en
           fi
-          if [ -f incoming/e2e/index.html ]; then
-            rm -rf site/e2e
-            mv incoming/e2e site/e2e
+          if [ -f incoming/e2e-fr/index.html ]; then
+            rm -rf site/e2e-fr
+            mv incoming/e2e-fr site/e2e-fr
           fi
           touch site/.nojekyll
           cp .github/report-pages/index.html site/index.html
@@ -236,6 +237,6 @@ jobs:
           echo "Trends/history build up over successive runs (cached per suite)." >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "- [Dashboard](${BASE})" >> "$GITHUB_STEP_SUMMARY"
-          echo "- [Smoke FR](${BASE}smoke/)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- [Smoke EN (weekly)](${BASE}smoke-en/)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- [E2E FR](${BASE}e2e/)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- [Smoke FR](${BASE}smoke-fr/)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- [Smoke EN](${BASE}smoke-en/)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- [E2E FR](${BASE}e2e-fr/)" >> "$GITHUB_STEP_SUMMARY"

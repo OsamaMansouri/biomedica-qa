@@ -20,9 +20,9 @@ Configured in [`.github/workflows/qa.yml`](../.github/workflows/qa.yml) and [`qa
 | Job | Runner | What |
 |-----|--------|------|
 | `typecheck` | GitHub cloud (`ubuntu-latest`) | Typecheck specs |
-| `smoke` | GitHub cloud (`ubuntu-latest`) | Smoke FR on Netlify (every push/PR) |
+| `smoke-fr` | GitHub cloud (`ubuntu-latest`) | Smoke FR on Netlify (every push/PR) |
 | `smoke-en` | GitHub cloud (`ubuntu-latest`) | Smoke EN weekly (Monday 04:00 UTC) |
-| `e2e` | GitHub cloud (`ubuntu-latest`) | E2E FR only — nightly 03:00 UTC or `ENABLE_PLAYWRIGHT_E2E=true` |
+| `e2e-fr` | GitHub cloud (`ubuntu-latest`) | E2E FR — nightly 03:00 UTC (Sun/Tue–Sat) or Monday 04:00 UTC, or `ENABLE_PLAYWRIGHT_E2E=true` |
 | `publish-report` | GitHub cloud | Merge Allure HTML → GitHub Pages + workflow Summary links |
 
 ### Run the workflow
@@ -105,7 +105,7 @@ From monorepo checkout: same paths under `QA/playwright/`.
 
 | Job | What |
 |-----|------|
-| `smoke` / `e2e` | Run tests → generate Allure → upload **`allure-report-smoke`** / **`allure-report-e2e`** artifacts |
+| `smoke-fr` / `e2e-fr` | Run tests → generate Allure → upload **`allure-report-smoke-fr`** / **`allure-report-e2e-fr`** artifacts |
 | `publish-report` | Merge reports → deploy to **GitHub Pages** (`actions/deploy-pages`) |
 
 Playwright HTML stays **local** only: `npx playwright show-report reports/playwright-html`.
@@ -122,9 +122,9 @@ After the first green workflow run, open the **`publish-report`** job → **Summ
 | Page | URL |
 |------|-----|
 | Dashboard (index) | `https://<owner>.github.io/<repo>/` |
-| Smoke FR (every push) | `https://<owner>.github.io/<repo>/smoke/` |
+| Smoke FR (every push) | `https://<owner>.github.io/<repo>/smoke-fr/` |
 | Smoke EN (weekly) | `https://<owner>.github.io/<repo>/smoke-en/` |
-| E2E FR (nightly) | `https://<owner>.github.io/<repo>/e2e/` |
+| E2E FR (nightly) | `https://<owner>.github.io/<repo>/e2e-fr/` |
 
 On push-only runs, **E2E** and **Smoke EN** keep the **last published** report until the next scheduled job (site cache).
 
@@ -132,9 +132,10 @@ On push-only runs, **E2E** and **Smoke EN** keep the **last published** report u
 
 | Artifact | Job | When | Contents |
 |----------|-----|------|----------|
-| **`allure-report-smoke`** | smoke | Always (if tests ran) | Allure HTML zip |
+| **`allure-report-smoke-fr`** | smoke-fr | Always (if tests ran) | Allure HTML zip |
 | **`allure-report-smoke-en`** | smoke-en | Weekly | Allure HTML zip |
-| **`allure-report-e2e`** | e2e | Nightly / flag | Allure HTML zip |
+| **`allure-report-e2e-fr`** | e2e-fr | Nightly / flag | Allure HTML zip |
+| **`test-results-smoke-fr`** / **`test-results-e2e-fr`** | smoke-fr / e2e-fr | Failure only | Screenshots, videos, traces |
 | **`test-results-smoke`** / **`test-results-e2e`** | smoke / e2e | Failure only | Screenshots, videos, traces |
 
 Allure includes failed-test screenshots, video, trace links, suite tree, environment (origin, OS, CI).
@@ -175,7 +176,7 @@ On failure, Playwright keeps:
 - **Video** (`.webm`) — in `test-results/` for the failed test
 - **Screenshot** — in `test-results/`
 
-**CI:** **`publish-report`** → GitHub Pages; **`allure-report-smoke`** artifact as fallback; **`test-results-smoke`** if failed.
+**CI:** **`publish-report`** → GitHub Pages; **`allure-report-smoke-fr`** artifact as fallback; **`test-results-smoke-fr`** if failed.
 
 **Local:**
 

@@ -2,7 +2,7 @@ name: Allure report with history
 description: Restore cached Allure history, generate HTML, save history for trends.
 inputs:
   cache_prefix:
-    description: Cache key prefix (e.g. allure-history-smoke)
+    description: Cache key prefix (e.g. allure-history-smoke-fr)
     required: true
 runs:
   using: composite
