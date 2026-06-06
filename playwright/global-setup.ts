@@ -45,7 +45,30 @@ export default async function globalSetup(): Promise<void> {
     return;
   }
   const url = `${api.replace(/\/$/, "")}/api/products?per_page=1`;
-  const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
+  const timeoutMs = process.env.CI ? 30_000 : 10_000;
+  const retries = process.env.CI ? 2 : 0;
+  let lastErr: unknown;
+  let res: Response | undefined;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
+      break;
+    } catch (err) {
+      lastErr = err;
+      if (attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      }
+    }
+  }
+  if (!res) {
+    const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
+    throw new Error(
+      `[global-setup] API unreachable: ${url} — ${msg}. ` +
+        (process.env.CI
+          ? "Transient from GitHub runners — re-run. If it persists, check VPS firewall allows outbound/API access from GitHub Actions."
+          : "Start Laravel or unset PLAYWRIGHT_API_BASE_URL in .env."),
+    );
+  }
   if (!res.ok) {
     throw new Error(
       `[global-setup] API unreachable (${res.status}): ${url}. ` +

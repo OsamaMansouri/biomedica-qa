@@ -90,7 +90,7 @@ From monorepo checkout: same paths under `QA/playwright/`.
 | `ConnectTimeoutError` on storefront | Check Netlify deploy + `PLAYWRIGHT_ORIGIN` variable |
 | Smoke job **Queued** forever | Old workflow used `self-hosted` — push cloud runner workflow or register a VPS runner |
 | PDP OOS smoke fails / `qa-pdp-inventory` missing | Create OOS fixture in admin (slug `test-product-out-of-stock`, stock **0**, published), or set `PLAYWRIGHT_TEST_OOS_PRODUCT_SLUG` |
-| API check | `https://api.biomedica.ma/api/products?per_page=1` → 200 |
+| API timeout in global-setup | Re-run workflow. If repeated, VPS may throttle GitHub IPs — allow GitHub Actions ranges or re-run off-peak |
 | Workflow not running | Push must be to the **QA** GitHub repo, not front/backend |
 
 ## Reports in GitHub
