@@ -93,17 +93,30 @@ From monorepo checkout: same paths under `QA/playwright/`.
 | API timeout in global-setup (local only) | Start Laravel or check `PLAYWRIGHT_API_BASE_URL` in `playwright/.env`. CI skips direct API preflight — smoke tests cover API via Netlify |
 | Workflow not running | Push must be to the **QA** GitHub repo, not front/backend |
 
-## Reports in GitHub
+## Reports in GitHub (Allure on GitHub Pages)
+
+CI publishes **Allure only** to **GitHub Pages** (no Playwright HTML artifact). Playwright HTML stays **local** (`npx playwright show-report reports/playwright-html`).
+
+### One-time repo setup
+
+1. **Settings → Actions → General → Workflow permissions** → **Read and write permissions** → Save.
+2. After the first green **smoke** run: **Settings → Pages** → Source: **Deploy from a branch** → Branch: **`gh-pages`** / **`/(root)`** → Save.
+
+### Report URLs (after Pages is enabled)
+
+| Suite | URL |
+|-------|-----|
+| Smoke (every push) | `https://<owner>.github.io/<repo>/smoke/` |
+| E2E (nightly or `ENABLE_PLAYWRIGHT_E2E=true`) | `https://<owner>.github.io/<repo>/e2e/` |
+
+Links also appear in the workflow **Summary** tab on each run.
+
+### Failure artifacts
 
 | Artifact | Job | When | Contents |
 |----------|-----|------|----------|
-| **`playwright-report-smoke`** / **`playwright-report-e2e`** | smoke / e2e | Always | Playwright HTML report |
-| **`allure-report-smoke`** / **`allure-report-e2e`** | smoke / e2e | Always | Allure HTML (history, categories, attachments) |
 | **`test-results-smoke`** / **`test-results-e2e`** | smoke / e2e | Failure only | Screenshots, videos, traces |
 
-**Playwright HTML:** unzip → open **`index.html`**.
-
-**Allure:** unzip **`allure-report-smoke`** (or `-e2e`) → open **`index.html`**.  
 Allure includes failed-test screenshots, video, trace links, suite tree, environment (origin, OS, CI).
 
 Trace / screenshot / video are kept on failure only (`playwright.config.ts`).
@@ -142,7 +155,7 @@ On failure, Playwright keeps:
 - **Video** (`.webm`) — in `test-results/` for the failed test
 - **Screenshot** — in `test-results/`
 
-**CI:** **`playwright-report-smoke`** + **`allure-report-smoke`** (always); **`test-results-smoke`** (if failed).
+**CI:** Allure on **GitHub Pages** (`/smoke/` or `/e2e/`); **`test-results-smoke`** artifact if failed.
 
 **Local:**
 

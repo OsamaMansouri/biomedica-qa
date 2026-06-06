@@ -40,6 +40,8 @@ jobs:
   smoke:
     needs: [typecheck]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -55,16 +57,20 @@ jobs:
         run: npm run test:smoke:fr
       - uses: ./.github/actions/allure-report
         if: always() && hashFiles('playwright/reports/allure-results') != ''
-      - uses: actions/upload-artifact@v4
-        if: always() && hashFiles('playwright/reports/playwright-html/index.html') != ''
-        with:
-          name: playwright-report-smoke
-          path: playwright/reports/playwright-html/
-      - uses: actions/upload-artifact@v4
+      - name: Publish Allure report (GitHub Pages)
+        uses: peaceiris/actions-gh-pages@v4
         if: always() && hashFiles('playwright/reports/allure-report/index.html') != ''
         with:
-          name: allure-report-smoke
-          path: playwright/reports/allure-report/
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: playwright/reports/allure-report
+          destination_dir: smoke
+          keep_files: true
+      - name: Allure report link
+        if: always() && hashFiles('playwright/reports/allure-report/index.html') != ''
+        run: |
+          echo "### Allure smoke report" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/smoke/" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -75,6 +81,8 @@ jobs:
     needs: [smoke]
     if: ${{ vars.ENABLE_PLAYWRIGHT_E2E == 'true' || github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -90,16 +98,20 @@ jobs:
         run: npm run test:ci:fr
       - uses: ./.github/actions/allure-report
         if: always() && hashFiles('playwright/reports/allure-results') != ''
-      - uses: actions/upload-artifact@v4
-        if: always() && hashFiles('playwright/reports/playwright-html/index.html') != ''
-        with:
-          name: playwright-report-e2e
-          path: playwright/reports/playwright-html/
-      - uses: actions/upload-artifact@v4
+      - name: Publish Allure report (GitHub Pages)
+        uses: peaceiris/actions-gh-pages@v4
         if: always() && hashFiles('playwright/reports/allure-report/index.html') != ''
         with:
-          name: allure-report-e2e
-          path: playwright/reports/allure-report/
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: playwright/reports/allure-report
+          destination_dir: e2e
+          keep_files: true
+      - name: Allure report link
+        if: always() && hashFiles('playwright/reports/allure-report/index.html') != ''
+        run: |
+          echo "### Allure e2e report" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/e2e/" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
