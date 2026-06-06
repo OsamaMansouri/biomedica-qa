@@ -21,7 +21,8 @@ Configured in [`.github/workflows/qa.yml`](../.github/workflows/qa.yml) and [`qa
 |-----|--------|------|
 | `typecheck` | GitHub cloud (`ubuntu-latest`) | Typecheck specs |
 | `smoke` | GitHub cloud (`ubuntu-latest`) | Smoke FR on Netlify |
-| `e2e` | GitHub cloud (`ubuntu-latest`) | If `ENABLE_PLAYWRIGHT_E2E=true` **or** nightly schedule (03:00 UTC) |
+| `e2e` | GitHub cloud (`ubuntu-latest`) | E2E FR only — if `ENABLE_PLAYWRIGHT_E2E=true` **or** nightly (03:00 UTC) |
+| `publish-report` | GitHub cloud | Merge Allure HTML → GitHub Pages + workflow Summary links |
 
 ### Run the workflow
 
@@ -93,28 +94,38 @@ From monorepo checkout: same paths under `QA/playwright/`.
 | API timeout in global-setup (local only) | Start Laravel or check `PLAYWRIGHT_API_BASE_URL` in `playwright/.env`. CI skips direct API preflight — smoke tests cover API via Netlify |
 | Workflow not running | Push must be to the **QA** GitHub repo, not front/backend |
 
-## Reports in GitHub (Allure on GitHub Pages)
+## Reports in GitHub (Allure)
 
-CI publishes **Allure only** to **GitHub Pages** (no Playwright HTML artifact). Playwright HTML stays **local** (`npx playwright show-report reports/playwright-html`).
+| Job | What |
+|-----|------|
+| `smoke` / `e2e` | Run tests → generate Allure → upload **`allure-report-smoke`** / **`allure-report-e2e`** artifacts |
+| `publish-report` | Merge reports → deploy to **GitHub Pages** (`actions/deploy-pages`) |
+
+Playwright HTML stays **local** only: `npx playwright show-report reports/playwright-html`.
 
 ### One-time repo setup
 
 1. **Settings → Actions → General → Workflow permissions** → **Read and write permissions** → Save.
-2. After the first green **smoke** run: **Settings → Pages** → Source: **Deploy from a branch** → Branch: **`gh-pages`** / **`/(root)`** → Save.
+2. **Settings → Pages** → Source: **GitHub Actions** (not “Deploy from branch”) → Save.
 
-### Report URLs (after Pages is enabled)
+After the first green workflow run, open the **`publish-report`** job → **Summary** for live links.
 
-| Suite | URL |
-|-------|-----|
+### Report URLs
+
+| Page | URL |
+|------|-----|
+| Dashboard (index) | `https://<owner>.github.io/<repo>/` |
 | Smoke (every push) | `https://<owner>.github.io/<repo>/smoke/` |
-| E2E (nightly or `ENABLE_PLAYWRIGHT_E2E=true`) | `https://<owner>.github.io/<repo>/e2e/` |
+| E2E (nightly) | `https://<owner>.github.io/<repo>/e2e/` |
 
-Links also appear in the workflow **Summary** tab on each run.
+On push-only runs, **E2E** keeps the **last nightly** report until the next E2E job.
 
-### Failure artifacts
+### Artifacts (fallback)
 
 | Artifact | Job | When | Contents |
 |----------|-----|------|----------|
+| **`allure-report-smoke`** | smoke | Always (if tests ran) | Allure HTML zip — unzip → open `index.html` |
+| **`allure-report-e2e`** | e2e | When E2E job runs | Allure HTML zip |
 | **`test-results-smoke`** / **`test-results-e2e`** | smoke / e2e | Failure only | Screenshots, videos, traces |
 
 Allure includes failed-test screenshots, video, trace links, suite tree, environment (origin, OS, CI).
@@ -155,7 +166,7 @@ On failure, Playwright keeps:
 - **Video** (`.webm`) — in `test-results/` for the failed test
 - **Screenshot** — in `test-results/`
 
-**CI:** Allure on **GitHub Pages** (`/smoke/` or `/e2e/`); **`test-results-smoke`** artifact if failed.
+**CI:** **`publish-report`** → GitHub Pages; **`allure-report-smoke`** artifact as fallback; **`test-results-smoke`** if failed.
 
 **Local:**
 

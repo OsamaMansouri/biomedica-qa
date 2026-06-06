@@ -8,7 +8,7 @@ on:
     branches: [main, master, develop]
   workflow_dispatch:
   schedule:
-    # Nightly full E2E (03:00 UTC). Creates real COD orders on prod API.
+    # Nightly E2E (03:00 UTC). Creates real COD orders on prod API.
     - cron: "0 3 * * *"
 
 permissions:
@@ -40,8 +40,6 @@ jobs:
   smoke:
     needs: [typecheck]
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -57,20 +55,11 @@ jobs:
         run: npm run test:smoke:fr
       - uses: ./.github/actions/allure-report
         if: always() && hashFiles('playwright/reports/allure-results') != ''
-      - name: Publish Allure report (GitHub Pages)
-        uses: peaceiris/actions-gh-pages@v4
+      - uses: actions/upload-artifact@v4
         if: always() && hashFiles('playwright/reports/allure-report/index.html') != ''
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: playwright/reports/allure-report
-          destination_dir: smoke
-          keep_files: true
-      - name: Allure report link
-        if: always() && hashFiles('playwright/reports/allure-report/index.html') != ''
-        run: |
-          echo "### Allure smoke report" >> "$GITHUB_STEP_SUMMARY"
-          echo "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/smoke/" >> "$GITHUB_STEP_SUMMARY"
+          name: allure-report-smoke
+          path: playwright/reports/allure-report/
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -81,8 +70,6 @@ jobs:
     needs: [smoke]
     if: ${{ vars.ENABLE_PLAYWRIGHT_E2E == 'true' || github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -91,29 +78,117 @@ jobs:
           cache: npm
           cache-dependency-path: playwright/package-lock.json
       - uses: ./.github/actions/playwright-chromium
-      - name: Full suite (FR) — creates real COD orders on prod
+      - name: E2E (FR) only — creates real COD orders on prod
         working-directory: playwright
         env:
           CI: "true"
-        run: npm run test:ci:fr
+        run: npm run test:e2e:fr
       - uses: ./.github/actions/allure-report
         if: always() && hashFiles('playwright/reports/allure-results') != ''
-      - name: Publish Allure report (GitHub Pages)
-        uses: peaceiris/actions-gh-pages@v4
+      - uses: actions/upload-artifact@v4
         if: always() && hashFiles('playwright/reports/allure-report/index.html') != ''
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: playwright/reports/allure-report
-          destination_dir: e2e
-          keep_files: true
-      - name: Allure report link
-        if: always() && hashFiles('playwright/reports/allure-report/index.html') != ''
-        run: |
-          echo "### Allure e2e report" >> "$GITHUB_STEP_SUMMARY"
-          echo "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/e2e/" >> "$GITHUB_STEP_SUMMARY"
+          name: allure-report-e2e
+          path: playwright/reports/allure-report/
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: test-results-e2e
           path: playwright/test-results/
+
+  publish-report:
+    needs: [smoke, e2e]
+    if: always() && needs.smoke.result != 'cancelled' && needs.smoke.result != 'skipped'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download smoke Allure report
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report-smoke
+          path: incoming/smoke
+
+      - name: Download e2e Allure report
+        id: e2e-artifact
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: allure-report-e2e
+          path: incoming/e2e
+
+      - name: Fetch previous GitHub Pages content
+        if: steps.e2e-artifact.outcome != 'success'
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: previous-site
+
+      - name: Build report site
+        run: |
+          rm -rf site
+          mkdir -p site
+          mv incoming/smoke site/smoke
+          if [ -f incoming/e2e/index.html ]; then
+            mv incoming/e2e site/e2e
+          elif [ -f previous-site/e2e/index.html ]; then
+            cp -R previous-site/e2e site/e2e
+          fi
+          touch site/.nojekyll
+
+      - name: Write report index
+        run: |
+          cat > site/index.html <<'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <title>Biomedica QA — Allure</title>
+            <style>
+              body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 3rem auto; padding: 0 1rem; }
+              h1 { font-size: 1.35rem; }
+              a { color: #0969da; }
+              li { margin: 0.75rem 0; }
+              p { color: #57606a; font-size: 0.95rem; }
+            </style>
+          </head>
+          <body>
+            <h1>Biomedica storefront tests</h1>
+            <p>Allure reports from GitHub Actions (FR).</p>
+            <ul>
+              <li><a href="smoke/">Smoke — every push</a></li>
+              <li><a href="e2e/">E2E — nightly (or stale until next nightly)</a></li>
+            </ul>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Report links
+        if: always()
+        run: |
+          BASE="${{ steps.deployment.outputs.page_url }}"
+          if [ -z "$BASE" ]; then
+            BASE="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          fi
+          echo "### Allure reports" >> "$GITHUB_STEP_SUMMARY"
+          echo "- [Dashboard](${BASE})" >> "$GITHUB_STEP_SUMMARY"
+          echo "- [Smoke](${BASE}smoke/)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- [E2E](${BASE}e2e/)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Fallback: download **allure-report-smoke** / **allure-report-e2e** artifacts from this workflow run." >> "$GITHUB_STEP_SUMMARY"
