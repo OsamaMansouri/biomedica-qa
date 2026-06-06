@@ -43,6 +43,8 @@ function workerCount(): number {
   return 1;
 }
 
+const reportsDir = "reports";
+
 export default defineConfig({
   testDir: "./code-first",
   globalSetup: path.resolve(__dirname, "global-setup.ts"),
@@ -53,11 +55,11 @@ export default defineConfig({
   preserveOutput: "failures-only",
   reporter: [
     ["list"],
-    ["html", { open: "never", outputFolder: "playwright-report" }],
+    ["html", { open: "never", outputFolder: `${reportsDir}/playwright-html` }],
     [
       "allure-playwright",
       {
-        resultsDir: "allure-results",
+        resultsDir: `${reportsDir}/allure-results`,
         detail: true,
         suiteTitle: false,
         environmentInfo: {

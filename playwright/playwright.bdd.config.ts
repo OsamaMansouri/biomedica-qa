@@ -30,12 +30,14 @@ function storefrontOrigin(): string {
 }
 
 const origin = storefrontOrigin();
+const reportsDir = "reports";
 
 const bddTestDir = defineBddConfig({
   features: "bdd/features/**/*.feature",
   steps: "bdd/steps/**/*.ts",
   featuresRoot: "bdd",
   missingSteps: "skip-scenario",
+  outputDir: `${reportsDir}/features-gen`,
 });
 
 export default defineConfig({
@@ -48,8 +50,8 @@ export default defineConfig({
   preserveOutput: "failures-only",
   reporter: [
     ["list"],
-    ["junit", { outputFile: "junit-bdd.xml" }],
-    ["html", { open: "never", outputFolder: "playwright-report-bdd" }],
+    ["junit", { outputFile: `${reportsDir}/junit-bdd.xml` }],
+    ["html", { open: "never", outputFolder: `${reportsDir}/bdd-html` }],
   ],
   timeout: 120_000,
   expect: { timeout: 15_000 },

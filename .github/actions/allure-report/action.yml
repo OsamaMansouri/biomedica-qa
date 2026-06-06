@@ -6,4 +6,4 @@ runs:
     - name: Generate Allure report
       shell: bash
       working-directory: playwright
-      run: npx allure generate allure-results --output allure-report
+      run: npx allure generate reports/allure-results --output reports/allure-report

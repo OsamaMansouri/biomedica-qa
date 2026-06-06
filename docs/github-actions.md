@@ -108,6 +108,16 @@ Allure includes failed-test screenshots, video, trace links, suite tree, environ
 
 Trace / screenshot / video are kept on failure only (`playwright.config.ts`).
 
+All generated HTML lives under **`playwright/reports/`** (gitignored):
+
+| Subfolder | Contents |
+|-----------|----------|
+| `reports/allure-results/` | Raw Allure data (input for `allure generate`) |
+| `reports/allure-report/` | Generated Allure HTML |
+| `reports/playwright-html/` | Playwright HTML report (code-first) |
+| `reports/bdd-html/` | Playwright HTML report (BDD track, local only) |
+| `reports/features-gen/` | BDD generated specs (local only) |
+
 ### Local reports
 
 ```bash
@@ -115,10 +125,13 @@ cd playwright
 npm run test:smoke:fr
 
 # Playwright HTML
-npx playwright show-report
+npx playwright show-report reports/playwright-html
 
 # Allure
 npm run report:allure
+
+# Clean all generated reports
+npm run clean:reports
 ```
 
 ## Failed tests — trace & video
@@ -136,7 +149,7 @@ On failure, Playwright keeps:
 ```bash
 cd playwright
 npm run test:smoke:fr
-npx playwright show-report
+npx playwright show-report reports/playwright-html
 ```
 
 Click a failed test → **Trace** / **Video** tabs in the report.

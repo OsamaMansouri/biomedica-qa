@@ -1,13 +1,7 @@
 node_modules/
 test-results/
-playwright-report/
-playwright-report-bdd/
-allure-results/
-allure-report/
-.features-gen/
+reports/
 playwright/.cache/
 .env
 .auth/
-junit.xml
-junit-bdd.xml
 artifacts/
