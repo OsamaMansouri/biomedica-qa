@@ -53,11 +53,18 @@ jobs:
         env:
           CI: "true"
         run: npm run test:smoke:fr
+      - uses: ./.github/actions/allure-report
+        if: always() && hashFiles('playwright/allure-results') != ''
       - uses: actions/upload-artifact@v4
         if: always() && hashFiles('playwright/playwright-report/index.html') != ''
         with:
           name: playwright-report-smoke
           path: playwright/playwright-report/
+      - uses: actions/upload-artifact@v4
+        if: always() && hashFiles('playwright/allure-report/index.html') != ''
+        with:
+          name: allure-report-smoke
+          path: playwright/allure-report/
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -81,11 +88,18 @@ jobs:
         env:
           CI: "true"
         run: npm run test:ci:fr
+      - uses: ./.github/actions/allure-report
+        if: always() && hashFiles('playwright/allure-results') != ''
       - uses: actions/upload-artifact@v4
         if: always() && hashFiles('playwright/playwright-report/index.html') != ''
         with:
           name: playwright-report-e2e
           path: playwright/playwright-report/
+      - uses: actions/upload-artifact@v4
+        if: always() && hashFiles('playwright/allure-report/index.html') != ''
+        with:
+          name: allure-report-e2e
+          path: playwright/allure-report/
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

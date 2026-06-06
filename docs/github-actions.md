@@ -97,30 +97,28 @@ From monorepo checkout: same paths under `QA/playwright/`.
 
 | Artifact | Job | When | Contents |
 |----------|-----|------|----------|
-| **`playwright-report-smoke`** | `smoke` | Always | HTML — smoke tests only |
-| **`playwright-report-e2e`** | `e2e` | Always (if e2e enabled) | HTML — smoke + E2E |
-| **`test-results-smoke`** | `smoke` | Failure only | Screenshots, videos, traces |
-| **`test-results-e2e`** | `e2e` | Failure only | Screenshots, videos, traces |
+| **`playwright-report-smoke`** / **`playwright-report-e2e`** | smoke / e2e | Always | Playwright HTML report |
+| **`allure-report-smoke`** / **`allure-report-e2e`** | smoke / e2e | Always | Allure HTML (history, categories, attachments) |
+| **`test-results-smoke`** / **`test-results-e2e`** | smoke / e2e | Failure only | Screenshots, videos, traces |
 
-**Actions → Artifacts** → download the report → unzip → **`index.html`**.
+**Playwright HTML:** unzip → open **`index.html`**.
+
+**Allure:** unzip **`allure-report-smoke`** (or `-e2e`) → open **`index.html`**.  
+Allure includes failed-test screenshots, video, trace links, suite tree, environment (origin, OS, CI).
 
 Trace / screenshot / video are kept on failure only (`playwright.config.ts`).
 
-### CI layout (best practice)
-
-| Job | Purpose |
-|-----|---------|
-| `typecheck` | Fast gate — no browser |
-| `smoke` | Quick storefront checks on every push/PR |
-| `e2e` | Full suite only when `ENABLE_PLAYWRIGHT_E2E=true` (creates real COD orders) |
-
-Separate artifact names per job avoid merged/overwritten reports when both jobs run.
-
-### Local (same as always)
+### Local reports
 
 ```bash
 cd playwright
+npm run test:smoke:fr
+
+# Playwright HTML
 npx playwright show-report
+
+# Allure
+npm run report:allure
 ```
 
 ## Failed tests — trace & video
@@ -131,7 +129,7 @@ On failure, Playwright keeps:
 - **Video** (`.webm`) — in `test-results/` for the failed test
 - **Screenshot** — in `test-results/`
 
-**CI:** **`playwright-report-smoke`** (always) + **`test-results-smoke`** (if failed). With E2E enabled, also **`playwright-report-e2e`**.
+**CI:** **`playwright-report-smoke`** + **`allure-report-smoke`** (always); **`test-results-smoke`** (if failed).
 
 **Local:**
 

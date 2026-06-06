@@ -1,0 +1,9 @@
+name: Generate Allure HTML
+description: Build Allure report from allure-results (requires tests to have run first).
+runs:
+  using: composite
+  steps:
+    - name: Generate Allure report
+      shell: bash
+      working-directory: playwright
+      run: npx allure generate allure-results -o allure-report --clean

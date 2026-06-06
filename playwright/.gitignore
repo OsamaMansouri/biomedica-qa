@@ -2,6 +2,8 @@ node_modules/
 test-results/
 playwright-report/
 playwright-report-bdd/
+allure-results/
+allure-report/
 .features-gen/
 playwright/.cache/
 .env

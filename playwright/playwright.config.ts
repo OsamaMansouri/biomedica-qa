@@ -1,5 +1,6 @@
 import { defineConfig } from "@playwright/test";
 import dotenv from "dotenv";
+import os from "node:os";
 import path from "path";
 
 dotenv.config({ path: path.resolve(__dirname, ".env") });
@@ -53,6 +54,20 @@ export default defineConfig({
   reporter: [
     ["list"],
     ["html", { open: "never", outputFolder: "playwright-report" }],
+    [
+      "allure-playwright",
+      {
+        resultsDir: "allure-results",
+        detail: true,
+        suiteTitle: false,
+        environmentInfo: {
+          playwright_origin: origin,
+          node_version: process.version,
+          os: `${os.platform()} ${os.release()}`,
+          ci: process.env.CI ? "true" : "false",
+        },
+      },
+    ],
   ],
   timeout: 120_000,
   expect: { timeout: 15_000 },

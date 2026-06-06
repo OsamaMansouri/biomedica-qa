@@ -5,6 +5,8 @@ playwright/node_modules/
 # Playwright
 playwright/test-results/
 playwright/playwright-report/
+playwright/allure-results/
+playwright/allure-report/
 playwright/playwright/.cache/
 playwright/junit.xml
 playwright/.env
