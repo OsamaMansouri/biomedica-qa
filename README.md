@@ -43,4 +43,4 @@ QA/
 
 **Prerequisites:** storefront on **3333** (`npm run dev` in `front/`). API needed for catalog/checkout tests.
 
-**Docs:** [`docs/qa-process.md`](docs/qa-process.md) · [`docs/github-actions.md`](docs/github-actions.md) · CI: [`.github/workflows/qa.yml`](.github/workflows/qa.yml) (this repo only).
+**Docs:** [`docs/qa-process.md`](docs/qa-process.md) · [`docs/github-actions.md`](docs/github-actions.md) · CI: [`qa-ci.yml`](.github/workflows/qa-ci.yml) · Scheduled: [`qa-scheduled.yml`](.github/workflows/qa-scheduled.yml).

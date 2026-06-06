@@ -21,7 +21,8 @@
   },
   "ciParity": {
     "order": ["typecheck", "smoke", "e2e"],
-    "githubWorkflow": ".github/workflows/qa.yml",
+    "githubWorkflow": ".github/workflows/qa-ci.yml",
+    "githubWorkflowScheduled": ".github/workflows/qa-scheduled.yml",
     "scope": "QA repository only — not front/backend/admin",
     "defaultEnvironment": "production"
   },

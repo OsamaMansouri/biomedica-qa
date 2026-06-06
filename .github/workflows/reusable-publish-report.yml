@@ -1,0 +1,114 @@
+# Merge Allure artifacts into GitHub Pages (restores prior suites from cache).
+name: Publish Allure report
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  publish-report:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/report-pages
+          sparse-checkout-cone-mode: false
+
+      - name: Restore previous report site
+        uses: actions/cache/restore@v4
+        id: site-cache
+        with:
+          path: site
+          key: qa-pages-site-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            qa-pages-site-${{ github.ref_name }}-
+
+      - name: Download smoke-fr Allure report
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: allure-report-smoke-fr
+          path: incoming/smoke-fr
+
+      - name: Download smoke-en Allure report
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: allure-report-smoke-en
+          path: incoming/smoke-en
+
+      - name: Download e2e-fr Allure report
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: allure-report-e2e-fr
+          path: incoming/e2e-fr
+
+      - name: Download e2e-en Allure report
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: allure-report-e2e-en
+          path: incoming/e2e-en
+
+      - name: Build report site
+        run: |
+          mkdir -p site
+          if [ -f incoming/smoke-fr/index.html ]; then
+            rm -rf site/smoke-fr
+            mv incoming/smoke-fr site/smoke-fr
+          fi
+          if [ -f incoming/smoke-en/index.html ]; then
+            rm -rf site/smoke-en
+            mv incoming/smoke-en site/smoke-en
+          fi
+          if [ -f incoming/e2e-fr/index.html ]; then
+            rm -rf site/e2e-fr
+            mv incoming/e2e-fr site/e2e-fr
+          fi
+          if [ -f incoming/e2e-en/index.html ]; then
+            rm -rf site/e2e-en
+            mv incoming/e2e-en site/e2e-en
+          fi
+          touch site/.nojekyll
+          cp .github/report-pages/index.html site/index.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Save report site cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: site
+          key: qa-pages-site-${{ github.ref_name }}-${{ github.run_id }}
+
+      - name: Report links
+        if: always()
+        run: |
+          BASE="${{ steps.deployment.outputs.page_url }}"
+          if [ -z "$BASE" ]; then
+            BASE="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          fi
+          echo "### Allure reports" >> "$GITHUB_STEP_SUMMARY"
+          echo "Trends/history build up over successive runs (cached per suite)." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- [Dashboard](${BASE})" >> "$GITHUB_STEP_SUMMARY"
+          echo "- [Smoke FR](${BASE}smoke-fr/)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- [Smoke EN](${BASE}smoke-en/)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- [E2E FR](${BASE}e2e-fr/)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- [E2E EN](${BASE}e2e-en/)" >> "$GITHUB_STEP_SUMMARY"

@@ -1,6 +1,6 @@
 # GitHub Actions — Playwright on Netlify + prod API
 
-**This workflow belongs to the QA git repo only** (`QA/.github/workflows/qa.yml`).  
+**Workflows belong to the QA git repo only** (`qa-ci.yml` + `qa-scheduled.yml`).  
 `front/`, `backend/`, and `admin/` are separate repos — they do not run this pipeline.
 
 CI targets **Netlify storefront** + **production API**. Local dev stays on localhost.
@@ -13,25 +13,39 @@ CI targets **Netlify storefront** + **production API**. Local dev stays on local
 | API | `https://api.biomedica.ma` |
 | Test PDP slug | `argan-et-figue-de-barbarie-60ml` |
 
-Configured in [`.github/workflows/qa.yml`](../.github/workflows/qa.yml) and [`qa.config.json`](../qa.config.json).
+Configured in [`.github/workflows/qa-ci.yml`](../.github/workflows/qa-ci.yml), [`.github/workflows/qa-scheduled.yml`](../.github/workflows/qa-scheduled.yml), and [`qa.config.json`](../qa.config.json).
 
 ## What runs (QA repo only)
 
-| Job | Runner | What |
-|-----|--------|------|
-| `typecheck` | GitHub cloud (`ubuntu-latest`) | Typecheck specs |
-| `smoke-fr` | GitHub cloud (`ubuntu-latest`) | Smoke FR — every push/PR (gate) |
-| `smoke-en` | GitHub cloud (`ubuntu-latest`) | Smoke EN — nightly **04:00 UTC** |
-| `e2e-fr` | GitHub cloud (`ubuntu-latest`) | E2E FR — nightly **03:00 UTC** or `ENABLE_PLAYWRIGHT_E2E=true` |
-| `e2e-en` | GitHub cloud (`ubuntu-latest`) | E2E EN — weekly **Monday 05:00 UTC** |
-| `publish-report` | GitHub cloud | Merge Allure HTML → GitHub Pages + workflow Summary links |
+### QA CI (`qa-ci.yml`) — push / PR
 
-### Run the workflow
+| Job | What |
+|-----|------|
+| `typecheck` | Typecheck specs |
+| `smoke-fr` | Smoke FR — **PR gate** |
+| `publish-report` | Updates **smoke-fr** Allure; keeps EN/E2E reports via site cache |
 
-1. **GitHub** → `biomedica-qa` → **Actions** → **QA** → **Run workflow** (branch `main`).
-2. Or **push** any commit to `main` / open a PR — **`smoke-fr`** runs automatically.
-3. **Scheduled (UTC):**
-   - **03:00 daily** — `e2e-fr` (+ `smoke-fr` in same run)
+No grey skipped jobs — graph is only these three.
+
+### QA Scheduled (`qa-scheduled.yml`) — crons + manual
+
+| Job | When |
+|-----|------|
+| `smoke-fr` + `e2e-fr` | Daily **03:00 UTC** |
+| `smoke-en` | Daily **04:00 UTC** |
+| `e2e-en` | Weekly **Monday 05:00 UTC** |
+| `publish-report` | After each scheduled run — merges all suites (cache + new artifacts) |
+
+**Manual:** Actions → **QA Scheduled** → **Run workflow** runs **all four** test suites.
+
+Shared publish logic: [`.github/workflows/reusable-publish-report.yml`](../.github/workflows/reusable-publish-report.yml).
+
+### Run the workflows
+
+1. **Push / PR** → **QA CI** runs automatically (`typecheck` + `smoke-fr`).
+2. **GitHub** → **Actions** → **QA CI** or **QA Scheduled** → **Run workflow** (branch `main`).
+3. **Scheduled (UTC)** — **QA Scheduled** only:
+   - **03:00 daily** — `smoke-fr` + `e2e-fr`
    - **04:00 daily** — `smoke-en`
    - **05:00 Monday** — `e2e-en`
 
@@ -52,7 +66,6 @@ QA repo → **Settings** → **Actions** → **Variables**:
 | `PLAYWRIGHT_ORIGIN` | `https://biomedica-test.netlify.app` |
 | `PLAYWRIGHT_API_BASE_URL` | `https://api.biomedica.ma` |
 | `PLAYWRIGHT_TEST_PRODUCT_SLUG` | `argan-et-figue-de-barbarie-60ml` |
-| `ENABLE_PLAYWRIGHT_E2E` | off (use nightly schedule, or set `true` for E2E on every push) |
 
 ## Branch protection (require smoke before merge)
 
@@ -61,13 +74,13 @@ One-time on **`biomedica-qa`** (needs repo admin):
 1. **Settings** → **Rules** → **Rulesets** → **New ruleset** (or **Branches** → **Add rule** on `main`).
 2. Target branch: **`main`**.
 3. Enable **Require status checks to pass**.
-4. After at least one green **QA** workflow run, add required checks:
+4. After at least one green **QA CI** run, add required checks:
    - **`typecheck`**
    - **`smoke-fr`**
 5. Enable **Require branches to be up to date before merging** (recommended).
 6. Save.
 
-PRs cannot merge until **smoke** (and **typecheck**) pass. E2E stays optional on PRs unless you set `ENABLE_PLAYWRIGHT_E2E=true`.
+PRs cannot merge until **smoke-fr** (and **typecheck**) pass. E2E runs only in **QA Scheduled** (never on push).
 
 ## CI performance
 

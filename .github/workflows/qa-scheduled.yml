@@ -1,26 +1,22 @@
-# QA repo — all jobs on GitHub cloud. Storefront: Netlify preview; API: api.biomedica.ma.
-name: QA
+# Scheduled regression — EN smoke, FR/EN E2E. Manual dispatch runs all suites.
+name: QA Scheduled
 
 on:
-  push:
-    branches: [main, master, develop]
-  pull_request:
-    branches: [main, master, develop]
-  workflow_dispatch:
   schedule:
-    # e2e-fr nightly (03:00 UTC).
+    # e2e-fr nightly (03:00 UTC) + smoke-fr gate in same run.
     - cron: "0 3 * * *"
     # smoke-en nightly (04:00 UTC).
     - cron: "0 4 * * *"
     # e2e-en weekly (Monday 05:00 UTC).
     - cron: "0 5 * * 1"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: qa-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: qa-scheduled-${{ github.workflow }}-${{ github.event.schedule || 'manual' }}
+  cancel-in-progress: false
 
 env:
   PLAYWRIGHT_ORIGIN: ${{ vars.PLAYWRIGHT_ORIGIN || 'https://biomedica-test.netlify.app' }}
@@ -44,8 +40,8 @@ jobs:
   smoke-fr:
     needs: [typecheck]
     if: |
-      github.event_name != 'schedule' ||
-      github.event.schedule == '0 3 * * *'
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'schedule' && github.event.schedule == '0 3 * * *')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -55,7 +51,7 @@ jobs:
           cache: npm
           cache-dependency-path: playwright/package-lock.json
       - uses: ./.github/actions/playwright-chromium
-      - name: Smoke (FR) on Netlify storefront
+      - name: Smoke (FR) — nightly gate before e2e-fr
         working-directory: playwright
         env:
           CI: "true"
@@ -77,7 +73,9 @@ jobs:
 
   smoke-en:
     needs: [typecheck]
-    if: github.event_name == 'schedule' && github.event.schedule == '0 4 * * *'
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'schedule' && github.event.schedule == '0 4 * * *')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -110,8 +108,10 @@ jobs:
   e2e-fr:
     needs: [smoke-fr]
     if: |
-      vars.ENABLE_PLAYWRIGHT_E2E == 'true' ||
-      (github.event_name == 'schedule' && github.event.schedule == '0 3 * * *')
+      always() &&
+      needs.smoke-fr.result == 'success' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event_name == 'schedule' && github.event.schedule == '0 3 * * *'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -143,7 +143,9 @@ jobs:
 
   e2e-en:
     needs: [typecheck]
-    if: github.event_name == 'schedule' && github.event.schedule == '0 5 * * 1'
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'schedule' && github.event.schedule == '0 5 * * 1')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -183,108 +185,8 @@ jobs:
       (needs.e2e-en.result == 'success' || needs.e2e-en.result == 'failure' || needs.e2e-en.result == 'skipped') &&
       (needs.smoke-fr.result != 'cancelled' && needs.smoke-en.result != 'cancelled' &&
        needs.e2e-fr.result != 'cancelled' && needs.e2e-en.result != 'cancelled')
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/reusable-publish-report.yml
     permissions:
+      contents: read
       pages: write
       id-token: write
-      contents: read
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            .github/report-pages
-          sparse-checkout-cone-mode: false
-
-      - name: Restore previous report site
-        uses: actions/cache/restore@v4
-        id: site-cache
-        with:
-          path: site
-          key: qa-pages-site-${{ github.ref_name }}-${{ github.run_id }}
-          restore-keys: |
-            qa-pages-site-${{ github.ref_name }}-
-
-      - name: Download smoke-fr Allure report
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: allure-report-smoke-fr
-          path: incoming/smoke-fr
-
-      - name: Download smoke-en Allure report
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: allure-report-smoke-en
-          path: incoming/smoke-en
-
-      - name: Download e2e-fr Allure report
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: allure-report-e2e-fr
-          path: incoming/e2e-fr
-
-      - name: Download e2e-en Allure report
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: allure-report-e2e-en
-          path: incoming/e2e-en
-
-      - name: Build report site
-        run: |
-          mkdir -p site
-          if [ -f incoming/smoke-fr/index.html ]; then
-            rm -rf site/smoke-fr
-            mv incoming/smoke-fr site/smoke-fr
-          fi
-          if [ -f incoming/smoke-en/index.html ]; then
-            rm -rf site/smoke-en
-            mv incoming/smoke-en site/smoke-en
-          fi
-          if [ -f incoming/e2e-fr/index.html ]; then
-            rm -rf site/e2e-fr
-            mv incoming/e2e-fr site/e2e-fr
-          fi
-          if [ -f incoming/e2e-en/index.html ]; then
-            rm -rf site/e2e-en
-            mv incoming/e2e-en site/e2e-en
-          fi
-          touch site/.nojekyll
-          cp .github/report-pages/index.html site/index.html
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-      - name: Save report site cache
-        uses: actions/cache/save@v4
-        if: always()
-        with:
-          path: site
-          key: qa-pages-site-${{ github.ref_name }}-${{ github.run_id }}
-
-      - name: Report links
-        if: always()
-        run: |
-          BASE="${{ steps.deployment.outputs.page_url }}"
-          if [ -z "$BASE" ]; then
-            BASE="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
-          fi
-          echo "### Allure reports" >> "$GITHUB_STEP_SUMMARY"
-          echo "Trends/history build up over successive runs (cached per suite)." >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "- [Dashboard](${BASE})" >> "$GITHUB_STEP_SUMMARY"
-          echo "- [Smoke FR](${BASE}smoke-fr/)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- [Smoke EN](${BASE}smoke-en/)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- [E2E FR](${BASE}e2e-fr/)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- [E2E EN](${BASE}e2e-en/)" >> "$GITHUB_STEP_SUMMARY"

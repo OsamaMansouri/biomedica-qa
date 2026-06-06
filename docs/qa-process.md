@@ -69,7 +69,7 @@ npm run qa:e2e:fr
 | `e2e-fr` | Nightly 03:00 UTC (or flag) | Full FR suite — real COD orders |
 | `e2e-en` | Weekly Monday 05:00 UTC | Full EN suite |
 
-Workflow file: `QA/.github/workflows/qa.yml` — **QA git repo only**, no backend/front jobs.
+Workflow files: `QA/.github/workflows/qa-ci.yml` + `qa-scheduled.yml` — **QA git repo only**, no backend/front jobs.
 
 Setup: **[`github-actions.md`](github-actions.md)**.
 
