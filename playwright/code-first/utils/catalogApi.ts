@@ -15,24 +15,6 @@ export function oosProductSlug(): string {
   ).trim();
 }
 
-/** True when the OOS fixture slug exists in the catalog with zero stock. */
-export async function outOfStockFixtureAvailable(
-  request: APIRequestContext,
-): Promise<boolean> {
-  const slug = oosProductSlug();
-  const res = await request.get(
-    `${catalogApiOrigin()}/api/products/${encodeURIComponent(slug)}`,
-  );
-  if (!res.ok()) return false;
-  const json = (await res.json()) as {
-    data?: { stock_quantity?: number | null; in_stock?: boolean };
-  };
-  const product = json.data;
-  if (!product) return false;
-  if (product.in_stock === false) return true;
-  return product.stock_quantity === 0;
-}
-
 export async function fetchShopLastPage(
   request: APIRequestContext,
   perPage = 10,
