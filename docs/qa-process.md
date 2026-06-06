@@ -63,9 +63,11 @@ npm run qa:e2e:fr
 
 | Job | When | What |
 |-----|------|------|
-| `typecheck` | Every PR (QA repo) | Typecheck `playwright/` |
-| `smoke` | Every PR (QA repo) | Smoke FR on **https://biomedica.ma** |
-| `e2e` | `ENABLE_PLAYWRIGHT_E2E=true` or **nightly 03:00 UTC** | Full suite — real COD orders |
+| `typecheck` | Every push/PR | Typecheck `playwright/` |
+| `smoke-fr` | Every push/PR | Smoke FR on Netlify preview |
+| `smoke-en` | Nightly 04:00 UTC | Smoke EN parity |
+| `e2e-fr` | Nightly 03:00 UTC (or flag) | Full FR suite — real COD orders |
+| `e2e-en` | Weekly Monday 05:00 UTC | Full EN suite |
 
 Workflow file: `QA/.github/workflows/qa.yml` — **QA git repo only**, no backend/front jobs.
 
