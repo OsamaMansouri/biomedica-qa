@@ -69,6 +69,8 @@ jobs:
     needs: [smoke-fr]
     if: always() && needs.smoke-fr.result != 'cancelled'
     uses: ./.github/workflows/reusable-publish-report.yml
+    with:
+      download_suites: smoke-fr
     permissions:
       contents: read
       pages: write

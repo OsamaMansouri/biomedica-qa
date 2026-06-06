@@ -186,6 +186,14 @@ jobs:
       (needs.smoke-fr.result != 'cancelled' && needs.smoke-en.result != 'cancelled' &&
        needs.e2e-fr.result != 'cancelled' && needs.e2e-en.result != 'cancelled')
     uses: ./.github/workflows/reusable-publish-report.yml
+    with:
+      download_suites: >-
+        ${{
+          github.event_name == 'workflow_dispatch' && 'smoke-fr,smoke-en,e2e-fr,e2e-en' ||
+          github.event.schedule == '0 3 * * *' && 'smoke-fr,e2e-fr' ||
+          github.event.schedule == '0 4 * * *' && 'smoke-en' ||
+          'e2e-en'
+        }}
     permissions:
       contents: read
       pages: write

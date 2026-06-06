@@ -3,6 +3,11 @@ name: Publish Allure report
 
 on:
   workflow_call:
+    inputs:
+      download_suites:
+        description: Comma-separated suite slugs to download from this run (smoke-fr, smoke-en, e2e-fr, e2e-en).
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -32,29 +37,29 @@ jobs:
             qa-pages-site-${{ github.ref_name }}-
 
       - name: Download smoke-fr Allure report
+        if: contains(format(',{0},', inputs.download_suites), ',smoke-fr,')
         uses: actions/download-artifact@v4
-        continue-on-error: true
         with:
           name: allure-report-smoke-fr
           path: incoming/smoke-fr
 
       - name: Download smoke-en Allure report
+        if: contains(format(',{0},', inputs.download_suites), ',smoke-en,')
         uses: actions/download-artifact@v4
-        continue-on-error: true
         with:
           name: allure-report-smoke-en
           path: incoming/smoke-en
 
       - name: Download e2e-fr Allure report
+        if: contains(format(',{0},', inputs.download_suites), ',e2e-fr,')
         uses: actions/download-artifact@v4
-        continue-on-error: true
         with:
           name: allure-report-e2e-fr
           path: incoming/e2e-fr
 
       - name: Download e2e-en Allure report
+        if: contains(format(',{0},', inputs.download_suites), ',e2e-en,')
         uses: actions/download-artifact@v4
-        continue-on-error: true
         with:
           name: allure-report-e2e-en
           path: incoming/e2e-en
