@@ -76,14 +76,26 @@ From monorepo checkout: same paths under `QA/playwright/`.
 
 ## Reports in GitHub
 
-| Artifact | When | Contents |
-|----------|------|----------|
-| **`playwright-report`** | Always | HTML report (smoke; smoke + E2E if e2e job ran) |
-| **`test-results`** | Failure only | Screenshots, videos, traces |
+| Artifact | Job | When | Contents |
+|----------|-----|------|----------|
+| **`playwright-report-smoke`** | `smoke` | Always | HTML — smoke tests only |
+| **`playwright-report-e2e`** | `e2e` | Always (if e2e enabled) | HTML — smoke + E2E |
+| **`test-results-smoke`** | `smoke` | Failure only | Screenshots, videos, traces |
+| **`test-results-e2e`** | `e2e` | Failure only | Screenshots, videos, traces |
 
-**Actions run → Artifacts** → **`playwright-report`** → unzip → **`index.html`**.
+**Actions → Artifacts** → download the report → unzip → **`index.html`**.
 
 Trace / screenshot / video are kept on failure only (`playwright.config.ts`).
+
+### CI layout (best practice)
+
+| Job | Purpose |
+|-----|---------|
+| `typecheck` | Fast gate — no browser |
+| `smoke` | Quick storefront checks on every push/PR |
+| `e2e` | Full suite only when `ENABLE_PLAYWRIGHT_E2E=true` (creates real COD orders) |
+
+Separate artifact names per job avoid merged/overwritten reports when both jobs run.
 
 ### Local (same as always)
 
@@ -100,7 +112,7 @@ On failure, Playwright keeps:
 - **Video** (`.webm`) — in `test-results/` for the failed test
 - **Screenshot** — in `test-results/`
 
-**CI:** **`playwright-report`** (always) + **`test-results`** (if failed).
+**CI:** **`playwright-report-smoke`** (always) + **`test-results-smoke`** (if failed). With E2E enabled, also **`playwright-report-e2e`**.
 
 **Local:**
 
