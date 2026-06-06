@@ -76,22 +76,14 @@ From monorepo checkout: same paths under `QA/playwright/`.
 
 ## Reports in GitHub
 
-| Artifact | Job | When | Contents |
-|----------|-----|------|----------|
-| **`report-fr-smoke`** | `smoke` | Always | HTML report — 39 smoke tests |
-| **`report-fr-full`** | `e2e` | Always (if e2e enabled) | HTML report — smoke + all E2E tests |
-| **`failures-fr-smoke`** | `smoke` | Failure only | Screenshots, videos, traces |
-| **`failures-fr-full`** | `e2e` | Failure only | Screenshots, videos, traces |
+| Artifact | When | Contents |
+|----------|------|----------|
+| **`playwright-report`** | Always | HTML report (smoke; smoke + E2E if e2e job ran) |
+| **`test-results`** | Failure only | Screenshots, videos, traces |
 
-No JUnit files or separate “Checks” tab — open the HTML report artifact.
+**Actions run → Artifacts** → **`playwright-report`** → unzip → **`index.html`**.
 
-Playwright keeps trace / screenshot / video **on failure only** (`playwright.config.ts`).
-
-### Where to look on GitHub
-
-1. **Actions run → Artifacts** → download **`report-fr-smoke`** → unzip → open **`index.html`**.
-2. When E2E is enabled (`ENABLE_PLAYWRIGHT_E2E=true`), also **`report-fr-full`** for the complete suite.
-3. If something failed — download **`failures-fr-smoke`** or **`failures-fr-full`** for trace/video files.
+Trace / screenshot / video are kept on failure only (`playwright.config.ts`).
 
 ### Local (same as always)
 
@@ -108,7 +100,7 @@ On failure, Playwright keeps:
 - **Video** (`.webm`) — in `test-results/` for the failed test
 - **Screenshot** — in `test-results/`
 
-**CI:** download **`report-fr-smoke`** (always) and, on failure, **`failures-fr-smoke`** → open `index.html` from the report artifact.
+**CI:** **`playwright-report`** (always) + **`test-results`** (if failed).
 
 **Local:**
 
