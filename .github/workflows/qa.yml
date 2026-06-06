@@ -10,8 +10,6 @@ on:
 
 permissions:
   contents: read
-  checks: write
-  pull-requests: write
 
 concurrency:
   group: qa-${{ github.workflow }}-${{ github.ref }}
@@ -54,27 +52,16 @@ jobs:
           npm ci
           npx playwright install chromium
           npm run test:smoke:fr
-      - name: Publish test results (GitHub Checks / job summary)
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always() && hashFiles('playwright/junit.xml') != ''
-        with:
-          check_name: QA — Smoke (FR)
-          files: playwright/junit.xml
       - uses: actions/upload-artifact@v4
         if: always() && hashFiles('playwright/playwright-report/index.html') != ''
         with:
-          name: smoke-html-report
+          name: report-fr-smoke
           path: playwright/playwright-report/
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: smoke-test-results
+          name: failures-fr-smoke
           path: playwright/test-results/
-      - uses: actions/upload-artifact@v4
-        if: always() && hashFiles('playwright/junit.xml') != ''
-        with:
-          name: smoke-junit.xml
-          path: playwright/junit.xml
 
   e2e:
     needs: [smoke]
@@ -95,24 +82,13 @@ jobs:
           npm ci
           npx playwright install chromium
           npm run test:ci:fr
-      - name: Publish test results (GitHub Checks / job summary)
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always() && hashFiles('playwright/junit.xml') != ''
-        with:
-          check_name: QA — E2E (FR)
-          files: playwright/junit.xml
       - uses: actions/upload-artifact@v4
         if: always() && hashFiles('playwright/playwright-report/index.html') != ''
         with:
-          name: e2e-html-report
+          name: report-fr-full
           path: playwright/playwright-report/
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: e2e-test-results
+          name: failures-fr-full
           path: playwright/test-results/
-      - uses: actions/upload-artifact@v4
-        if: always() && hashFiles('playwright/junit.xml') != ''
-        with:
-          name: e2e-junit.xml
-          path: playwright/junit.xml

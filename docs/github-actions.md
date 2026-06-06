@@ -76,20 +76,22 @@ From monorepo checkout: same paths under `QA/playwright/`.
 
 ## Reports in GitHub
 
-| Output | When | Where |
-|--------|------|--------|
-| **Check `QA — Smoke (FR)`** or **`QA — E2E (FR)`** | Always (pass or fail) | PR **Checks** tab + job **Summary** (JUnit table) |
-| **`smoke-html-report`** / **`e2e-html-report`** | Always | Run **Artifacts** → unzip → open `index.html` |
-| **`smoke-junit.xml`** / **`e2e-junit.xml`** | Always | Raw JUnit file |
-| **`smoke-test-results`** / **`e2e-test-results`** | **Failure only** | Screenshots, videos, traces (`test-results/`) |
+| Artifact | Job | When | Contents |
+|----------|-----|------|----------|
+| **`report-fr-smoke`** | `smoke` | Always | HTML report — 39 smoke tests |
+| **`report-fr-full`** | `e2e` | Always (if e2e enabled) | HTML report — smoke + all E2E tests |
+| **`failures-fr-smoke`** | `smoke` | Failure only | Screenshots, videos, traces |
+| **`failures-fr-full`** | `e2e` | Failure only | Screenshots, videos, traces |
 
-Playwright config keeps trace / screenshot / video **on failure only** (`playwright.config.ts`). The HTML report is always generated and uploaded; heavy debug files stay in artifacts only when tests fail.
+No JUnit files or separate “Checks” tab — open the HTML report artifact.
+
+Playwright keeps trace / screenshot / video **on failure only** (`playwright.config.ts`).
 
 ### Where to look on GitHub
 
-1. **PR → Checks** — **QA — Smoke (FR)** or **QA — E2E (FR)**: pass/fail counts and test names.
-2. **Actions run → Artifacts** — download **`smoke-html-report`** (or **`e2e-html-report`**) → open `index.html` in a browser.
-3. If something failed — also download **`smoke-test-results`** / **`e2e-test-results`** for trace, video, screenshot files.
+1. **Actions run → Artifacts** → download **`report-fr-smoke`** → unzip → open **`index.html`**.
+2. When E2E is enabled (`ENABLE_PLAYWRIGHT_E2E=true`), also **`report-fr-full`** for the complete suite.
+3. If something failed — download **`failures-fr-smoke`** or **`failures-fr-full`** for trace/video files.
 
 ### Local (same as always)
 
@@ -106,7 +108,7 @@ On failure, Playwright keeps:
 - **Video** (`.webm`) — in `test-results/` for the failed test
 - **Screenshot** — in `test-results/`
 
-**CI:** download **`smoke-html-report`** (always) and, on failure, **`smoke-test-results`** → open `index.html` from the HTML artifact.
+**CI:** download **`report-fr-smoke`** (always) and, on failure, **`failures-fr-smoke`** → open `index.html` from the report artifact.
 
 **Local:**
 

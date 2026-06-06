@@ -52,7 +52,6 @@ export default defineConfig({
   preserveOutput: "failures-only",
   reporter: [
     ["list"],
-    ["junit", { outputFile: "junit.xml" }],
     ["html", { open: "never", outputFolder: "playwright-report" }],
   ],
   timeout: 120_000,
