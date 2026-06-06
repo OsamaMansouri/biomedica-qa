@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 
-import { E2E_HEADER_SEARCH_QUERY, extendedUiStrings } from "../i18n/strings";
+import { E2E_HEADER_SEARCH_QUERY, E2E_SEARCH_NO_MATCH_QUERY, extendedUiStrings } from "../i18n/strings";
 import {
   headerSearchButton,
   openStorefrontHome,
@@ -36,7 +36,7 @@ When("I search for a nonsense query with no matches", async ({ page, $testInfo }
   await waitForStorefrontNotLoading(page);
   await headerSearchButton(page, ui.navSearch).click();
   const dialog = page.getByRole("dialog");
-  await dialog.getByPlaceholder(ui.searchPlaceholder).fill("zzzznomatchqa999");
+  await dialog.getByPlaceholder(ui.searchPlaceholder).fill(E2E_SEARCH_NO_MATCH_QUERY);
 });
 
 When("I search open first result and add to cart", async ({ page, $testInfo }) => {

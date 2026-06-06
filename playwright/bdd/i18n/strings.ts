@@ -17,6 +17,9 @@ export const STORE_FRONT_E2E_OOS_PRODUCT_SLUG = "test-product-out-of-stock";
  */
 export const E2E_HEADER_SEARCH_QUERY = "Baume crémeux à base";
 
+/** Header search E2E: query that must not match any published product. */
+export const E2E_SEARCH_NO_MATCH_QUERY = "zzzznomatchqa999";
+
 /**
  * Shop filter E2E: `…/shop?category=bain` (e.g. /fr/shop?category=bain, /en/shop?category=bain).
  * PDP category above title is a link to `/shop?category=bain` with localized label (Bain / Bath).

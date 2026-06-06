@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 import { localeFromProject } from "../i18n/locale";
-import { extendedUiStrings, smoke } from "../i18n/strings";
+import { extendedUiStrings, E2E_SEARCH_NO_MATCH_QUERY, smoke } from "../i18n/strings";
 import {
   headerSearchButton,
   openStorefrontHome,
@@ -21,7 +21,7 @@ test.describe("E2E: search sheet", () => {
     await headerSearchButton(page, ui.navSearch).click();
 
     const dialog = page.getByRole("dialog");
-    await dialog.getByPlaceholder(ui.searchPlaceholder).fill("zzzznomatchqa999");
+    await dialog.getByPlaceholder(ui.searchPlaceholder).fill(E2E_SEARCH_NO_MATCH_QUERY);
     await expect(dialog.getByText(copy.searchNoResults)).toBeVisible({
       timeout: 15_000,
     });
