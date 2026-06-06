@@ -55,12 +55,12 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always() && hashFiles('playwright/playwright-report/index.html') != ''
         with:
-          name: playwright-report
+          name: playwright-report-smoke
           path: playwright/playwright-report/
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: test-results
+          name: test-results-smoke
           path: playwright/test-results/
 
   e2e:
@@ -85,10 +85,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always() && hashFiles('playwright/playwright-report/index.html') != ''
         with:
-          name: playwright-report
+          name: playwright-report-e2e
           path: playwright/playwright-report/
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: test-results
+          name: test-results-e2e
           path: playwright/test-results/
