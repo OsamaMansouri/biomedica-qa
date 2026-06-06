@@ -108,6 +108,12 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/report-pages
+          sparse-checkout-cone-mode: false
+
       - name: Download smoke Allure report
         uses: actions/download-artifact@v4
         with:
@@ -141,34 +147,7 @@ jobs:
             cp -R previous-site/e2e site/e2e
           fi
           touch site/.nojekyll
-
-      - name: Write report index
-        run: |
-          cat > site/index.html <<'EOF'
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <title>Biomedica QA — Allure</title>
-            <style>
-              body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 3rem auto; padding: 0 1rem; }
-              h1 { font-size: 1.35rem; }
-              a { color: #0969da; }
-              li { margin: 0.75rem 0; }
-              p { color: #57606a; font-size: 0.95rem; }
-            </style>
-          </head>
-          <body>
-            <h1>Biomedica storefront tests</h1>
-            <p>Allure reports from GitHub Actions (FR).</p>
-            <ul>
-              <li><a href="smoke/">Smoke — every push</a></li>
-              <li><a href="e2e/">E2E — nightly (or stale until next nightly)</a></li>
-            </ul>
-          </body>
-          </html>
-          EOF
+          cp .github/report-pages/index.html site/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
