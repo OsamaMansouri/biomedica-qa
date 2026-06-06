@@ -1,1 +1,1 @@
-{"id":"56a45be17ba3a0f2692eea9b81ca41ba","fullName":"smoke/storefront-checkout-empty.spec.ts:6:7","name":"Checkout route shows empty state and back to shop @checkout @smoke","status":"passed","testResultsByEnv":{"default":"6b44571f716a74b416a62b7e4a821e5b"}}
+{"id":"56a45be17ba3a0f2692eea9b81ca41ba","fullName":"smoke/storefront-checkout-empty.spec.ts:6:7","name":"Checkout route shows empty state and back to shop @checkout @smoke","status":"passed","testResultsByEnv":{"default":"faaddce33758da4f80868edbe0c8444a"}}

@@ -1,1 +1,1 @@
-{"id":"cbcfb64918bc6c28020bcde0d6c141e8","fullName":"smoke/storefront-static-pages.spec.ts:43:7","name":"Coup de cœur lists product cards when catalog has picks @shop @smoke","status":"skipped","testResultsByEnv":{"default":"b8adf6fdb343c70a2154439b4215ad42"}}
+{"id":"cbcfb64918bc6c28020bcde0d6c141e8","fullName":"smoke/storefront-static-pages.spec.ts:43:7","name":"Coup de cœur lists product cards when catalog has picks @shop @smoke","status":"passed","testResultsByEnv":{"default":"2bdec1d77cf61c8a27333f9177bb34bf"}}
