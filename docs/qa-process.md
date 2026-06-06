@@ -7,7 +7,7 @@ Standard setup: **automated tests in CI where possible**, **manual checks where 
 1. **PO writes titles; QA writes proof.** Jira stays thin; depth lives in `US/stories/` and optional Gherkin features.
 2. **The real gate is Playwright.** Smoke locally on localhost; **CI runs smoke on `https://biomedica.ma`** (see [`github-actions.md`](github-actions.md)).
 3. **Every story is automated and/or manual.** Track both in `docs/spreadsheets/test-coverage.csv` — no script blocks the pipeline for spreadsheet hygiene.
-4. **FR first, EN for parity.** PR gate: `smoke-fr`. CI: `smoke-en` nightly, `e2e-en` weekly. Local default: `npm run qa:smoke:fr`.
+4. **FR in CI.** PR gate: `smoke-fr`. Nightly: `smoke-fr` + `e2e-fr`. EN specs — local only. Default: `npm run qa:smoke:fr`.
 
 ## Artifact map
 
@@ -65,11 +65,9 @@ npm run qa:e2e:fr
 |-----|------|------|
 | `typecheck` | Every push/PR | Typecheck `playwright/` |
 | `smoke-fr` | Every push/PR | Smoke FR on Netlify preview |
-| `smoke-en` | Nightly 04:00 UTC | Smoke EN parity |
-| `e2e-fr` | Nightly 03:00 UTC (or flag) | Full FR suite — real COD orders |
-| `e2e-en` | Weekly Monday 05:00 UTC | Full EN suite |
+| `smoke-fr` + `e2e-fr` | Nightly 03:00 UTC | Full FR regression (QA Nightly workflow) |
 
-Workflow files: `QA/.github/workflows/qa-ci.yml` + `qa-scheduled.yml` — **QA git repo only**, no backend/front jobs.
+Workflow files: `QA/.github/workflows/qa-ci.yml` + `qa-nightly.yml` — **QA git repo only**, no backend/front jobs.
 
 Setup: **[`github-actions.md`](github-actions.md)**.
 

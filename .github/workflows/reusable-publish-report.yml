@@ -5,7 +5,7 @@ on:
   workflow_call:
     inputs:
       download_suites:
-        description: Comma-separated suite slugs to download from this run (smoke-fr, smoke-en, e2e-fr, e2e-en).
+        description: Comma-separated suite slugs to download from this run (smoke-fr, e2e-fr).
         required: true
         type: string
 
@@ -43,26 +43,12 @@ jobs:
           name: allure-report-smoke-fr
           path: incoming/smoke-fr
 
-      - name: Download smoke-en Allure report
-        if: contains(format(',{0},', inputs.download_suites), ',smoke-en,')
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-report-smoke-en
-          path: incoming/smoke-en
-
       - name: Download e2e-fr Allure report
         if: contains(format(',{0},', inputs.download_suites), ',e2e-fr,')
         uses: actions/download-artifact@v4
         with:
           name: allure-report-e2e-fr
           path: incoming/e2e-fr
-
-      - name: Download e2e-en Allure report
-        if: contains(format(',{0},', inputs.download_suites), ',e2e-en,')
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-report-e2e-en
-          path: incoming/e2e-en
 
       - name: Build report site
         run: |
@@ -71,17 +57,9 @@ jobs:
             rm -rf site/smoke-fr
             mv incoming/smoke-fr site/smoke-fr
           fi
-          if [ -f incoming/smoke-en/index.html ]; then
-            rm -rf site/smoke-en
-            mv incoming/smoke-en site/smoke-en
-          fi
           if [ -f incoming/e2e-fr/index.html ]; then
             rm -rf site/e2e-fr
             mv incoming/e2e-fr site/e2e-fr
-          fi
-          if [ -f incoming/e2e-en/index.html ]; then
-            rm -rf site/e2e-en
-            mv incoming/e2e-en site/e2e-en
           fi
           touch site/.nojekyll
           cp .github/report-pages/index.html site/index.html
@@ -114,6 +92,4 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "- [Dashboard](${BASE})" >> "$GITHUB_STEP_SUMMARY"
           echo "- [Smoke FR](${BASE}smoke-fr/)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- [Smoke EN](${BASE}smoke-en/)" >> "$GITHUB_STEP_SUMMARY"
           echo "- [E2E FR](${BASE}e2e-fr/)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- [E2E EN](${BASE}e2e-en/)" >> "$GITHUB_STEP_SUMMARY"

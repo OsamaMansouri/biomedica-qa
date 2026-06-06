@@ -1,6 +1,6 @@
 # GitHub Actions — Playwright on Netlify + prod API
 
-**Workflows belong to the QA git repo only** (`qa-ci.yml` + `qa-scheduled.yml`).  
+**Workflows belong to the QA git repo only** (`qa-ci.yml` + `qa-nightly.yml`).  
 `front/`, `backend/`, and `admin/` are separate repos — they do not run this pipeline.
 
 CI targets **Netlify storefront** + **production API**. Local dev stays on localhost.
@@ -13,7 +13,7 @@ CI targets **Netlify storefront** + **production API**. Local dev stays on local
 | API | `https://api.biomedica.ma` |
 | Test PDP slug | `argan-et-figue-de-barbarie-60ml` |
 
-Configured in [`.github/workflows/qa-ci.yml`](../.github/workflows/qa-ci.yml), [`.github/workflows/qa-scheduled.yml`](../.github/workflows/qa-scheduled.yml), and [`qa.config.json`](../qa.config.json).
+Configured in [`.github/workflows/qa-ci.yml`](../.github/workflows/qa-ci.yml), [`.github/workflows/qa-nightly.yml`](../.github/workflows/qa-nightly.yml), and [`qa.config.json`](../qa.config.json).
 
 ## What runs (QA repo only)
 
@@ -23,31 +23,26 @@ Configured in [`.github/workflows/qa-ci.yml`](../.github/workflows/qa-ci.yml), [
 |-----|------|
 | `typecheck` | Typecheck specs |
 | `smoke-fr` | Smoke FR — **PR gate** |
-| `publish-report` | Updates **smoke-fr** Allure; keeps EN/E2E reports via site cache |
+| `publish-report` | Updates **smoke-fr** Allure; keeps **e2e-fr** via site cache |
 
-No grey skipped jobs — graph is only these three.
+### QA Nightly (`qa-nightly.yml`) — 03:00 UTC + manual
 
-### QA Scheduled (`qa-scheduled.yml`) — crons + manual
-
-| Job | When |
+| Job | What |
 |-----|------|
-| `smoke-fr` + `e2e-fr` | Daily **03:00 UTC** |
-| `smoke-en` | Daily **04:00 UTC** |
-| `e2e-en` | Weekly **Monday 05:00 UTC** |
-| `publish-report` | After each scheduled run — merges all suites (cache + new artifacts) |
+| `typecheck` | Typecheck specs |
+| `smoke-fr` | Full smoke FR |
+| `e2e-fr` | Full E2E FR (real COD orders) — runs only if smoke-fr passed |
+| `publish-report` | Updates **smoke-fr** + **e2e-fr** Allure |
 
-**Manual:** Actions → **QA Scheduled** → **Run workflow** runs **all four** test suites.
+**FR only in CI.** EN specs stay in the repo for local runs (`npm run test:smoke:en`, `test:e2e:en`).
 
 Shared publish logic: [`.github/workflows/reusable-publish-report.yml`](../.github/workflows/reusable-publish-report.yml).
 
 ### Run the workflows
 
 1. **Push / PR** → **QA CI** runs automatically (`typecheck` + `smoke-fr`).
-2. **GitHub** → **Actions** → **QA CI** or **QA Scheduled** → **Run workflow** (branch `main`).
-3. **Scheduled (UTC)** — **QA Scheduled** only:
-   - **03:00 daily** — `smoke-fr` + `e2e-fr`
-   - **04:00 daily** — `smoke-en`
-   - **05:00 Monday** — `e2e-en`
+2. **GitHub** → **Actions** → **QA CI** or **QA Nightly** → **Run workflow** (branch `main`).
+3. **Nightly** — **03:00 UTC** — `smoke-fr` then `e2e-fr`.
 
 Ensure **API CORS** allows `https://biomedica-test.netlify.app` on the Laravel backend.
 
@@ -55,7 +50,7 @@ Ensure **API CORS** allows `https://biomedica-test.netlify.app` on the Laravel b
 
 Each suite keeps **run-over-run history** in GitHub Actions cache (`allure-with-history` action). After ~5 runs, open a report → **Graphs** / **Timeline** for pass-rate trends.
 
-Separate history per suite: smoke-fr, smoke-en, e2e-fr, e2e-en.
+Separate history per suite: **smoke-fr**, **e2e-fr**.
 
 ## Optional overrides
 
@@ -139,23 +134,18 @@ After the first green workflow run, open the **`publish-report`** job → **Summ
 | Page | URL |
 |------|-----|
 | Dashboard (index) | `https://<owner>.github.io/<repo>/` |
-| Smoke FR (every push) | `https://<owner>.github.io/<repo>/smoke-fr/` |
-| Smoke EN (nightly) | `https://<owner>.github.io/<repo>/smoke-en/` |
+| Smoke FR (push + nightly) | `https://<owner>.github.io/<repo>/smoke-fr/` |
 | E2E FR (nightly) | `https://<owner>.github.io/<repo>/e2e-fr/` |
-| E2E EN (weekly) | `https://<owner>.github.io/<repo>/e2e-en/` |
 
-On push-only runs, **E2E** and **Smoke EN** keep the **last published** report until the next scheduled job (site cache).
+On push-only runs, **e2e-fr** keeps the **last nightly** report until the next **QA Nightly** run (site cache).
 
 ### Artifacts (fallback)
 
 | Artifact | Job | When | Contents |
 |----------|-----|------|----------|
 | **`allure-report-smoke-fr`** | smoke-fr | Always (if tests ran) | Allure HTML zip |
-| **`allure-report-smoke-en`** | smoke-en | Weekly | Allure HTML zip |
-| **`allure-report-e2e-fr`** | e2e-fr | Nightly / flag | Allure HTML zip |
-| **`allure-report-e2e-en`** | e2e-en | Weekly | Allure HTML zip |
-| **`test-results-smoke-fr`** / **`test-results-e2e-fr`** / **`test-results-e2e-en`** | respective job | Failure only | Screenshots, videos, traces |
-| **`test-results-smoke`** / **`test-results-e2e`** | smoke / e2e | Failure only | Screenshots, videos, traces |
+| **`allure-report-e2e-fr`** | e2e-fr | Nightly | Allure HTML zip |
+| **`test-results-smoke-fr`** / **`test-results-e2e-fr`** | respective job | Failure only | Screenshots, videos, traces |
 
 Allure includes failed-test screenshots, video, trace links, suite tree, environment (origin, OS, CI).
 
