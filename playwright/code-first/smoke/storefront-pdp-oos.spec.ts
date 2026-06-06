@@ -10,7 +10,7 @@ test.describe("smoke: PDP out of stock fixture", () => {
     const available = await outOfStockFixtureAvailable(request);
     test.skip(
       !available,
-      `OOS fixture "${oosProductSlug()}" missing or in stock — seed QA/docs/sql/insert-qa-oos-fixture.sql on the API DB`,
+      `OOS fixture "${oosProductSlug()}" missing or in stock — create in admin (published, stock 0)`,
     );
   });
 

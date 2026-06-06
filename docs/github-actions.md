@@ -70,25 +70,26 @@ From monorepo checkout: same paths under `QA/playwright/`.
 |---------|-----|
 | `ConnectTimeoutError` on storefront | Check Netlify deploy + `PLAYWRIGHT_ORIGIN` variable |
 | Smoke job **Queued** forever | Old workflow used `self-hosted` — push cloud runner workflow or register a VPS runner |
-| PDP OOS smoke fails / `qa-pdp-inventory` missing | Seed OOS fixture: [`docs/sql/insert-qa-oos-fixture.sql`](sql/insert-qa-oos-fixture.sql) on API DB, or set `PLAYWRIGHT_TEST_OOS_PRODUCT_SLUG` to a real OOS product |
+| PDP OOS smoke fails / `qa-pdp-inventory` missing | Create OOS fixture in admin (slug `test-product-out-of-stock`, stock **0**, published), or set `PLAYWRIGHT_TEST_OOS_PRODUCT_SLUG` |
 | API check | `https://api.biomedica.ma/api/products?per_page=1` → 200 |
 | Workflow not running | Push must be to the **QA** GitHub repo, not front/backend |
 
-## Reports in GitHub (vs GitLab JUnit)
+## Reports in GitHub
 
-| | **GitLab** | **GitHub Actions** |
-|---|------------|---------------------|
-| JUnit in UI | Built into MR **Tests** tab | Use **`publish-unit-test-result-action`** → **Checks** tab + job **Summary** table |
-| HTML / trace / video | Artifacts | Artifacts: **`playwright-report`**, **`test-results`** (on failure) |
+| Output | When | Where |
+|--------|------|--------|
+| **Check `QA — Smoke (FR)`** or **`QA — E2E (FR)`** | Always (pass or fail) | PR **Checks** tab + job **Summary** (JUnit table) |
+| **`smoke-html-report`** / **`e2e-html-report`** | Always | Run **Artifacts** → unzip → open `index.html` |
+| **`smoke-junit.xml`** / **`e2e-junit.xml`** | Always | Raw JUnit file |
+| **`smoke-test-results`** / **`e2e-test-results`** | **Failure only** | Screenshots, videos, traces (`test-results/`) |
+
+Playwright config keeps trace / screenshot / video **on failure only** (`playwright.config.ts`). The HTML report is always generated and uploaded; heavy debug files stay in artifacts only when tests fail.
 
 ### Where to look on GitHub
 
-1. **PR → Checks** — click **Playwright smoke** (or **Playwright e2e**): pass/fail counts, failed test names (from `junit.xml`).
-2. **Actions run → Job → Summary** — same JUnit table at the bottom of the smoke/e2e job.
-3. **Artifacts** (when tests fail) — download **`playwright-report`** for HTML; **`test-results`** for trace/video files.
-4. **Artifact `junit.xml`** — raw file if you need to import elsewhere.
-
-Playwright already writes `junit.xml` (see `playwright.config.ts` reporters). The workflow publishes it to GitHub after each run.
+1. **PR → Checks** — **QA — Smoke (FR)** or **QA — E2E (FR)**: pass/fail counts and test names.
+2. **Actions run → Artifacts** — download **`smoke-html-report`** (or **`e2e-html-report`**) → open `index.html` in a browser.
+3. If something failed — also download **`smoke-test-results`** / **`e2e-test-results`** for trace, video, screenshot files.
 
 ### Local (same as always)
 
@@ -105,7 +106,7 @@ On failure, Playwright keeps:
 - **Video** (`.webm`) — in `test-results/` for the failed test
 - **Screenshot** — in `test-results/`
 
-**CI:** download **`playwright-report`** and **`test-results`** from the failed GitHub Actions run → open `playwright-report/index.html` (traces/videos link from the report when `test-results` is beside it).
+**CI:** download **`smoke-html-report`** (always) and, on failure, **`smoke-test-results`** → open `index.html` from the HTML artifact.
 
 **Local:**
 
