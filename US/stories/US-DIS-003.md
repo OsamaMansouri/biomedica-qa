@@ -26,8 +26,9 @@
 
 | Type | Reference |
 |-------|-----------|
-| Gherkin (AC) | `playwright/bdd/features/smoke/pdp.feature; e2e/pdp.feature` |
-| Automated | `code-first/smoke/storefront-pdp.spec.ts; code-first/e2e/pdp-*.spec.ts` |
+| Gherkin (AC) | `playwright/bdd/features/smoke/pdp.feature`; `playwright/bdd/features/e2e/pdp.feature` |
+| Automated | `code-first/smoke/storefront-pdp.spec.ts`; `storefront-pdp-oos.spec.ts`; `code-first/e2e/pdp-*.spec.ts`; `product-not-found.spec.ts` |
+| Manual | **Manual_Test_Notes** in [`test-coverage.csv`](../../docs/spreadsheets/test-coverage.csv) |
 
 ## Notes
 

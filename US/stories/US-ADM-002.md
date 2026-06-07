@@ -25,8 +25,9 @@
 
 | Type | Reference |
 |-------|-----------|
-| Gherkin (AC) | `—` |
-| Automated | `See docs/spreadsheets/test-coverage.csv` |
+| Gherkin (AC) | `—` _(no feature file — manual only)_ |
+| Automated | — |
+| Manual | **Manual_Test_Notes** in [`test-coverage.csv`](../../docs/spreadsheets/test-coverage.csv) |
 
 ## Notes
 

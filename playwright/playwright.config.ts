@@ -31,6 +31,10 @@ function storefrontOrigin(): string {
 
 const origin = storefrontOrigin();
 
+const playwrightDir = __dirname;
+const reportsDir = path.join(playwrightDir, "reports");
+const testResultsDir = path.join(playwrightDir, "test-results");
+
 /**
  * Default 3 workers (local and CI). Same concurrency as a typical local `npm run test:ci`.
  * If staging flakes under load, set `PLAYWRIGHT_WORKERS=1` on the job or in `.env`.
@@ -43,10 +47,9 @@ function workerCount(): number {
   return 1;
 }
 
-const reportsDir = "reports";
-
 export default defineConfig({
   testDir: "./code-first",
+  outputDir: testResultsDir,
   globalSetup: path.resolve(__dirname, "global-setup.ts"),
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -55,11 +58,11 @@ export default defineConfig({
   preserveOutput: "failures-only",
   reporter: [
     ["list"],
-    ["html", { open: "never", outputFolder: `${reportsDir}/playwright-html` }],
+    ["html", { open: "never", outputFolder: path.join(reportsDir, "playwright-html") }],
     [
       "allure-playwright",
       {
-        resultsDir: `${reportsDir}/allure-results`,
+        resultsDir: path.join(reportsDir, "allure-results"),
         detail: true,
         suiteTitle: false,
         environmentInfo: {

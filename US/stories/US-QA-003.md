@@ -23,5 +23,6 @@
 
 | Type | Reference |
 |------|-----------|
-| Automated | `.github/workflows/qa.yml`; [`docs/github-actions.md`](../../docs/github-actions.md) |
+| Gherkin (AC) | `—` _(env parity — no BDD feature)_ |
+| Automated | `.github/workflows/qa-ci.yml`; `.github/workflows/qa-nightly.yml`; [`docs/github-actions.md`](../../docs/github-actions.md) |
 | Manual | Verify smoke job green on main after merge |

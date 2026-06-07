@@ -7,7 +7,8 @@ Standard setup: **automated tests in CI where possible**, **manual checks where 
 1. **PO writes titles; QA writes proof.** Jira stays thin; depth lives in `US/stories/` and optional Gherkin features.
 2. **The real gate is Playwright.** Smoke locally on localhost; **CI runs smoke on `https://biomedica.ma`** (see [`github-actions.md`](github-actions.md)).
 3. **Every story is automated and/or manual.** Track both in `docs/spreadsheets/test-coverage.csv` — no script blocks the pipeline for spreadsheet hygiene.
-4. **FR in CI.** PR gate: `smoke-fr`. Nightly: `smoke-fr` + `e2e-fr`. EN specs — local only. Default: `npm run qa:smoke:fr`.
+4. **Manual before automation (new work).** Write **Manual_Test_Notes** in `test-coverage.csv` and run once on staging **before** adding Playwright specs. Automation encodes what manual already proved.
+5. **FR in CI.** PR gate: `smoke-fr`. Nightly: `smoke-fr` + `e2e-fr`. EN specs — local only. Default: `npm run qa:smoke:fr`.
 
 ## Artifact map
 
@@ -16,7 +17,6 @@ QA/
 ├── US/                          ← Pair backlog (PO title + QA AC)
 ├── docs/
 │   ├── qa-process.md            ← this file
-│   ├── manual-testing.md        ← manual-only and exploratory checks
 │   └── spreadsheets/
 │       ├── test-coverage.csv    ← automated + manual per story
 │       ├── smoke-catalog.csv    ← smoke exec log
@@ -50,14 +50,15 @@ npm run qa:e2e:fr
 
 1. PO: title in Jira → paste key on [`US/stories/US-xxx.md`](../US/stories/).
 2. QA: write AC (Jira + pair card + optional `bdd/features/`).
-3. QA: automate in `code-first/` **or** add steps to [`manual-testing.md`](manual-testing.md).
-4. QA: fill **Automated_Playwright** and/or **Manual_Test_Notes** in `test-coverage.csv`.
+3. QA: add **Manual_Test_Notes** in [`test-coverage.csv`](spreadsheets/test-coverage.csv) → **execute manual once on staging** → mark **Manual_OK** / **Manual_Date** in smoke/e2e catalogs.
+4. QA: automate in `code-first/` when the flow is stable → link paths in **Automated_Playwright**.
+5. Mark **Exec_OK** / **Exec_Date** / **Last_Exec_Date** in catalogs after CI or staging runs.
 
 ### Release / staging sign-off
 
 1. Run full suite against staging — locally (`.env` with staging URLs) or in CI when variables are set.
-2. Walk [`manual-testing.md`](manual-testing.md) checklist (CMI, admin, promo, copy).
-3. Mark **Exec_OK** / **Exec_Date** in smoke/e2e catalogs.
+2. Confirm P0 rows in `test-coverage.csv` have **Manual_Test_Notes** signed off (**Manual_OK** in catalogs).
+3. Update **Last_Exec_Date** in smoke/e2e catalogs after the run.
 
 ## What runs in CI
 
@@ -85,10 +86,10 @@ No CSV gate. No REST Assured job in CI (deferred).
 ## FAQ
 
 **What counts as “done” for a P0 story?**  
-Automated spec(s) passing **or** documented manual steps executed on staging, recorded on the pair card and in `test-coverage.csv`.
+Manual path documented in **Manual_Test_Notes** and run on staging **or** automated spec(s) passing — ideally **both** (manual first, then automation). Record in `test-coverage.csv` and pair card.
 
 **Do we run Gherkin in CI?**  
 No. Features are the AC catalog; execution is code-first only.
 
 **Where do manual tests live?**  
-[`manual-testing.md`](manual-testing.md) for shared checklists; per-story notes in `test-coverage.csv` and pair cards.
+Per-story **Manual_Test_Notes** in `test-coverage.csv`, pair cards, and **Manual_OK** / **Manual_Date** on catalog rows (smoke + e2e).

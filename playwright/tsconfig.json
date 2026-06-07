@@ -13,7 +13,6 @@
   },
   "include": [
     "playwright.config.ts",
-    "playwright.bdd.config.ts",
     "global-setup.ts",
     "code-first/**/*.ts",
     "bdd/**/*.ts"

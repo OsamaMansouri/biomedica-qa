@@ -17,11 +17,12 @@
 
 - Given a pull request, When CI runs, Then Playwright suite typechecks successfully
 - Given the smoke job, When it runs, Then tests target `https://biomedica.ma/fr/` with API `https://api.biomedica.ma`
-- Given checkout e2e, When `ENABLE_PLAYWRIGHT_E2E` is not enabled, Then no automated orders are placed on prod
+- Given checkout e2e, When **QA Nightly** runs, Then real COD orders may be placed on prod API (scheduled only, not on PR)
 
 ## Proof
 
 | Type | Reference |
 |------|-----------|
-| Automated | `.github/workflows/qa.yml`; [`docs/github-actions.md`](../../docs/github-actions.md) |
-| Manual | Green `playwright-smoke` job on GitHub |
+| Gherkin (AC) | `—` _(infra — no BDD feature)_ |
+| Automated | `.github/workflows/qa-ci.yml`; `.github/workflows/qa-nightly.yml`; [`docs/github-actions.md`](../../docs/github-actions.md) |
+| Manual | Green **QA CI** smoke-fr job on GitHub |

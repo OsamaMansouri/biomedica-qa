@@ -16,8 +16,7 @@ flowchart LR
   PO[PO: title in Jira] --> Card[US/stories/US-xxx.md]
   QA[QA: AC] --> Card
   Card --> Auto[code-first specs]
-  Card --> Manual[manual-testing.md]
-  Card --> Cov[test-coverage.csv]
+  Card --> Cov[test-coverage.csv + catalogs]
   Auto --> PR[npm run qa:smoke:fr]
 ```
 
@@ -39,5 +38,6 @@ flowchart LR
 ## Related
 
 - [`../docs/qa-process.md`](../docs/qa-process.md)
-- [`../docs/manual-testing.md`](../docs/manual-testing.md)
 - [`../docs/spreadsheets/test-coverage.csv`](../docs/spreadsheets/test-coverage.csv)
+- [`../docs/spreadsheets/smoke-catalog.csv`](../docs/spreadsheets/smoke-catalog.csv)
+- [`../docs/spreadsheets/e2e-catalog.csv`](../docs/spreadsheets/e2e-catalog.csv)

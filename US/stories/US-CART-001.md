@@ -24,8 +24,9 @@
 
 | Type | Reference |
 |-------|-----------|
-| Gherkin (AC) | `playwright/bdd/features/smoke/cart.feature; e2e/cart.feature` |
-| Automated | `code-first/smoke/storefront-add-to-cart-drawer.spec.ts; code-first/e2e/cart-*.spec.ts` |
+| Gherkin (AC) | `playwright/bdd/features/smoke/cart.feature`; `playwright/bdd/features/e2e/cart.feature` |
+| Automated | `code-first/smoke/storefront-add-to-cart-drawer.spec.ts`; `storefront-cart-*.spec.ts`; `code-first/e2e/cart-*.spec.ts` |
+| Manual | **Manual_Test_Notes** in [`test-coverage.csv`](../../docs/spreadsheets/test-coverage.csv) |
 
 ## Notes
 

@@ -23,9 +23,9 @@
 
 | Type | Reference |
 |------|-----------|
+| Gherkin (AC) | `playwright/bdd/features/...` — semicolon-separated; `—` if none yet |
 | Automated | `playwright/code-first/...` or — |
-| Manual | [`docs/manual-testing.md`](../docs/manual-testing.md) section or steps below |
-| Gherkin (AC) | `playwright/bdd/features/...` or — |
+| Manual | **Manual_Test_Notes** in `test-coverage.csv` + **Manual_OK** in catalogs — **write and run before automation** |
 
 ## Notes
 
@@ -34,5 +34,6 @@
 **Checklist**
 
 - [ ] Jira AC matches this card
-- [ ] `test-coverage.csv` row updated
+- [ ] **Gherkin_Feature** + **Manual_Test_Notes** filled in `test-coverage.csv`
+- [ ] `test-coverage.csv` **Automated_Playwright** updated (if automated)
 - [ ] `npm run qa:smoke:fr` passes (if automated)

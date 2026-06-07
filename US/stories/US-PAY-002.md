@@ -25,9 +25,9 @@
 
 | Type | Reference |
 |-------|-----------|
-| Gherkin (AC) | `—` |
+| Gherkin (AC) | `—` _(no feature file — manual only)_ |
 | Automated | — |
-| Manual | [`docs/manual-testing.md`](../../docs/manual-testing.md) — CMI card section |
+| Manual | **Manual_Test_Notes** in [`test-coverage.csv`](../../docs/spreadsheets/test-coverage.csv) — CMI sandbox: redirect, success/failure/cancel, no submit loop, no secrets in return URL |
 
 ## Notes
 

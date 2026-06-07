@@ -25,8 +25,9 @@
 
 | Type | Reference |
 |-------|-----------|
-| Gherkin (AC) | `playwright/bdd/features/smoke/checkout.feature; e2e/checkout.feature` |
-| Automated | `code-first/e2e/checkout-*.spec.ts; order-cod-free-shipping.spec.ts` |
+| Gherkin (AC) | `playwright/bdd/features/smoke/checkout.feature`; `playwright/bdd/features/e2e/checkout.feature` |
+| Automated | `code-first/smoke/storefront-checkout-empty.spec.ts`; `code-first/e2e/checkout-*.spec.ts`; `order-cod-free-shipping.spec.ts` |
+| Manual | **Manual_Test_Notes** in [`test-coverage.csv`](../../docs/spreadsheets/test-coverage.csv) |
 
 ## Notes
 

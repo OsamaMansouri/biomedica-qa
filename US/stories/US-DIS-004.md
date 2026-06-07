@@ -24,8 +24,9 @@
 
 | Type | Reference |
 |-------|-----------|
-| Gherkin (AC) | `playwright/bdd/features/smoke/search.feature; e2e/search.feature; e2e/shop.feature` |
-| Automated | `code-first/smoke/storefront-search.spec.ts; code-first/e2e/search-*.spec.ts; shop-sort.spec.ts` |
+| Gherkin (AC) | `playwright/bdd/features/smoke/search.feature`; `playwright/bdd/features/e2e/search.feature`; `playwright/bdd/features/e2e/shop.feature` |
+| Automated | `code-first/smoke/storefront-search.spec.ts`; `code-first/e2e/search-*.spec.ts`; `shop-sort.spec.ts`; `shop-sort-browser-back.spec.ts` |
+| Manual | **Manual_Test_Notes** in [`test-coverage.csv`](../../docs/spreadsheets/test-coverage.csv) |
 
 ## Notes
 

@@ -27,6 +27,7 @@
 |-------|-----------|
 | Gherkin (AC) | `playwright/bdd/features/e2e/checkout.feature` |
 | Automated | `code-first/e2e/order-cod-free-shipping.spec.ts` |
+| Manual | **Manual_Test_Notes** in [`test-coverage.csv`](../../docs/spreadsheets/test-coverage.csv) |
 
 ## Notes
 

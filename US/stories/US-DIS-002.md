@@ -25,8 +25,9 @@
 
 | Type | Reference |
 |-------|-----------|
-| Gherkin (AC) | `playwright/bdd/features/smoke/shop.feature; e2e/shop.feature; e2e/home.feature; e2e/magazine.feature` |
-| Automated | `code-first/smoke/storefront-shop.spec.ts; code-first/e2e/shop-*.spec.ts` |
+| Gherkin (AC) | `playwright/bdd/features/smoke/shop.feature`; `playwright/bdd/features/smoke/magazine.feature`; `playwright/bdd/features/smoke/static-pages.feature`; `playwright/bdd/features/e2e/shop.feature`; `playwright/bdd/features/e2e/home.feature`; `playwright/bdd/features/e2e/magazine.feature` |
+| Automated | `code-first/smoke/storefront-shop.spec.ts`; `storefront-magazine.spec.ts`; `storefront-static-pages.spec.ts`; `code-first/e2e/shop-*.spec.ts`; `home-featured-products.spec.ts`; `magazine-product-funnel.spec.ts` |
+| Manual | **Manual_Test_Notes** in [`test-coverage.csv`](../../docs/spreadsheets/test-coverage.csv) |
 
 ## Notes
 

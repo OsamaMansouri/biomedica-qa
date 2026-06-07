@@ -25,17 +25,7 @@
     "test:ui": "playwright test code-first/e2e --ui",
     "test:headed": "playwright test code-first/e2e --headed",
     "test:debug": "playwright test code-first/e2e --debug",
-    "typecheck": "tsc --noEmit",
-    "test:bdd": "npm run bddgen && playwright test -c playwright.bdd.config.ts",
-    "test:bdd:fr": "npm run bddgen && playwright test -c playwright.bdd.config.ts --project=fr",
-    "test:bdd:en": "npm run bddgen && playwright test -c playwright.bdd.config.ts --project=en",
-    "test:bdd:smoke": "npm run bddgen && playwright test -c playwright.bdd.config.ts --grep @smoke",
-    "test:bdd:smoke:fr": "npm run bddgen && playwright test -c playwright.bdd.config.ts --grep @smoke --project=fr",
-    "test:bdd:smoke:en": "npm run bddgen && playwright test -c playwright.bdd.config.ts --grep @smoke --project=en",
-    "test:bdd:e2e": "npm run bddgen && playwright test -c playwright.bdd.config.ts --grep @e2e",
-    "test:bdd:e2e:fr": "npm run bddgen && playwright test -c playwright.bdd.config.ts --grep @e2e --project=fr",
-    "test:bdd:e2e:en": "npm run bddgen && playwright test -c playwright.bdd.config.ts --grep @e2e --project=en",
-    "bddgen": "bddgen -c playwright.bdd.config.ts"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@playwright/test": "^1.50.1",

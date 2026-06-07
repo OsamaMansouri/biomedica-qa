@@ -18,13 +18,13 @@ CSV files for **coverage mapping** and **execution tracking**. Open in Excel, Go
 | Epic | Epic code |
 | Title | PO-facing title |
 | Priority | P0 / P1 / P2 |
-| Gherkin_Tags | Optional tags from features |
+| Gherkin_Feature | Semicolon-separated paths under `playwright/bdd/features/` (AC source; matches catalogs) |
 | Automated_Playwright | Semicolon-separated paths under `playwright/code-first/` |
-| Manual_Test_Notes | What QA runs by hand when automation is missing or insufficient |
+| Manual_Test_Notes | What QA runs by hand **before or alongside** automation; required before new specs |
 
-**Rule of thumb:** every **P0** row should have at least one column filled. Nothing in CI validates this — it is for your release checklist.
+**Manual-first rule:** for new stories, fill **Manual_Test_Notes** and run on staging **before** adding paths to **Automated_Playwright**.
 
-See also [`../manual-testing.md`](../manual-testing.md) for shared manual scripts.
+**Rule of thumb:** every **P0** row should have **Manual_Test_Notes** and/or **Automated_Playwright** filled. Nothing in CI validates this — it is for your release checklist.
 
 ## smoke-catalog.csv / e2e-catalog.csv
 
@@ -34,11 +34,14 @@ See also [`../manual-testing.md`](../manual-testing.md) for shared manual script
 | Tags | From test title (`@smoke`, `@cart`, …) |
 | Title | Test name |
 | US_ID | Optional link to user story |
-| Gherkin_Feature | Optional `.feature` path |
+| Gherkin_Feature | AC source under `playwright/` (e.g. `bdd/features/smoke/cart.feature`) |
 | Spec_File | Relative to `playwright/` |
 | Run_FR | `npm run test:smoke:fr` or `test:e2e:fr` |
-| Exec_OK | `Y` / `N` after staging run |
-| Exec_Date | ISO date |
+| Manual_OK | `Y` after manual sign-off on staging (before or without automation) |
+| Manual_Date | ISO date of manual sign-off |
+| Exec_OK | `Y` / `N` after first automated sign-off |
+| Exec_Date | ISO date of **first** automated sign-off (when spec was validated) |
+| Last_Exec_Date | ISO date of **most recent** CI/staging run |
 | Notes | Flakes, data deps |
 
 Add a row when you create a new spec.

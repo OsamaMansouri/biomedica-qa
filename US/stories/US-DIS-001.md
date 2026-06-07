@@ -25,8 +25,9 @@
 
 | Type | Reference |
 |-------|-----------|
-| Gherkin (AC) | `playwright/bdd/features/smoke/home.feature; smoke/navigation.feature` |
-| Automated | `code-first/smoke/storefront-home.spec.ts; storefront-navigation.spec.ts` |
+| Gherkin (AC) | `playwright/bdd/features/smoke/home.feature`; `playwright/bdd/features/smoke/navigation.feature`; `playwright/bdd/features/smoke/contact.feature`; `playwright/bdd/features/smoke/static-pages.feature`; `playwright/bdd/features/e2e/contact.feature` |
+| Automated | `code-first/smoke/storefront-home.spec.ts`; `storefront-navigation.spec.ts`; `storefront-contact.spec.ts`; `storefront-static-pages.spec.ts`; `code-first/e2e/contact-form-submit.spec.ts` |
+| Manual | **Manual_Test_Notes** in [`test-coverage.csv`](../../docs/spreadsheets/test-coverage.csv) |
 
 ## Notes
 
