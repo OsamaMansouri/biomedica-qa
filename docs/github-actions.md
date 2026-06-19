@@ -145,11 +145,11 @@ On push-only runs, **e2e-fr** keeps the **last nightly** report until the next *
 |----------|-----|------|----------|
 | **`allure-report-smoke-fr`** | smoke-fr | Always (if tests ran) | Allure HTML zip |
 | **`allure-report-e2e-fr`** | e2e-fr | Nightly | Allure HTML zip |
-| **`test-results-smoke-fr`** / **`test-results-e2e-fr`** | respective job | Failure only | Screenshots, videos, traces |
+| **`test-results-smoke-fr`** / **`test-results-e2e-fr`** | respective job | Failure only | Screenshots, traces (no video in CI) |
 
-Allure includes failed-test screenshots, video, trace links, suite tree, environment (origin, OS, CI).
+Allure includes failed-test screenshots and trace links; video attachments appear for **local** runs only.
 
-Trace / screenshot / video are kept on failure only (`playwright.config.ts`).
+Trace / screenshot on failure in CI and locally; **video** on failure **local only** (`playwright.config.ts`).
 
 All generated HTML lives under **`playwright/reports/`** (gitignored):
 
@@ -182,7 +182,7 @@ npm run clean:reports
 On failure, Playwright keeps:
 
 - **Trace** (timeline, DOM, network) — open from HTML report or `trace.zip` in `test-results/`
-- **Video** (`.webm`) — in `test-results/` for the failed test
+- **Video** (`.webm`) — in `test-results/` for the failed test (**local runs only**; CI sets `video: off`)
 - **Screenshot** — in `test-results/`
 
 **CI:** **`publish-report`** → GitHub Pages; **`allure-report-smoke-fr`** artifact as fallback; **`test-results-smoke-fr`** if failed.

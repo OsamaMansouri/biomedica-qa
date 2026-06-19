@@ -87,7 +87,7 @@ export default defineConfig({
     deviceScaleFactor: process.env.CI ? 1 : 1,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    video: process.env.CI ? "off" : "retain-on-failure",
     launchOptions: {
       args: ["--disable-dev-shm-usage"],
     },
