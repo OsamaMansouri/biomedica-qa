@@ -204,8 +204,11 @@ export function mainNavAriaLabel(targetLocale: Locale): string {
 export type CheckoutStrings = {
   thankYouTitle: string;
   thankYouLead: string;
+  thankYouNoOrder: string;
   validationEmailInvalid: string;
   validationEmailRequired: string;
+  validationPhoneInvalid: string;
+  validationPhoneRequired: string;
   checkoutValidationContact: string;
   placeholders: {
     firstName: string;
@@ -222,8 +225,12 @@ export type CheckoutStrings = {
 const checkoutFr: CheckoutStrings = {
   thankYouTitle: "Paiement confirmé",
   thankYouLead: "Votre commande est confirmée. Nous la préparons maintenant.",
+  thankYouNoOrder:
+    "Aucune commande à afficher. Passez commande ou utilisez le lien reçu par e-mail.",
   validationEmailInvalid: "Saisissez une adresse e-mail valide.",
   validationEmailRequired: "Indiquez votre adresse e-mail.",
+  validationPhoneInvalid: "Saisissez un numéro de téléphone valide.",
+  validationPhoneRequired: "Indiquez votre numéro de téléphone.",
   checkoutValidationContact: "Renseignez le prénom, le nom et l’e-mail.",
   placeholders: {
     firstName: "Prénom",
@@ -240,8 +247,12 @@ const checkoutFr: CheckoutStrings = {
 const checkoutEn: CheckoutStrings = {
   thankYouTitle: "Checkout successful",
   thankYouLead: "Your order is confirmed. We\u2019re preparing it now.",
+  thankYouNoOrder:
+    "No order to display. Place an order or use the link from your confirmation email.",
   validationEmailInvalid: "Enter a valid email address.",
   validationEmailRequired: "Enter your email address.",
+  validationPhoneInvalid: "Enter a valid phone number.",
+  validationPhoneRequired: "Enter your phone number.",
   checkoutValidationContact: "Please enter first name, last name and email.",
   placeholders: {
     firstName: "First name",

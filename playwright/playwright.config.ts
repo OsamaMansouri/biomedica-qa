@@ -81,6 +81,9 @@ export default defineConfig({
     actionTimeout: 15_000,
     navigationTimeout: 60_000,
     headless: !!process.env.CI,
+    extraHTTPHeaders: {
+      "X-Playwright-Test": "1",
+    },
     viewport: process.env.CI
       ? { width: 1280, height: 720 }
       : { width: 1280, height: 720 },

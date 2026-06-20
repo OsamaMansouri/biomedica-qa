@@ -47,4 +47,24 @@ test.describe("E2E: checkout validation", () => {
     await expect(page).toHaveURL(/\/checkout/);
     await expect(page).not.toHaveURL(/thank-you/);
   });
+
+  test("Guest: invalid phone shows inline error on blur @checkout @validation @e2e", async ({
+    page,
+  }, testInfo) => {
+    const copy = checkoutStrings(localeFromProject(testInfo));
+
+    await addDefaultProductFromPdp(page);
+    await openCheckoutFromCart(page);
+
+    await page.getByTestId("qa-checkout-phone").fill("123");
+    await page.getByPlaceholder(copy.placeholders.firstName).click();
+
+    const phoneError = page.getByTestId("qa-field-error-checkout-phone");
+    await expect(phoneError).toBeVisible();
+    await expect(phoneError).toHaveText(copy.validationPhoneInvalid);
+
+    await page.getByTestId("qa-checkout-submit").click();
+    await expect(page).toHaveURL(/\/checkout/);
+    await expect(page).not.toHaveURL(/thank-you/);
+  });
 });

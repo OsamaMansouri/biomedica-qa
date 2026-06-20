@@ -30,3 +30,6 @@ TC-E2E-028,@shop @e2e,Guest: page 2 keeps sort in URL and reloads product grid,b
 TC-E2E-029,@shop @e2e,Guest: Bain category filter and price ascending keep URL params,bdd/features/e2e/shop.feature,code-first/e2e/shop-pagination-state.spec.ts,npm run test:e2e:fr,Y,2026-04-07,Y,2026-04-09,2026-06-06,
 TC-E2E-030,@shop @e2e,Guest: browser back restores shop sort query,bdd/features/e2e/shop.feature,code-first/e2e/shop-sort-browser-back.spec.ts,npm run test:e2e:fr,Y,2026-04-15,Y,2026-04-17,2026-06-06,
 TC-E2E-031,@shop @e2e,Guest: sort ${sort} orders product cards on shop grid,bdd/features/e2e/shop.feature,code-first/e2e/shop-sort.spec.ts,npm run test:e2e:fr,Y,2026-04-15,Y,2026-04-17,2026-06-06,
+TC-E2E-032,@magazine @e2e,Guest: unknown magazine article slug shows not-found page,bdd/features/e2e/magazine.feature,code-first/e2e/magazine-not-found.spec.ts,npm run test:e2e:fr,,,,,
+TC-E2E-033,@checkout @e2e,Guest: thank-you without reference shows no-order state,bdd/features/e2e/checkout.feature,code-first/e2e/thank-you-no-ref.spec.ts,npm run test:e2e:fr,,,,,
+TC-E2E-034,@checkout @validation @e2e,Guest: invalid phone shows inline error on blur,bdd/features/e2e/checkout.feature,code-first/e2e/checkout-validation.spec.ts,npm run test:e2e:fr,,,,,

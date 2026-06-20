@@ -17,7 +17,7 @@ CSV files for **coverage mapping** and **execution tracking**. Open in Excel, Go
 | TC_ID | `TC-MAN-001`, … |
 | Module | Area (Storefront, Panier, Checkout, Paiement, Admin, …) |
 | Cas_manuel_recette | Short manual case title |
-| Type_test | `Sign-off` or `Exploratoire` |
+| Type_test | `Sign-off`, `Exploratory`, or `Negative` — human QA only |
 | Priorite | P0 / P1 / P2 |
 | Prerequis | Environment and data needed |
 | Donnees_test | Test data |
@@ -27,9 +27,11 @@ CSV files for **coverage mapping** and **execution tracking**. Open in Excel, Go
 | Date_execution | ISO date |
 | Executant | Who ran it |
 | Environnement | `staging`, `local`, `CI`, … |
-| Automatise | `Oui`, `Non`, or `Partiel` — Playwright coverage |
+| Automatise | `Yes`, `No`, or `Partial` — Playwright coverage |
 
-**Manual-first rule:** run and sign off in **manual-catalog.csv** before adding or changing Playwright specs for the same flow.
+**Scope:** manual recette, visual/content judgment, real payment/email checks, admin operator flows. **Not here:** Playwright smoke/e2e regressions (see `smoke-catalog.csv` / `e2e-catalog.csv`), CI pipelines, SEO meta/view-source, Lighthouse, DevTools console, URL param edge cases.
+
+**Row order:** customer journey — Storefront → … → Admin. Within each module: Sign-off → Exploratory → Negative. Regenerate with `python scripts/gen-manual-catalog.py`.
 
 ## smoke-catalog.csv / e2e-catalog.csv
 

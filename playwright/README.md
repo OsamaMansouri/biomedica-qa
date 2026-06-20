@@ -37,3 +37,4 @@ cp .env.example .env   # PLAYWRIGHT_ORIGIN=http://localhost:3333
 - On failure locally: **trace + video + screenshot**; in **CI**: **trace + screenshot** only (no video). Open with `npx playwright show-report reports/playwright-html`.
 - One worker by default — set `PLAYWRIGHT_WORKERS=2` in `.env` on a fast machine if needed.
 - VS Code extension may run one project; CLI `npm run qa:e2e` runs **fr + en**.
+- **Google Analytics:** tests send `X-Playwright-Test: 1` so storefront skips GA (no fake “active pages” in GA4 Realtime). GA only loads on `https://biomedica.ma` in production — see `front/src/lib/google-analytics.ts`.
