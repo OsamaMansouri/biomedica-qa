@@ -20,7 +20,7 @@ Local: [`QA/playwright/.env.example`](QA/playwright/.env.example). CI: [`QA/docs
 
 Tags in features (`@cart`, `@smoke`, `@e2e`, …) match tags in code-first test titles for traceability.
 
-Pair cards: [`../US/`](../US/). Process: [`../docs/qa-process.md`](../docs/qa-process.md). Manual sign-off: [`../docs/spreadsheets/test-coverage.csv`](../docs/spreadsheets/test-coverage.csv).
+Process: [`../docs/qa-process.md`](../docs/qa-process.md). Manual sign-off: [`../docs/spreadsheets/manual-catalog.csv`](../docs/spreadsheets/manual-catalog.csv).
 
 ## Setup
 

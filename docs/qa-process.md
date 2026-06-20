@@ -1,24 +1,22 @@
 # QA process (Biomedica)
 
-Standard setup: **automated tests in CI where possible**, **manual checks where automation cannot go**, **Gherkin for acceptance criteria**.
+Standard setup: **automated tests in CI where possible**, **manual checks in `manual-catalog.csv`**, **Gherkin for acceptance criteria**.
 
 ## Principles
 
-1. **PO writes titles; QA writes proof.** Jira stays thin; depth lives in `US/stories/` and optional Gherkin features.
-2. **The real gate is Playwright.** Smoke locally on localhost; **CI runs smoke on `https://biomedica.ma`** (see [`github-actions.md`](github-actions.md)).
-3. **Every story is automated and/or manual.** Track both in `docs/spreadsheets/test-coverage.csv` — no script blocks the pipeline for spreadsheet hygiene.
-4. **Manual before automation (new work).** Write **Manual_Test_Notes** in `test-coverage.csv` and run once on staging **before** adding Playwright specs. Automation encodes what manual already proved.
-5. **FR in CI.** PR gate: `smoke-fr`. Nightly: `smoke-fr` + `e2e-fr`. EN specs — local only. Default: `npm run qa:smoke:fr`.
+1. **Jira for tickets; QA repo for proof.** Depth lives in spreadsheets, Gherkin features, and Playwright specs.
+2. **The real gate is Playwright.** Smoke locally on localhost; **CI runs smoke on Netlify + prod API** (see [`github-actions.md`](github-actions.md)).
+3. **Manual before automation (new work).** Add a row in [`manual-catalog.csv`](spreadsheets/manual-catalog.csv), run on staging, then automate in `code-first/`.
+4. **FR in CI.** PR gate: `smoke-fr`. Nightly: `smoke-fr` + `e2e-fr`. EN specs — local only. Default: `npm run qa:smoke:fr`.
 
 ## Artifact map
 
 ```text
 QA/
-├── US/                          ← Pair backlog (PO title + QA AC)
 ├── docs/
 │   ├── qa-process.md            ← this file
 │   └── spreadsheets/
-│       ├── test-coverage.csv    ← automated + manual per story
+│       ├── manual-catalog.csv   ← manual cases + sign-off
 │       ├── smoke-catalog.csv    ← smoke exec log
 │       └── e2e-catalog.csv      ← e2e exec log
 └── playwright/
@@ -44,20 +42,19 @@ npm run qa:smoke:fr
 npm run qa:e2e:fr
 ```
 
-5. Update `test-coverage.csv` if you added automation or a new manual-only area.
+5. Update **manual-catalog.csv** or smoke/e2e catalogs if you added cases or specs.
 
-### When PO opens a story
+### New feature or flow
 
-1. PO: title in Jira → paste key on [`US/stories/US-xxx.md`](../US/stories/).
-2. QA: write AC (Jira + pair card + optional `bdd/features/`).
-3. QA: add **Manual_Test_Notes** in [`test-coverage.csv`](spreadsheets/test-coverage.csv) → **execute manual once on staging** → mark **Manual_OK** / **Manual_Date** in smoke/e2e catalogs.
-4. QA: automate in `code-first/` when the flow is stable → link paths in **Automated_Playwright**.
-5. Mark **Exec_OK** / **Exec_Date** / **Last_Exec_Date** in catalogs after CI or staging runs.
+1. Add or update a row in [`manual-catalog.csv`](spreadsheets/manual-catalog.csv) (steps, priority, module).
+2. Execute on staging → fill **Resultat_obtenu**, **Date_execution**, **Executant**.
+3. Automate in `code-first/` when stable → set **Automatise** to `Oui` or `Partiel`.
+4. Add catalog row for the spec → mark **Exec_OK** / **Last_Exec_Date** after CI.
 
 ### Release / staging sign-off
 
-1. Run full suite against staging — locally (`.env` with staging URLs) or in CI when variables are set.
-2. Confirm P0 rows in `test-coverage.csv` have **Manual_Test_Notes** signed off (**Manual_OK** in catalogs).
+1. Run full suite against staging — locally (`.env` with staging URLs) or CI.
+2. Walk **P0** rows in **manual-catalog.csv** not yet signed off.
 3. Update **Last_Exec_Date** in smoke/e2e catalogs after the run.
 
 ## What runs in CI
@@ -68,11 +65,11 @@ npm run qa:e2e:fr
 | `smoke-fr` | Every push/PR | Smoke FR on Netlify preview |
 | `smoke-fr` + `e2e-fr` | Nightly 03:00 UTC | Full FR regression (QA Nightly workflow) |
 
-Workflow files: `QA/.github/workflows/qa-ci.yml` + `qa-nightly.yml` — **QA git repo only**, no backend/front jobs.
+Workflow files: `QA/.github/workflows/qa-ci.yml` + `qa-nightly.yml` — **QA git repo only**.
 
 Setup: **[`github-actions.md`](github-actions.md)**.
 
-No CSV gate. No REST Assured job in CI (deferred).
+No CSV gate in CI.
 
 ## Commands
 
@@ -85,11 +82,11 @@ No CSV gate. No REST Assured job in CI (deferred).
 
 ## FAQ
 
-**What counts as “done” for a P0 story?**  
-Manual path documented in **Manual_Test_Notes** and run on staging **or** automated spec(s) passing — ideally **both** (manual first, then automation). Record in `test-coverage.csv` and pair card.
+**What counts as “done” for a P0 flow?**  
+Manual case signed off in **manual-catalog.csv** **and/or** automated spec(s) passing — ideally **both** (manual first, then automation).
 
 **Do we run Gherkin in CI?**  
 No. Features are the AC catalog; execution is code-first only.
 
 **Where do manual tests live?**  
-Per-story **Manual_Test_Notes** in `test-coverage.csv`, pair cards, and **Manual_OK** / **Manual_Date** on catalog rows (smoke + e2e).
+[`manual-catalog.csv`](spreadsheets/manual-catalog.csv) — one row per manual case with full steps.

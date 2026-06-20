@@ -3,8 +3,9 @@
   "product": "Biomedica",
   "paths": {
     "playwrightDir": "playwright",
-    "testCoverageCsv": "docs/spreadsheets/test-coverage.csv",
-    "userStoriesDir": "US/stories"
+    "manualCatalogCsv": "docs/spreadsheets/manual-catalog.csv",
+    "smokeCatalogCsv": "docs/spreadsheets/smoke-catalog.csv",
+    "e2eCatalogCsv": "docs/spreadsheets/e2e-catalog.csv"
   },
   "environments": {
     "local": {

@@ -8,21 +8,18 @@ Tests target the live storefront via Playwright; each app repo keeps its own git
 
 | What | Where | CI |
 |------|--------|-----|
-| **Automated E2E** | `playwright/code-first/` | CI smoke on **biomedica.ma** every PR |
-| **Manual checks** | `test-coverage.csv` + smoke/e2e catalogs | QA sign-off on staging |
-| **Acceptance criteria** | `playwright/bdd/features/` + Jira | Not executed in CI |
-| **User stories** | `US/stories/` | Pair cards (PO title + QA proof) |
-
-**PO:** story title in Jira. **QA:** AC, Playwright automation, manual steps where needed.
+| **Automated E2E** | `playwright/code-first/` | Smoke FR on every PR |
+| **Manual checks** | `docs/spreadsheets/manual-catalog.csv` | QA sign-off on staging |
+| **Acceptance criteria** | `playwright/bdd/features/` | Not executed in CI |
+| **Execution logs** | `smoke-catalog.csv`, `e2e-catalog.csv` | Updated after runs |
 
 ## Layout
 
 ```text
 QA/
-├── US/                  ← Pair backlog
 ├── docs/
 │   ├── qa-process.md
-│   └── spreadsheets/    ← test-coverage, smoke/e2e catalogs
+│   └── spreadsheets/    ← manual, smoke, e2e catalogs
 ├── playwright/
 │   ├── code-first/      ← automation (smoke + e2e)
 │   └── bdd/features/    ← Gherkin AC catalog
