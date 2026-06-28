@@ -210,6 +210,8 @@ export type CheckoutStrings = {
   validationPhoneInvalid: string;
   validationPhoneRequired: string;
   checkoutValidationContact: string;
+  discountPlaceholder: string;
+  discountInvalid: string;
   placeholders: {
     firstName: string;
     lastName: string;
@@ -232,6 +234,8 @@ const checkoutFr: CheckoutStrings = {
   validationPhoneInvalid: "Saisissez un numéro de téléphone valide.",
   validationPhoneRequired: "Indiquez votre numéro de téléphone.",
   checkoutValidationContact: "Renseignez le prénom, le nom et l’e-mail.",
+  discountPlaceholder: "Code promo ou carte cadeau",
+  discountInvalid: "Ce code n’est pas valable pour cette commande.",
   placeholders: {
     firstName: "Prénom",
     lastName: "Nom",
@@ -254,6 +258,8 @@ const checkoutEn: CheckoutStrings = {
   validationPhoneInvalid: "Enter a valid phone number.",
   validationPhoneRequired: "Enter your phone number.",
   checkoutValidationContact: "Please enter first name, last name and email.",
+  discountPlaceholder: "Discount code or gift card",
+  discountInvalid: "That code isn’t valid for this order.",
   placeholders: {
     firstName: "First name",
     lastName: "Last name",

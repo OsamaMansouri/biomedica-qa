@@ -17,6 +17,7 @@ env:
   PLAYWRIGHT_ORIGIN: ${{ vars.PLAYWRIGHT_ORIGIN || 'https://biomedica-test.netlify.app' }}
   PLAYWRIGHT_API_BASE_URL: ${{ vars.PLAYWRIGHT_API_BASE_URL || 'https://api.biomedica.ma' }}
   PLAYWRIGHT_TEST_PRODUCT_SLUG: ${{ vars.PLAYWRIGHT_TEST_PRODUCT_SLUG || 'argan-et-figue-de-barbarie-60ml' }}
+  PLAYWRIGHT_TEST_PROMO_CODE: ${{ vars.PLAYWRIGHT_TEST_PROMO_CODE || 'SAVE10' }}
   PLAYWRIGHT_WORKERS: "1"
 
 jobs:

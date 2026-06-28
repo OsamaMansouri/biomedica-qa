@@ -1,6 +1,5 @@
 import { defineConfig } from "@playwright/test";
 import dotenv from "dotenv";
-import os from "node:os";
 import path from "path";
 
 dotenv.config({ path: path.resolve(__dirname, ".env") });
@@ -48,7 +47,7 @@ function workerCount(): number {
 }
 
 export default defineConfig({
-  testDir: "./code-first",
+  testDir: "./tests",
   outputDir: testResultsDir,
   globalSetup: path.resolve(__dirname, "global-setup.ts"),
   fullyParallel: true,
@@ -67,8 +66,6 @@ export default defineConfig({
         suiteTitle: false,
         environmentInfo: {
           playwright_origin: origin,
-          node_version: process.version,
-          os: `${os.platform()} ${os.release()}`,
           ci: process.env.CI ? "true" : "false",
         },
       },

@@ -5,8 +5,8 @@ Standard setup: **automated tests in CI where possible**, **manual checks in `ma
 ## Principles
 
 1. **Jira for tickets; QA repo for proof.** Depth lives in spreadsheets, Gherkin features, and Playwright specs.
-2. **The real gate is Playwright.** Smoke locally on localhost; **CI runs smoke on Netlify + prod API** (see [`github-actions.md`](github-actions.md)).
-3. **Manual before automation (new work).** Add a row in [`manual-catalog.csv`](spreadsheets/manual-catalog.csv), run on staging, then automate in `code-first/`.
+2. **The real gate is Playwright.** Smoke locally on localhost; **CI runs smoke on Netlify + prod API** (see [`.github/workflows/qa-ci.yml`](../.github/workflows/qa-ci.yml)).
+3. **Manual before automation (new work).** Add a row in [`manual-catalog.csv`](spreadsheets/manual-catalog.csv), run on staging, then automate in `tests/`.
 4. **FR in CI.** PR gate: `smoke-fr`. Nightly: `smoke-fr` + `e2e-fr`. EN specs — local only. Default: `npm run qa:smoke:fr`.
 
 ## Artifact map
@@ -20,8 +20,8 @@ QA/
 │       ├── smoke-catalog.csv    ← smoke exec log
 │       └── e2e-catalog.csv      ← e2e exec log
 └── playwright/
-    ├── code-first/              ← CI automation (smoke + e2e)
-    └── bdd/features/            ← Gherkin AC catalog (not CI)
+    ├── tests/                   ← CI automation (smoke + e2e)
+    └── features/                ← Gherkin AC (not CI)
 ```
 
 ## Daily workflow
@@ -48,7 +48,7 @@ npm run qa:e2e:fr
 
 1. Add or update a row in [`manual-catalog.csv`](spreadsheets/manual-catalog.csv) (steps, priority, module).
 2. Execute on staging → fill **Resultat_obtenu**, **Date_execution**, **Executant**.
-3. Automate in `code-first/` when stable → set **Automatise** to `Oui` or `Partiel`.
+3. Automate in `tests/` when stable → set **Automatise** to `Oui` or `Partiel`.
 4. Add catalog row for the spec → mark **Exec_OK** / **Last_Exec_Date** after CI.
 
 ### Release / staging sign-off
@@ -67,16 +67,16 @@ npm run qa:e2e:fr
 
 Workflow files: `QA/.github/workflows/qa-ci.yml` + `qa-nightly.yml` — **QA git repo only**.
 
-Setup: **[`github-actions.md`](github-actions.md)**.
-
 No CSV gate in CI.
+
+**Promo codes:** manual TC-MAN-045/049/050 in [`manual-catalog.csv`](spreadsheets/manual-catalog.csv); automation TC-SMOKE-040, TC-E2E-035–038.
 
 ## Commands
 
 | Command | Purpose |
 |---------|---------|
-| `npm run qa:smoke:fr` | Fast regression (~39 tests) |
-| `npm run qa:e2e:fr` | Deeper flows (~31 tests) |
+| `npm run qa:smoke:fr` | Fast regression (~40 tests) |
+| `npm run qa:e2e:fr` | Deeper flows (~35 tests) |
 | `npm run qa:typecheck` | Typecheck specs only |
 | `npm run qa:ci:local` | typecheck + smoke FR (app must be up) |
 
@@ -86,7 +86,10 @@ No CSV gate in CI.
 Manual case signed off in **manual-catalog.csv** **and/or** automated spec(s) passing — ideally **both** (manual first, then automation).
 
 **Do we run Gherkin in CI?**  
-No. Features are the AC catalog; execution is code-first only.
+No. `features/` is AC documentation only; execution is Playwright specs in `tests/`.
 
 **Where do manual tests live?**  
 [`manual-catalog.csv`](spreadsheets/manual-catalog.csv) — one row per manual case with full steps.
+
+**Promo automation vs manual?**  
+Manual: TC-MAN-045, 049, 050 in **manual-catalog.csv**. Automated: TC-SMOKE-040, TC-E2E-035–038. Admin promo setup is a prerequisite only.

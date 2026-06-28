@@ -8,9 +8,9 @@ Tests target the live storefront via Playwright; each app repo keeps its own git
 
 | What | Where | CI |
 |------|--------|-----|
-| **Automated E2E** | `playwright/code-first/` | Smoke FR on every PR |
+| **Automated E2E** | `playwright/tests/` | Smoke FR on every PR |
 | **Manual checks** | `docs/spreadsheets/manual-catalog.csv` | QA sign-off on staging |
-| **Acceptance criteria** | `playwright/bdd/features/` | Not executed in CI |
+| **Acceptance criteria** | `playwright/features/` | Gherkin AC — not executed in CI |
 | **Execution logs** | `smoke-catalog.csv`, `e2e-catalog.csv` | Updated after runs |
 
 ## Layout
@@ -21,8 +21,8 @@ QA/
 │   ├── qa-process.md
 │   └── spreadsheets/    ← manual, smoke, e2e catalogs
 ├── playwright/
-│   ├── code-first/      ← automation (smoke + e2e)
-│   └── bdd/features/    ← Gherkin AC catalog
+│   ├── tests/           ← automation (smoke + e2e)
+│   └── features/        ← Gherkin AC catalog (not CI)
 ├── run-ci.mjs           ← local: typecheck + smoke FR
 ├── qa.config.json
 └── package.json
@@ -39,4 +39,4 @@ QA/
 
 **Prerequisites:** storefront on **3333** (`npm run dev` in `front/`). API needed for catalog/checkout tests.
 
-**Docs:** [`docs/qa-process.md`](docs/qa-process.md) · [`docs/github-actions.md`](docs/github-actions.md) · CI: [`qa-ci.yml`](.github/workflows/qa-ci.yml) · Nightly: [`qa-nightly.yml`](.github/workflows/qa-nightly.yml).
+**Docs:** [`docs/qa-process.md`](docs/qa-process.md) · CI: [`qa-ci.yml`](.github/workflows/qa-ci.yml) · Nightly: [`qa-nightly.yml`](.github/workflows/qa-nightly.yml).

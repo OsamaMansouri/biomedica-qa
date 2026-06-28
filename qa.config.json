@@ -28,7 +28,7 @@
     "defaultEnvironment": "production"
   },
   "playwright": {
-    "smokeSpec": "code-first/smoke",
+    "smokeSpec": "tests/smoke",
     "smokeTag": "@smoke",
     "projectsDefault": ["fr", "en"]
   }

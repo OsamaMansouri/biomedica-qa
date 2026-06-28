@@ -14,8 +14,7 @@
   "include": [
     "playwright.config.ts",
     "global-setup.ts",
-    "code-first/**/*.ts",
-    "bdd/**/*.ts"
+    "tests/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

@@ -36,7 +36,7 @@ export default async function globalSetup(): Promise<void> {
     throw new Error(
       `[global-setup] Storefront unreachable (${homeRes.status}): ${home}. ` +
         (process.env.CI
-          ? "Set repository variable PLAYWRIGHT_ORIGIN to your staging URL (https://…, no /fr suffix). See QA/docs/github-actions.md."
+          ? "Set repository variable PLAYWRIGHT_ORIGIN to your staging URL (https://…, no /fr suffix). See QA/.github/workflows/qa-ci.yml."
           : "Start the storefront (`npm run dev` in front/) or set PLAYWRIGHT_ORIGIN in QA/playwright/.env."),
     );
   }

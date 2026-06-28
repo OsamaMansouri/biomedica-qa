@@ -2,23 +2,23 @@
 
 ## Automation (CI)
 
-**Code-first** specs under `code-first/` — classic Playwright tests.
+Playwright specs under `tests/` — smoke and e2e.
 
 | Folder | Command (FR) |
 |--------|----------------|
-| `code-first/smoke/` | `npm run test:smoke:fr` |
-| `code-first/e2e/` | `npm run test:e2e:fr` |
+| `tests/smoke/` | `npm run test:smoke:fr` |
+| `tests/e2e/` | `npm run test:e2e:fr` |
 | Both | `npm run test:ci:fr` |
 
 From repo root: `npm run qa:smoke:fr`, `npm run qa:e2e:fr`.
 
-Local: [`QA/playwright/.env.example`](QA/playwright/.env.example). CI: [`QA/docs/github-actions.md`](QA/docs/github-actions.md).
+Local: [`QA/playwright/.env.example`](QA/playwright/.env.example). CI: [`.github/workflows/qa-ci.yml`](../.github/workflows/qa-ci.yml).
 
 ## Acceptance criteria (not CI)
 
-**`bdd/features/`** — Gherkin scenarios (`smoke/`, `e2e/`). Use as the **AC source** for Jira/Azure; copy or keep in sync with tickets. **Not run in CI** — execution is code-first only.
+**`features/`** — Gherkin scenarios (`smoke/`, `e2e/`). Documentation for Jira/Azure and traceability. **Not run in CI** — execution is `tests/` only.
 
-Tags in features (`@cart`, `@smoke`, `@e2e`, …) match tags in code-first test titles for traceability.
+Tags in features (`@cart`, `@smoke`, `@e2e`, …) match tags in test titles for traceability.
 
 Process: [`../docs/qa-process.md`](../docs/qa-process.md). Manual sign-off: [`../docs/spreadsheets/manual-catalog.csv`](../docs/spreadsheets/manual-catalog.csv).
 
@@ -28,11 +28,21 @@ Process: [`../docs/qa-process.md`](../docs/qa-process.md). Manual sign-off: [`..
 cd QA/playwright
 npm install
 npx playwright install chromium
-cp .env.example .env   # PLAYWRIGHT_ORIGIN=http://localhost:3333
+cp .env.example .env   # PLAYWRIGHT_ORIGIN, PLAYWRIGHT_TEST_PROMO_CODE=SAVE10 for @promo e2e
 ```
+
+Promo automation:
+
+| Command | Covers |
+|---------|--------|
+| `npm run test:smoke:fr -- --grep "@promo"` | TC-SMOKE-040 — promo UI visible/clickable |
+| `npm run test:e2e:fr -- --grep "@promo"` | TC-E2E-035–038 — requires `PLAYWRIGHT_TEST_PROMO_CODE` in admin |
+
+Manual sign-off: **manual-catalog.csv** — TC-MAN-045, 049, 050 (storefront promo only).
 
 ## Notes
 
+- **Allure tags:** `@smoke`, `@e2e`, `@cart`, etc. in test titles are picked up automatically — filter in the report or run `npm run test:smoke:fr -- --grep "@promo"`.
 - Default locale projects: **fr** and **en** (`playwright.config.ts`).
 - On failure locally: **trace + video + screenshot**; in **CI**: **trace + screenshot** only (no video). Open with `npx playwright show-report reports/playwright-html`.
 - One worker by default — set `PLAYWRIGHT_WORKERS=2` in `.env` on a fast machine if needed.
