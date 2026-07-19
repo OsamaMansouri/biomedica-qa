@@ -10,7 +10,9 @@ test.describe("E2E: magazine not found", () => {
   }, testInfo) => {
     const copy = extendedUiStrings(localeFromProject(testInfo));
 
-    await page.goto("articles/this-slug-does-not-exist-qa-e2e", {
+    // Use /magazine while biomedica-test still serves pre-articles front.
+    // After deploy, middleware 301s /magazine → /articles and notFound still applies.
+    await page.goto("magazine/this-slug-does-not-exist-qa-e2e", {
       waitUntil: "domcontentloaded",
     });
     await waitForStorefrontNotLoading(page);
