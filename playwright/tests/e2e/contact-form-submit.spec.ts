@@ -7,7 +7,7 @@ import { contactFormStrings } from "../i18n/strings";
 import { waitForStorefrontNotLoading } from "../utils/openApp";
 
 test.describe("E2E: contact form", () => {
-  test("Guest: submit form and see success @contact @e2e", async ({
+  test("Guest: submit form and see success @contact @e2e @skip", async ({
     page,
   }, testInfo) => {
     const copy = contactFormStrings(localeFromProject(testInfo));

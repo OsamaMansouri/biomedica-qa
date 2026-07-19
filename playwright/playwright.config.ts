@@ -41,7 +41,8 @@ const testResultsDir = path.join(playwrightDir, "test-results");
  */
 function workerCount(): number {
   const fromEnv = Number(process.env.PLAYWRIGHT_WORKERS);
-  if (Number.isFinite(fromEnv) && fromEnv >= 1) return Math.min(32, Math.floor(fromEnv));
+  if (Number.isFinite(fromEnv) && fromEnv >= 1)
+    return Math.min(32, Math.floor(fromEnv));
   // One worker avoids hammering a single `next dev` + Laravel (random EN failures, stuck loader).
   return 1;
 }
@@ -54,10 +55,18 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: workerCount(),
+  /** Real COD / contact email — skip in CI unless PLAYWRIGHT_RUN_SKIP=1 */
+  grepInvert:
+    process.env.CI && process.env.PLAYWRIGHT_RUN_SKIP !== "1"
+      ? /@skip\b/
+      : undefined,
   preserveOutput: "failures-only",
   reporter: [
     ["list"],
-    ["html", { open: "never", outputFolder: path.join(reportsDir, "playwright-html") }],
+    [
+      "html",
+      { open: "never", outputFolder: path.join(reportsDir, "playwright-html") },
+    ],
     [
       "allure-playwright",
       {

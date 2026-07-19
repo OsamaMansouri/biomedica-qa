@@ -1,5 +1,6 @@
 @contact @e2e
 Feature: Contact form submit
+  @skip
   Scenario: Guest: submit contact form and see success
     Given I am on the contact page
     When I submit the contact form with valid data

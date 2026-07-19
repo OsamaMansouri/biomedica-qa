@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+﻿import { test, expect } from "@playwright/test";
 
 import { localeFromProject } from "../i18n/locale";
 import { extendedUiStrings } from "../i18n/strings";
@@ -10,7 +10,7 @@ test.describe("E2E: magazine not found", () => {
   }, testInfo) => {
     const copy = extendedUiStrings(localeFromProject(testInfo));
 
-    await page.goto("magazine/this-slug-does-not-exist-qa-e2e", {
+    await page.goto("articles/this-slug-does-not-exist-qa-e2e", {
       waitUntil: "domcontentloaded",
     });
     await waitForStorefrontNotLoading(page);

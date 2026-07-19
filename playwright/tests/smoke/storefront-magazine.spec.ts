@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+﻿import { test, expect, type Page } from "@playwright/test";
 
 import {
   magazineSmoke,
@@ -17,7 +17,7 @@ async function expectMetaDescription(page: Page) {
 test.describe("smoke: magazine", () => {
   test("Magazine listing loads @magazine @smoke", async ({ page }, testInfo) => {
     const ui = magazineSmoke(testInfo);
-    await page.goto("magazine", { waitUntil: "domcontentloaded" });
+    await page.goto("articles", { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("main")).toBeVisible();
     await expect(
       page.getByRole("heading", { name: ui.listingTitle, level: 1 }),
@@ -28,8 +28,8 @@ test.describe("smoke: magazine", () => {
   test("Magazine listing first article card is clickable @magazine @smoke", async ({
     page,
   }) => {
-    await page.goto("magazine", { waitUntil: "domcontentloaded" });
-    const firstArticle = page.locator("main a[href*='/magazine/']").first();
+    await page.goto("articles", { waitUntil: "domcontentloaded" });
+    const firstArticle = page.locator("main a[href*='/articles/']").first();
     await expect(firstArticle).toBeVisible();
     await expect(firstArticle).toHaveAttribute("href", /\/magazine\//);
   });
@@ -37,7 +37,7 @@ test.describe("smoke: magazine", () => {
   test("Magazine article loads @magazine @smoke", async ({ page }, testInfo) => {
     const ui = magazineSmoke(testInfo);
     const slug = smokeMagazineArticleSlug(testInfo);
-    await page.goto(`magazine/${slug}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`articles/${slug}`, { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("main")).toBeVisible();
     await expect(
       page.getByRole("heading", { name: ui.articleTitle, level: 1 }),
@@ -48,7 +48,7 @@ test.describe("smoke: magazine", () => {
   test("Magazine section hub loads @magazine @smoke", async ({ page }, testInfo) => {
     const ui = magazineSmoke(testInfo);
     const sectionSlug = smokeMagazineSectionSlug();
-    await page.goto(`magazine/${sectionSlug}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`articles/${sectionSlug}`, { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("main")).toBeVisible();
     await expect(
       page.getByRole("heading", { name: ui.sectionLabel, level: 1 }),
@@ -58,7 +58,7 @@ test.describe("smoke: magazine", () => {
 
   test("Magazine topics index loads @magazine @smoke", async ({ page }, testInfo) => {
     const ui = magazineSmoke(testInfo);
-    await page.goto("magazine/topics", { waitUntil: "domcontentloaded" });
+    await page.goto("articles/topics", { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("main")).toBeVisible();
     await expect(
       page.getByRole("heading", { name: ui.topicsIndexTitle, level: 1 }),

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+﻿import { test, expect } from "@playwright/test";
 
 import { localeFromProject } from "../i18n/locale";
 import {
@@ -19,7 +19,7 @@ test.describe("E2E: magazine → PDP funnel", () => {
     const articleSlug = e2eMagazineProductArticleSlug(locale);
     const productSlug = e2eMagazineProductLinkSlug();
 
-    await page.goto(`magazine/${articleSlug}`, {
+    await page.goto(`articles/${articleSlug}`, {
       waitUntil: "domcontentloaded",
     });
     await waitForStorefrontNotLoading(page);

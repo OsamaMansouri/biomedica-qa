@@ -4,11 +4,11 @@
 
 Playwright specs under `tests/` — smoke and e2e.
 
-| Folder | Command (FR) |
-|--------|----------------|
+| Folder         | Command (FR)            |
+| -------------- | ----------------------- |
 | `tests/smoke/` | `npm run test:smoke:fr` |
-| `tests/e2e/` | `npm run test:e2e:fr` |
-| Both | `npm run test:ci:fr` |
+| `tests/e2e/`   | `npm run test:e2e:fr`   |
+| Both           | `npm run test:ci:fr`    |
 
 From repo root: `npm run qa:smoke:fr`, `npm run qa:e2e:fr`.
 
@@ -33,10 +33,10 @@ cp .env.example .env   # PLAYWRIGHT_ORIGIN, PLAYWRIGHT_TEST_PROMO_CODE=SAVE10 fo
 
 Promo automation:
 
-| Command | Covers |
-|---------|--------|
-| `npm run test:smoke:fr -- --grep "@promo"` | TC-SMOKE-040 — promo UI visible/clickable |
-| `npm run test:e2e:fr -- --grep "@promo"` | TC-E2E-035–038 — requires `PLAYWRIGHT_TEST_PROMO_CODE` in admin |
+| Command                                    | Covers                                                          |
+| ------------------------------------------ | --------------------------------------------------------------- |
+| `npm run test:smoke:fr -- --grep "@promo"` | TC-SMOKE-040 — promo UI visible/clickable                       |
+| `npm run test:e2e:fr -- --grep "@promo"`   | TC-E2E-035–038 — requires `PLAYWRIGHT_TEST_PROMO_CODE` in admin |
 
 Manual sign-off: **manual-catalog.csv** — TC-MAN-045, 049, 050 (storefront promo only).
 

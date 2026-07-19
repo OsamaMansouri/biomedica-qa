@@ -82,7 +82,7 @@ test.describe("E2E: checkout promo", () => {
     expect(totalRestored).toBe(totalBefore);
   });
 
-  test("Guest: COD order with promo reaches thank-you with lower total @checkout @promo @checkout-cod @e2e", async ({
+  test("Guest: COD order with promo reaches thank-you with lower total @checkout @promo @checkout-cod @e2e @skip", async ({
     page,
   }, testInfo) => {
     const copy = checkoutCopy(testInfo);

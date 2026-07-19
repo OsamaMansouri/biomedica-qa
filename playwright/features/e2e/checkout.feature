@@ -29,7 +29,7 @@ Feature: Checkout
     Then I see the checkout phone validation error
     And checkout does not reach thank you
 
-  @checkout-cod
+  @checkout-cod @skip
   Scenario: Guest: complete guest COD order from default product
     Given I am on the home page
     When I complete a guest COD order from the default product
@@ -54,7 +54,7 @@ Feature: Checkout
     When I remove the applied promo
     Then the checkout total matches the pre-promo total
 
-  @promo @checkout-cod
+  @promo @checkout-cod @skip
   Scenario: Guest: COD order with promo reaches thank-you
     Given I have a product in checkout with a valid promo applied
     When I complete guest checkout with pay on delivery
