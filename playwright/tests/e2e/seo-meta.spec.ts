@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+﻿import { test, expect, type Page } from "@playwright/test";
 
 import { localeFromProject } from "../i18n/locale";
 import {
@@ -59,9 +59,10 @@ test.describe("E2E: SEO meta tags", () => {
     await expectRobotsMeta(page);
     expect(page.url()).toContain(`/${locale}/product/`);
 
+    // Layout emits Organization/WebSite first; Product is a second ld+json on the PDP.
     const jsonLd = page.locator('script[type="application/ld+json"]');
     await expect(jsonLd.first()).toBeAttached();
-    const ldText = (await jsonLd.first().textContent()) ?? "";
+    const ldText = (await jsonLd.allTextContents()).join("\n");
     expect(ldText).toContain("Product");
   });
 
