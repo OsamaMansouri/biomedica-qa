@@ -55,11 +55,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: workerCount(),
-  /** Real COD / contact email — skip in CI unless PLAYWRIGHT_RUN_SKIP=1 */
-  grepInvert:
-    process.env.CI && process.env.PLAYWRIGHT_RUN_SKIP !== "1"
-      ? /@skip\b/
-      : undefined,
+  // @skip specs soft-skip via skipRealSideEffectsUnlessForced() so they show as Skipped in CI reports.
   preserveOutput: "failures-only",
   reporter: [
     ["list"],

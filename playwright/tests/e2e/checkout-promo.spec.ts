@@ -14,6 +14,7 @@ import {
   selectFirstShippingMethod,
   waitForCheckoutTotalReady,
 } from "../utils/checkoutFlow";
+import { skipRealSideEffectsUnlessForced } from "../utils/skipRealSideEffects";
 
 test.describe("E2E: checkout promo", () => {
   test.describe.configure({ timeout: 180_000 });
@@ -85,6 +86,7 @@ test.describe("E2E: checkout promo", () => {
   test("Guest: COD order with promo reaches thank-you with lower total @checkout @promo @checkout-cod @e2e @skip", async ({
     page,
   }, testInfo) => {
+    skipRealSideEffectsUnlessForced();
     const copy = checkoutCopy(testInfo);
     const promoCode = requireTestPromoCode();
 

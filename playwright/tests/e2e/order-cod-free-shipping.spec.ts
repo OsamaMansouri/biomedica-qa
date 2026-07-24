@@ -11,6 +11,7 @@ import {
   openStorefrontHome,
   waitForStorefrontNotLoading,
 } from "../utils/openApp";
+import { skipRealSideEffectsUnlessForced } from "../utils/skipRealSideEffects";
 
 test.describe("E2E: guest COD order", () => {
   test.describe.configure({ timeout: 180_000 });
@@ -18,6 +19,7 @@ test.describe("E2E: guest COD order", () => {
   test("Guest: home to PDP to cart to ship to pay on delivery to confirmation @checkout @checkout-cod @e2e @skip", async ({
     page,
   }, testInfo) => {
+    skipRealSideEffectsUnlessForced();
     const locale = localeFromProject(testInfo);
     const copy = checkoutStrings(locale);
 

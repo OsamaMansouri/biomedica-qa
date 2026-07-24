@@ -5,11 +5,13 @@ import { contactGuest } from "../data/contactGuest";
 import { localeFromProject } from "../i18n/locale";
 import { contactFormStrings } from "../i18n/strings";
 import { waitForStorefrontNotLoading } from "../utils/openApp";
+import { skipRealSideEffectsUnlessForced } from "../utils/skipRealSideEffects";
 
 test.describe("E2E: contact form", () => {
   test("Guest: submit form and see success @contact @e2e @skip", async ({
     page,
   }, testInfo) => {
+    skipRealSideEffectsUnlessForced();
     const copy = contactFormStrings(localeFromProject(testInfo));
 
     await page.goto("contact", { waitUntil: "domcontentloaded" });
