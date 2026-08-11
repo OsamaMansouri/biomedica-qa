@@ -133,7 +133,7 @@ export function smokeMagazineArticleSlugForLocale(locale: Locale): string {
     : SMOKE_MAGAZINE_ARTICLE_SLUG.fr;
 }
 
-/** Optional smoke override when `/api/posts/sections` lists topics (local seed). */
+/** Default section hub slug when seeded locally (`MagazinePostsSeeder`). */
 export const SMOKE_MAGAZINE_SECTION_SLUG = "gel-douche-corps";
 
 const SMOKE_MAGAZINE_ARTICLE_SLUG = {
@@ -159,18 +159,21 @@ export function smokeMagazineSectionSlug(): string {
 /** FR/EN magazine UI strings for smoke specs (`Magazine` in front/messages). */
 export type MagazineSmoke = {
   listingTitle: string;
+  sectionLabel: string;
   articleTitle: string;
   topicsIndexTitle: string;
 };
 
 const magazineSmokeEn: MagazineSmoke = {
   listingTitle: "Guides, rituals & advice",
+  sectionLabel: "Gel douche & corps",
   articleTitle: "How to choose a shower gel for your skin type",
   topicsIndexTitle: "All topics",
 };
 
 const magazineSmokeFr: MagazineSmoke = {
   listingTitle: "Guides, rituels et conseils",
+  sectionLabel: "Gel douche & corps",
   articleTitle: "Comment choisir un gel douche selon votre peau",
   topicsIndexTitle: "Tous les thèmes",
 };

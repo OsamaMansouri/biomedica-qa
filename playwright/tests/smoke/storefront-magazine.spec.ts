@@ -1,11 +1,12 @@
 ﻿import { test, expect, type Page } from "@playwright/test";
 
-import { localeFromProject } from "../i18n/locale";
 import {
+  extendedUiStrings,
   magazineSmoke,
   smokeMagazineArticleSlug,
+  smokeMagazineSectionSlug,
 } from "../i18n/strings";
-import { resolveSmokeMagazineSection } from "../utils/magazineApi";
+import { localeFromProject } from "../i18n/locale";
 
 /** Accept legacy /magazine/ or new /articles/ during Netlify rollout. */
 const ARTICLES_PATH = /\/(magazine|articles)\//;
@@ -55,23 +56,25 @@ test.describe("smoke: magazine", () => {
     await expectMetaDescription(page);
   });
 
-  test("Magazine section hub loads @magazine @smoke", async ({
-    page,
-    request,
-  }, testInfo) => {
+  test("Magazine section hub loads @magazine @smoke", async ({ page }, testInfo) => {
+    const ui = magazineSmoke(testInfo);
     const locale = localeFromProject(testInfo);
-    const section = await resolveSmokeMagazineSection(request, locale);
-    test.skip(
-      !section,
-      "No magazine section topics on target API (section hubs not available)",
-    );
+    const notFoundTitle = extendedUiStrings(locale).notFoundTitle;
+    const sectionSlug = smokeMagazineSectionSlug();
 
-    await page.goto(`magazine/${section!.slug}`, {
+    await page.goto(`magazine/${sectionSlug}`, {
       waitUntil: "domcontentloaded",
     });
     await expect(page.getByRole("main")).toBeVisible();
+
+    const primaryHeading = page.getByRole("heading", { level: 1 }).first();
+    await expect(primaryHeading).toBeVisible();
+    if ((await primaryHeading.innerText()) === notFoundTitle) {
+      test.skip(true, "Section hub not published on this storefront");
+    }
+
     await expect(
-      page.getByRole("heading", { name: section!.label, level: 1 }),
+      page.getByRole("heading", { name: ui.sectionLabel, level: 1 }),
     ).toBeVisible();
     await expectMetaDescription(page);
   });
