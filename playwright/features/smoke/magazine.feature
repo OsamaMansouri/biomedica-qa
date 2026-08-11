@@ -12,7 +12,7 @@ Feature: Magazine smoke
     Given I open the smoke magazine article page
     Then the magazine article title is visible
 
-  Scenario: Magazine section hub loads
+  Scenario: Magazine section hub loads when API exposes section topics
     Given I open the smoke magazine section hub page
     Then the magazine section title is visible
 
