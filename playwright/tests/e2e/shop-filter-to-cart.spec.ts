@@ -37,7 +37,7 @@ test.describe("E2E: shop → Bain filter → PDP → cart", () => {
     });
 
     const bainByHref = browseNav
-      .locator(`a[href*="category=${E2E_SHOP_BAIN_CATEGORY_SLUG}"]`)
+      .locator(`a[href*="/categories/${E2E_SHOP_BAIN_CATEGORY_SLUG}"]`)
       .first();
     const bainByLabel = browseNav.getByRole("link", {
       name: categoryLabel,
@@ -48,7 +48,7 @@ test.describe("E2E: shop → Bain filter → PDP → cart", () => {
     await expect(bainLink).toBeVisible({ timeout: 15_000 });
     await Promise.all([
       page.waitForURL(
-        new RegExp(`[?&]category=${E2E_SHOP_BAIN_CATEGORY_SLUG}(?:&|$)`),
+        new RegExp(`/categories/${E2E_SHOP_BAIN_CATEGORY_SLUG}(?:/|\\?|$)`),
         { waitUntil: "commit" },
       ),
       bainLink.click(),
@@ -78,7 +78,7 @@ test.describe("E2E: shop → Bain filter → PDP → cart", () => {
     await expect(categoryEyebrow).toHaveText(categoryLabel);
     await expect(categoryEyebrow).toHaveAttribute(
       "href",
-      new RegExp(`category=${E2E_SHOP_BAIN_CATEGORY_SLUG}`),
+      new RegExp(`/categories/${E2E_SHOP_BAIN_CATEGORY_SLUG}`),
     );
 
     await page.getByTestId("qa-pdp-atc-primary").click();

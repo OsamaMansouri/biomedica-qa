@@ -12,21 +12,35 @@ import { firstShopCard, waitForStorefrontNotLoading } from "../utils/openApp";
 test.describe("E2E: shop category deep link", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test("Guest: shop?category=bain loads filtered grid @shop @e2e", async ({
+  test("Guest: /categories/bain loads category hub @shop @e2e", async ({
     page,
   }, testInfo) => {
     const categoryLabel = e2eShopBainCategoryLabel(localeFromProject(testInfo));
 
-    await page.goto(`shop?category=${E2E_SHOP_BAIN_CATEGORY_SLUG}`, {
+    await page.goto(`categories/${E2E_SHOP_BAIN_CATEGORY_SLUG}`, {
       waitUntil: "domcontentloaded",
     });
     await waitForStorefrontNotLoading(page);
 
-    await expect(page).toHaveURL(new RegExp(`category=${E2E_SHOP_BAIN_CATEGORY_SLUG}`));
-    await expect(firstShopCard(page)).toBeVisible({ timeout: 30_000 });
+    await expect(page).toHaveURL(
+      new RegExp(`/categories/${E2E_SHOP_BAIN_CATEGORY_SLUG}`),
+    );
     await expect(
-      page.getByRole("link", { name: categoryLabel, exact: true }).first(),
-    ).toBeVisible();
+      page.getByRole("heading", { level: 1, name: categoryLabel }),
+    ).toBeVisible({ timeout: 30_000 });
+    await expect(firstShopCard(page)).toBeVisible({ timeout: 30_000 });
+  });
+
+  test("Guest: shop?category=bain 301s to /categories/bain @shop @e2e", async ({
+    page,
+  }) => {
+    await page.goto(`shop?category=${E2E_SHOP_BAIN_CATEGORY_SLUG}`, {
+      waitUntil: "domcontentloaded",
+    });
+    await waitForStorefrontNotLoading(page);
+    await expect(page).toHaveURL(
+      new RegExp(`/categories/${E2E_SHOP_BAIN_CATEGORY_SLUG}`),
+    );
   });
 
   test("Guest: shop card add to cart opens cart drawer @shop @cart @e2e", async ({

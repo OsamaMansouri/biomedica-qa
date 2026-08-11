@@ -6,7 +6,7 @@ import { localeFromProject } from "../i18n/locale";
 
 import { productUiStrings, smoke } from "../i18n/strings";
 
-import { defaultProductSlug } from "../utils/cartFlow";
+import { defaultProductSlug, pdpReviewsProductSlug } from "../utils/cartFlow";
 
 import { waitForStorefrontNotLoading } from "../utils/openApp";
 
@@ -68,7 +68,9 @@ test.describe("smoke: PDP", () => {
 
     const product = productUiStrings(localeFromProject(testInfo));
 
-    await page.goto(`product/${defaultProductSlug()}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`product/${pdpReviewsProductSlug()}`, { waitUntil: "domcontentloaded" });
+
+    await waitForStorefrontNotLoading(page);
 
 
 

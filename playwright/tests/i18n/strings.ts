@@ -11,6 +11,9 @@ export const STORE_FRONT_E2E_DEFAULT_PRODUCT_SLUG = "argan-et-figue-de-barbarie"
 /** Fixed OOS fixture PDP (`/fr/product/test-product-out-of-stock`). */
 export const STORE_FRONT_E2E_OOS_PRODUCT_SLUG = "test-product-out-of-stock";
 
+/** PDP with published customer reviews (smoke: reviews anchor + #reviews section). */
+export const STORE_FRONT_E2E_PDP_REVIEWS_PRODUCT_SLUG = "savon-noir-naturelle-250g";
+
 /**
  * Header-search E2E: typed substring (catalog / API hits e.g.
  * `baume-cremeux-a-base-dargan-et-chocolat` in `front/_products_export.json`).
@@ -21,8 +24,9 @@ export const E2E_HEADER_SEARCH_QUERY = "Baume crémeux à base";
 export const E2E_SEARCH_NO_MATCH_QUERY = "zzzznomatchqa999";
 
 /**
- * Shop filter E2E: `…/shop?category=bain` (e.g. /fr/shop?category=bain, /en/shop?category=bain).
- * PDP category above title is a link to `/shop?category=bain` with localized label (Bain / Bath).
+ * Shop filter E2E: `…/categories/bain` (e.g. /fr/categories/bain).
+ * Legacy `…/shop?category=bain` 301s to the category hub.
+ * PDP category above title links to `/categories/bain` with localized label (Bain / Bath).
  */
 export const E2E_SHOP_BAIN_CATEGORY_SLUG = "bain";
 
@@ -328,6 +332,39 @@ const contactFormEn: ContactFormStrings = {
 
 export function contactFormStrings(locale: Locale): ContactFormStrings {
   return locale === "en" ? contactFormEn : contactFormFr;
+}
+
+// --- E2E / smoke: homepage newsletter - `Home` in messages ---
+
+export type NewsletterFormStrings = {
+  title: string;
+  placeholder: string;
+  cta: string;
+  success: string;
+  validationEmailInvalid: string;
+  validationEmailRequired: string;
+};
+
+const newsletterFormFr: NewsletterFormStrings = {
+  title: "Des nouvelles utiles. Pas de spam.",
+  placeholder: "Adresse e-mail",
+  cta: "S’inscrire",
+  success: "Merci, votre inscription est enregistrée.",
+  validationEmailInvalid: "Adresse e-mail invalide.",
+  validationEmailRequired: "Indiquez votre adresse e-mail.",
+};
+
+const newsletterFormEn: NewsletterFormStrings = {
+  title: "Quiet updates. No daily spam.",
+  placeholder: "Email address",
+  cta: "Subscribe",
+  success: "Thank you, your subscription is saved.",
+  validationEmailInvalid: "Invalid email address.",
+  validationEmailRequired: "Enter your email address.",
+};
+
+export function newsletterFormStrings(locale: Locale): NewsletterFormStrings {
+  return locale === "en" ? newsletterFormEn : newsletterFormFr;
 }
 
 // --- E2E / smoke helpers: shop toolbar + filter sheet - `Shop` in messages ---

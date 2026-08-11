@@ -72,12 +72,12 @@ test.describe("E2E: shop pagination and filter state", () => {
       name: shop.browseBy,
     });
     const bainLink = browseNav
-      .locator(`a[href*="category=${E2E_SHOP_BAIN_CATEGORY_SLUG}"]`)
+      .locator(`a[href*="/categories/${E2E_SHOP_BAIN_CATEGORY_SLUG}"]`)
       .first();
     await expect(bainLink).toBeVisible({ timeout: 15_000 });
     await Promise.all([
       page.waitForURL(
-        new RegExp(`[?&]category=${E2E_SHOP_BAIN_CATEGORY_SLUG}(?:&|$)`),
+        new RegExp(`/categories/${E2E_SHOP_BAIN_CATEGORY_SLUG}(?:/|\\?|$)`),
         { waitUntil: "commit" },
       ),
       bainLink.click(),
@@ -91,10 +91,9 @@ test.describe("E2E: shop pagination and filter state", () => {
     await waitForStorefrontNotLoading(page);
 
     await expect(page).toHaveURL(
-      new RegExp(
-        `[?&]category=${E2E_SHOP_BAIN_CATEGORY_SLUG}.*sort=price-asc|sort=price-asc.*category=${E2E_SHOP_BAIN_CATEGORY_SLUG}`,
-      ),
+      new RegExp(`/categories/${E2E_SHOP_BAIN_CATEGORY_SLUG}`),
     );
+    await expect(page).toHaveURL(/sort=price-asc/);
 
     const prices = await readShopCardPricesMad(page);
     expectPricesSorted(prices, "price-asc");

@@ -1,13 +1,20 @@
 import { expect, type Page } from "@playwright/test";
 
 import { SLOW_UI_TIMEOUT_MS } from "../constants";
-import { STORE_FRONT_E2E_DEFAULT_PRODUCT_SLUG } from "../i18n/strings";
+import { STORE_FRONT_E2E_DEFAULT_PRODUCT_SLUG, STORE_FRONT_E2E_PDP_REVIEWS_PRODUCT_SLUG } from "../i18n/strings";
 import { waitForStorefrontNotLoading } from "./openApp";
 
 export function defaultProductSlug(): string {
   return (
     process.env.PLAYWRIGHT_TEST_PRODUCT_SLUG?.trim() ||
     STORE_FRONT_E2E_DEFAULT_PRODUCT_SLUG
+  );
+}
+
+export function pdpReviewsProductSlug(): string {
+  return (
+    process.env.PLAYWRIGHT_TEST_PDP_REVIEWS_PRODUCT_SLUG?.trim() ||
+    STORE_FRONT_E2E_PDP_REVIEWS_PRODUCT_SLUG
   );
 }
 
