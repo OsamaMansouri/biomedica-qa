@@ -8,7 +8,8 @@ runs:
       id: playwright-cache
       with:
         path: ~/.cache/ms-playwright
-        key: playwright-${{ runner.os }}-${{ hashFiles('playwright/package-lock.json') }}
+        # Include OS version so ubuntu-latest→26.04 cache misses don't poison 24.04 jobs.
+        key: playwright-${{ runner.os }}-ubuntu-24.04-${{ hashFiles('playwright/package-lock.json') }}
 
     - name: Install npm dependencies
       shell: bash
